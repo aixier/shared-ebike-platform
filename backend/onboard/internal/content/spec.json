@@ -1,0 +1,63 @@
+{
+  "name": "共享电单车运营商接入规范",
+  "version": "1.0",
+  "publishedAt": "2026-11-19T10:00:00+08:00",
+  "sections": [
+    {
+      "no": "1",
+      "title": "接入方式与凭证",
+      "summary": "运营商只实现 3 项交互加 1 份车辆清单：M-01 开锁、M-02 结束骑行（平台请求运营商），M-03 骑行事件、M-04 车辆清单（运营商请求平台）。运营商自行接入、车联网服务商代接、政府自有车队用同一份规范、同一套验收。联调环境每个品牌一份联调凭证（应用标识加密钥），可在运营商端自助轮换、吊销；吊销后联调请求一律拒绝、不能发起测试。联调环境入口与生产同形状，只是路径前加 /sandbox：M-03 为 POST /sandbox/open/v1/ride-events，M-04 为 POST /sandbox/open/v1/vehicle-lists。"
+    },
+    {
+      "no": "2",
+      "title": "车辆清单（M-04）",
+      "summary": "POST /open/v1/vehicle-lists。每行必填品牌编号 brandId、车号 plateNo、车型 model、桩识别用车辆标识 pileTag；pileTagType 取 RFID、蓝牙、视觉车牌、其他，默认 RFID。一批 1～5000 行，整批校验，全对才入库；有错时 HTTP 400、code=VEHICLE_LIST_INVALID，errors 里逐行给出 row（从 1 起）、field、message，改好后整批重发。同一识别方式内车辆标识全局唯一，车号在一批内不得重复。车辆增减或变更时再次提交，车号已存在的更新车型与车辆标识。联调环境只校验、不入生产清单、不发政府码。",
+      "example": "{\"rows\":[{\"brandId\":\"BR05\",\"plateNo\":\"SM000101\",\"model\":\"示例 S1 电单车\",\"pileTag\":\"E28011A93F07C21B5D4E6A1C\",\"pileTagType\":\"RFID\"}]}"
+    },
+    {
+      "no": "3.1",
+      "title": "开锁（M-01）",
+      "summary": "平台建好订单后 POST {运营商地址}/v1/unlock，带订单号 orderId、车号 plateNo、降级标记 degraded、请求时刻 requestAt，请求头带 Idempotency-Key。运营商 1 秒内同步答复 result=已受理，或 result=拒绝 加 rejectReason（电量不足、车辆故障、车辆被占用、订单不存在、其他）；平台 3 秒超时。开锁结果不在这里答复，走 M-03。同一订单号、同一 Idempotency-Key 重复或延迟到达的请求不得重复开锁，答复与首次一致。degraded=true 时照常开锁，不增加任何交互。",
+      "example": "{\"orderId\":\"OD2026120100001\",\"plateNo\":\"QH000004\",\"degraded\":false,\"requestAt\":\"2026-12-01T12:00:00+08:00\"}"
+    },
+    {
+      "no": "3.2",
+      "title": "开锁结果（M-03）",
+      "summary": "POST /open/v1/ride-events，type=开锁结果，带 eventId、orderId、plateNo、车端发生时刻 occurredAt 与 unlock.result（成功或失败；失败时 failReason 取电量不足、车辆故障、车辆被占用、车辆无响应）。开锁结果须在开锁请求后 30 秒内（以平台参数为准）送达平台；超时平台按开锁失败处理、不计费。车辆确认慢时先同步回\"已受理\"，车辆确认后再报结果，不要等车辆确认后才答复 M-01。超时后才报告开锁成功的，平台立即发 M-02（cause=超时后才报开锁成功），订单 0 元。",
+      "example": "{\"eventId\":\"EVT-TEST-0001\",\"type\":\"开锁结果\",\"orderId\":\"OD2026120100001\",\"plateNo\":\"QH000004\",\"occurredAt\":\"2026-12-01T12:00:00+08:00\",\"unlock\":{\"result\":\"成功\"}}"
+    },
+    {
+      "no": "3.3",
+      "title": "结束骑行（M-02）与锁车（M-03）",
+      "summary": "平台在用户点还车、入桩未锁、超时后才报开锁成功、客服强制结束时 POST {运营商地址}/v1/end-ride，带 orderId、plateNo、cause、requestAt；cause=客服强制结束 时带事由 reason。运营商 1 秒内答复已受理或拒绝，确认车辆已上锁后用 M-03 报锁车：type=锁车，lock 含锁车位置 location、车端在点判定 inStation、骑行时长 durationSec、里程 distanceKm。答复已受理但车辆未上锁、没有锁车报告，视为未完成结束骑行。用户手动锁车也要用 M-03 报告。",
+      "example": "{\"eventId\":\"EVT-TEST-0003\",\"type\":\"锁车\",\"orderId\":\"OD2026120100001\",\"plateNo\":\"QH000004\",\"occurredAt\":\"2026-12-01T12:18:20+08:00\",\"lock\":{\"location\":[104.0657,30.6595],\"inStation\":true,\"durationSec\":1100,\"distanceKm\":3.2}}"
+    },
+    {
+      "no": "3.4",
+      "title": "补报",
+      "summary": "M-03 未收到平台\"已收到\"答复（超时、网络中断、5xx SERVER_BUSY）时，运营商本地保留该事件，在 72 小时补报窗口内（以平台参数为准）重试，eventId 不变、occurredAt 仍是车端发生时刻。平台对同一 eventId 只生效一次，重复到达仍答复 received=true、duplicate=true，收到该答复即可停止重试。",
+      "example": "{\"received\":true,\"eventId\":\"EVT-TEST-0003\",\"receivedAt\":\"2026-12-01T12:28:20+08:00\",\"duplicate\":true}"
+    },
+    {
+      "no": "4",
+      "title": "异常与重复",
+      "summary": "重复或延迟到达的请求不得重复执行：M-01、M-02 以 Idempotency-Key 与订单号去重，M-03 以 eventId 去重。乱序到达时平台以 occurredAt 为准，所以 occurredAt 必须是车端发生时刻，不能填发送时刻。平台失败答复的 HTTP 状态与 code：400 INVALID 报文缺字段或取值不对，改报文后重发；400 VEHICLE_LIST_INVALID 清单有错，改清单后整批重发；401 SIGNATURE_INVALID 签名不一致或应用标识未登记，核对密钥与待签名串；401 TIMESTAMP_EXPIRED 时间戳超出 300 秒，校时后用新时间戳重发；401 NONCE_REPLAYED 随机数重复，换随机数重发；403 CREDENTIAL_DISABLED 凭证已停用，联系平台公司；403 SCOPE_DENIED 车号或品牌不属于这份凭证，核对数据；404 NOT_FOUND 订单号不存在，核对订单号、不要重试；429 RATE_LIMITED 超出限流，退避后重试；5xx SERVER_BUSY 平台暂时不可用，按补报窗口重试。",
+      "example": "{\"code\":\"NONCE_REPLAYED\",\"message\":\"随机数在时间窗内已出现过，请换随机数重发\"}"
+    },
+    {
+      "no": "5",
+      "title": "安全",
+      "summary": "全程 HTTPS。两个方向同一算法、同一把密钥。请求头 X-App-Id、X-Timestamp（Unix 秒）、X-Nonce（16～64 个字符）、X-Signature。待签名串 = 方法 + \"\\n\" + 路径 + \"\\n\" + X-App-Id + \"\\n\" + X-Timestamp + \"\\n\" + X-Nonce + \"\\n\" + 请求体原文 SHA-256（小写十六进制）；路径不含域名与查询串。X-Signature = HMAC-SHA256(密钥, 待签名串)，小写十六进制。接收方校验应用标识已登记且未停用、时间戳与本地相差不超过 300 秒、随机数在时间窗内未出现过、签名一致，任一不满足即拒绝（HTTP 401）。运营商收到平台的 M-01、M-02 也必须这样校验。测试向量：密钥 test-secret-do-not-use-in-production，POST /open/v1/ride-events，X-App-Id APP-TEST-0001，X-Timestamp 1796097600，X-Nonce 8f3c2a1e5b7d4c90，请求体为 3.2 节示例，摘要 6896bff3b2e7339f8a33d310d41a3e55bea806506800839ea25936b87435e914，签名 e6bfa21f86aea8837b30b5c3576054fbabc3d9e373f05c140499af29c018a973。"
+    },
+    {
+      "no": "6",
+      "title": "联调环境与符合性测试",
+      "summary": "联调环境提供模拟车辆、模拟用户、模拟支付（正常、余额不足），不产生真实收费。模拟车辆的车号以 SBX 开头，运营商联调实现须按每辆模拟车辆标注的行为模拟车端：开锁慢的车约 35 秒后才报开锁成功；电量不足的车拒绝开锁或报开锁失败；断网的车其锁车报告首次投递平台会答复 SERVER_BUSY，须按补报规则重发；重复上报的车同一锁车报告发 3 次；入桩不上锁的车须在收到入桩未锁的结束请求后锁车并报告。符合性测试共 18 项，覆盖 M-01～M-04、重复、延迟、补报、降级标记、开锁超时、超时后才报开锁成功、签名错误与重放；可随时自助发起，失败项给出事实原因。"
+    },
+    {
+      "no": "7",
+      "title": "验收与上线",
+      "summary": "符合性测试全部通过后，用平台参数规定数量的真车在联调环境实骑；真车联调的订单与锁车报告全部匹配、开锁结果与答复时限达标，才生成验收报告。验收报告提交接入负责人，接入负责人确认通过后，品牌置为已接入、待启用的政府码启用，车辆可租。上线时运营商关闭自有扫码入口。"
+    }
+  ]
+}

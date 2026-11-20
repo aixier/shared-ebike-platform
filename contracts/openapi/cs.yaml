@@ -1,0 +1,910 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · cs 客服
+  version: 1.0.0
+  description: |
+    工单、对话、订单事实快照、退款提议、强制结束提议、处理动作。
+    本模块不退款、不改订单、不解冻、不注销、不退押：客服确认后分别调 bill、ride、acct、deposit 的 /internal 命令。
+    本模块只返回自己持有的数据；用户姓名与手机号、订单详情、流水由前端另调 acct、ride、bill、pay。
+    金额单位分，时间 RFC 3339。
+    HTTP 状态：INVALID、REASON_REQUIRED 为 400；NOT_LOGGED_IN、ADMIN_NOT_LOGGED_IN 为 401；FORBIDDEN、READONLY、ACCOUNT_DISABLED 为 403；NOT_FOUND 为 404；SERVER_BUSY（下游服务暂时不可用）为 500；其余业务错误码为 409。
+    请求体必须是 UTF-8，否则 400 INVALID（"请求体不是 UTF-8 编码"）。管理端写接口收到只读令牌（readonly=true），或运营商账号所属运营商已退出（订阅 fleet.operator.exited），一律 403 READONLY。
+servers:
+  - url: /
+tags:
+  - name: 用户端
+    description: 骑行用户的客服入口
+  - name: 客服
+    description: 管理端客服与客服主管
+  - name: 公共
+    description: 管理端各岗位共用
+paths:
+  /api/cs/tickets:
+    get:
+      operationId: listMyTickets
+      summary: 我的对话列表
+      description: 当前用户的全部对话，按创建时间新到旧。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.cs.tickets
+      x-requirements: [R-12]
+      x-errors: [NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 对话列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserTicket' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+    post:
+      operationId: openTicket
+      summary: 新建对话
+      description: 带订单号时拷贝一份订单事实快照（调 ride、bill 读事实）；首条留言由客服智能体即时回复，可能附退款提议或强制结束提议。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.cs.open
+      x-requirements: [R-12, R-10, R-13, BR-06, BR-26]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, INVALID, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OpenTicketRequest' }
+      responses:
+        '201':
+          description: 新建的对话，含客服智能体的首条回复
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserTicket' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/cs/tickets/{ticketId}:
+    get:
+      operationId: getMyTicket
+      summary: 对话详情
+      description: 只能看本人的对话，别人的返回 NOT_FOUND。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.cs.ticket
+      x-requirements: [R-12, R-11]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      responses:
+        '200':
+          description: 对话
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserTicket' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/cs/tickets/{ticketId}/messages:
+    post:
+      operationId: sendTicketMessage
+      summary: 继续发消息
+      description: 客服智能体即时回复；已解决的对话收到新消息后回到"处理中"。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.cs.send
+      x-requirements: [R-12, R-10]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TextRequest' }
+      responses:
+        '200':
+          description: 更新后的对话
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserTicket' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/cs/orders/{orderId}/tickets:
+    get:
+      operationId: listMyOrderTickets
+      summary: 我的某一单的对话摘要
+      description: 订单详情页拼装用（原型 api.user.order 返回里的 tickets 部分）。订单不是本人的返回空列表。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.order
+      x-requirements: [R-12]
+      x-errors: [NOT_LOGGED_IN]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: 对话摘要，新到旧
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TicketBrief' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/cs/admin/search:
+    get:
+      operationId: searchUsersAndOrders
+      summary: 用户与订单查询
+      description: |
+        按手机号、手机尾号（至少 4 位数字）、用户编号、订单号、车号查。
+        手机号与尾号经 acct 的"按手机号找用户"得到用户编号；订单号与车号经 ride 的"读订单事实"得到订单与其用户编号。
+        只返回命中的编号与本模块的工单数；用户资料、完整手机号由前端调 acct，订单详情调 ride、bill。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.search
+      x-requirements: [R-12, NFR-11]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 手机号、手机尾号（≥4 位）、用户编号、订单号或车号
+          schema: { type: string, minLength: 1 }
+      responses:
+        '200':
+          description: 命中的用户与订单，各最多 20 条
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/cs/admin/tickets:
+    get:
+      operationId: listTickets
+      summary: 工单列表
+      description: 按创建时间新到旧。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.tickets.list
+      x-requirements: [R-10, R-12, R-13]
+      x-permissions: [order.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      parameters:
+        - name: status
+          in: query
+          description: 工单状态，可多选
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/TicketStatus' }
+        - name: category
+          in: query
+          schema: { $ref: '#/components/schemas/TicketCategory' }
+        - name: userId
+          in: query
+          schema: { type: string }
+        - name: orderId
+          in: query
+          schema: { type: string }
+        - name: assignee
+          in: query
+          description: 接手客服的账号编号
+          schema: { type: string }
+        - name: q
+          in: query
+          description: 工单号、订单号或用户编号，精确匹配
+          schema: { type: string }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 分页工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TicketPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/cs/admin/tickets/{ticketId}:
+    get:
+      operationId: getTicket
+      summary: 工单详情
+      description: 含订单事实快照、退款提议、强制结束提议、处理动作与客服授权额度。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.tickets.get
+      x-requirements: [R-10, R-12, R-13]
+      x-permissions: [order.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, NOT_FOUND, SCOPE_DENIED]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      responses:
+        '200':
+          description: 工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ticket' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/cs/admin/tickets/{ticketId}/reply:
+    post:
+      operationId: replyTicket
+      summary: 客服回复
+      description: 第一次回复即接手工单："待处理"转"处理中"，接手人记为当前账号。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.tickets.reply
+      x-requirements: [R-12]
+      x-permissions: [order.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, INVALID, SCOPE_DENIED]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TextRequest' }
+      responses:
+        '200':
+          description: 更新后的工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ticket' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/cs/admin/tickets/{ticketId}/close:
+    post:
+      operationId: closeTicket
+      summary: 结案
+      description: 事由作为一条客服消息发给用户。已解决的返回 ALREADY_DONE；退款待主管确认的返回 CONFLICT。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.tickets.close
+      x-requirements: [R-12]
+      x-permissions: [order.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, ALREADY_DONE, CONFLICT, INVALID, SCOPE_DENIED]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonRequest' }
+      responses:
+        '200':
+          description: 更新后的工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ticket' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/tickets/{ticketId}/refund/confirm:
+    post:
+      operationId: confirmRefund
+      summary: 确认退款
+      description: |
+        按客服智能体提议的金额（或请求里改后的金额）调 bill 退款，原路退回。
+        金额超出客服授权额度且当前账号没有 refund.confirm.overLimit 时不退款，工单转"待主管确认"，返回 pendingSupervisor=true。
+        原路退回失败时 refund.status 为"失败"，工单回到"处理中"并等用户填写收款账户。
+        只退渠道已收部分，超过可原路退回金额的返回 INVALID。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.refund.confirm
+      x-requirements: [R-10, R-11, BR-06]
+      x-permissions: [refund.confirm]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, ALREADY_DONE, SCOPE_DENIED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmRefundRequest' }
+      responses:
+        '200':
+          description: 已退款，或已转客服主管确认
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConfirmRefundResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/tickets/{ticketId}/refund/approve-over-limit:
+    post:
+      operationId: approveOverLimitRefund
+      summary: 客服主管确认超额退款
+      description: 工单须处于"待主管确认"，否则 CONFLICT。确认后调 bill 退款。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.refund.approveOverLimit
+      x-requirements: [R-10, BR-06]
+      x-permissions: [refund.confirm.overLimit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, CONFLICT, SCOPE_DENIED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonRequest' }
+      responses:
+        '200':
+          description: 退款结果与更新后的工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RefundExecuted' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/tickets/{ticketId}/refund/reject:
+    post:
+      operationId: rejectRefund
+      summary: 驳回退款提议并结案
+      description: 事由作为一条客服消息发给用户。没有退款提议时 CONFLICT；工单待主管确认而当前账号不是客服主管时 OVER_LIMIT_NEEDS_SUPERVISOR。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.refund.reject
+      x-requirements: [R-10, BR-06]
+      x-permissions: [refund.confirm]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, CONFLICT, OVER_LIMIT_NEEDS_SUPERVISOR, INVALID, SCOPE_DENIED]
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonRequest' }
+      responses:
+        '200':
+          description: 更新后的工单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ticket' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/orders/{orderId}/force-end:
+    post:
+      operationId: forceEndOrder
+      summary: 强制结束订单
+      description: |
+        客服确认并写事由后调 ride 强制结束并锁车，按 billedEndAt 计费。
+        billedEndAt 缺省取工单里客服智能体的提议，没有提议取当前时刻；须在开锁之后、现在之前，否则 INVALID。
+        ticketId 缺省取该订单未解决的工单；有工单时工单结案并记处理动作。
+        订单与费用的结果由前端另调 ride、bill 读取。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.forceEnd
+      x-requirements: [R-13]
+      x-permissions: [order.forceEnd]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, NOT_RIDING, SCOPE_DENIED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForceEndRequest' }
+      responses:
+        '200':
+          description: 已强制结束
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ForceEndResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/users/{userId}/unfreeze:
+    post:
+      operationId: unfreezeUser
+      summary: 人工解冻
+      description: 客服写事由后调 acct 人工解冻。账户未冻结时 CONFLICT。带 ticketId 时在该工单记一条"人工解冻"处理动作。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.unfreeze
+      x-requirements: [R-14]
+      x-permissions: [account.unfreeze]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, CONFLICT, INVALID, SCOPE_DENIED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserActionRequest' }
+      responses:
+        '200':
+          description: 已解冻
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UnfreezeResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/users/{userId}/assist-refund-deposit:
+    post:
+      operationId: assistRefundDeposit
+      summary: 协助退押
+      description: 调 deposit 协助退押，规则与用户自助相同。没有可退押金时 NOT_DEPOSIT_USER；有骑行中订单或欠费时 REFUND_BLOCKED（附 blockers）。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.assistRefundDeposit
+      x-requirements: [R-17, BR-23, BR-24, BR-25]
+      x-permissions: [deposit.assist]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, NOT_DEPOSIT_USER, REFUND_BLOCKED, INVALID, SCOPE_DENIED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserActionRequest' }
+      responses:
+        '200':
+          description: 已受理退押
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistRefundDepositResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/users/{userId}/assist-cancel:
+    post:
+      operationId: assistCancelAccount
+      summary: 协助注销
+      description: 调 acct 协助注销，规则与用户自助相同。有待处理事项时 CANCEL_BLOCKED（附 blockers）；已注销的 ALREADY_DONE。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.assistCancel
+      x-requirements: [R-48]
+      x-permissions: [account.cancel.assist]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, CANCEL_BLOCKED, ALREADY_DONE, INVALID, SCOPE_DENIED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserActionRequest' }
+      responses:
+        '200':
+          description: 已注销
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistCancelResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/cs/admin/users/{userId}/tickets:
+    get:
+      operationId: listTicketsByUser
+      summary: 按用户编号查工单
+      description: 客服"用户全貌"页拼装用（原型 api.admin.cs.user 返回里的 tickets 部分），新到旧，不分页。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-12]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 该用户的全部工单
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Ticket' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/cs/admin/orders/{orderId}/tickets:
+    get:
+      operationId: listTicketsByOrder
+      summary: 按订单号查工单
+      description: 管理端订单详情页拼装用（原型 api.admin.orders.get 返回里的 tickets 部分），新到旧，不分页。运营商账号没有这些权限点，看不到工单。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.get
+      x-requirements: [R-12, NFR-11]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: 该订单的全部工单
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Ticket' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/cs/admin/todos:
+    get:
+      operationId: getCsTodos
+      summary: 客服待办计数
+      description: |
+        顶栏待办用，前端与其他模块的待办汇总。登录即可调用，按当前账号的权限点返回：
+        有 refund.confirm 返回 tickets（待处理与处理中的工单）；有 refund.confirm.overLimit 返回 overLimit（待主管确认的退款）；有 order.forceEnd 返回 forceEnd（类别为"订单无法结束"且未解决的工单）。只返回 count 大于 0 的项。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me
+      x-requirements: [R-46, R-10, R-13]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED]
+      responses:
+        '200':
+          description: 待办项
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Todo' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    userAuth: { $ref: './_common.yaml#/components/securitySchemes/userAuth' }
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+  parameters:
+    TicketId:
+      name: ticketId
+      in: path
+      required: true
+      description: 工单号，TK + 日期 + 4 位
+      schema: { type: string, example: TK202612010033 }
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: 订单号
+      schema: { type: string, example: OD2026102613011 }
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: 用户编号
+      schema: { type: string, example: U100004 }
+  schemas:
+    TicketStatus:
+      type: string
+      description: 工单状态：待处理 → 处理中 → 待主管确认 → 已解决
+      enum: [待处理, 处理中, 待主管确认, 已解决]
+    TicketCategory:
+      type: string
+      description: 工单类别，建单时由客服智能体按留言与订单事实判定
+      enum: [费用异议, 调度费异议, 订单无法结束, 开锁失败, 账户冻结, 退押, 注销, 旧押金咨询, 月卡与优惠券, 稍后扣费咨询, 开具发票, 费用咨询]
+    TicketEntry:
+      type: string
+      description: 发起入口
+      enum: [我的订单, 骑行中页, 失败提示页, 押金, 账户, 我的]
+    Message:
+      type: object
+      description: 对话消息
+      required: [from, at, text]
+      properties:
+        from: { type: string, enum: [用户, 客服智能体, 客服], description: 发送方 }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        text: { type: string, description: 消息正文 }
+    OrderFacts:
+      type: object
+      description: 订单事实快照。建单时从 ride、bill 读一次并保存，之后不改；没有金额的订单金额字段为 null
+      required: [orderId]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        startAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 开始计时时刻 }
+        endAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 计费终点时刻；骑行中为 null }
+        billedMinutes: { type: integer, nullable: true, description: 计费分钟数 }
+        distanceKm: { type: number, nullable: true, description: 骑行里程，公里 }
+        receivable: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 应收（骑行费加调度费，抵扣前） }
+        payable: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 应付（月卡与优惠券抵扣后） }
+        netReceived: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 实收净额（已收减已退） }
+        inStation: { type: boolean, nullable: true, description: 是否在站点内还车 }
+        inStationBasis:
+          type: string
+          nullable: true
+          description: 在点判定依据
+          enum: [桩识别, 桩与车端冲突·以桩为准, 无桩站点·车端判定, 桩满·围栏内, 桩故障或离线·车端判定, 车端判定, 站外, null]
+    RefundProposalBrief:
+      type: object
+      description: 用户可见的退款提议摘要
+      required: [amount, kind, decision]
+      properties:
+        amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 提议退款金额；不退款为 0 }
+        kind: { type: string, enum: [全额退款, 部分退款, 不退款], description: 提议类型 }
+        decision: { type: string, enum: [待确认, 已确认, 已驳回, 待主管确认], description: 处理结论 }
+    RefundProposal:
+      type: object
+      description: 退款提议。客服智能体依订单事实快照提出，客服可改金额；人确认前不退款
+      required: [amount, kind, basis, proposedAt, proposedBy, decision, overLimit]
+      properties:
+        amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 提议退款金额；不退款为 0 }
+        kind: { type: string, enum: [全额退款, 部分退款, 不退款], description: 提议类型 }
+        basis: { type: string, description: 依据 }
+        proposedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        proposedBy: { type: string, description: 提议人账号编号；客服智能体为 AC0904，没有提议时客服直接填金额则为该客服 }
+        decision: { type: string, enum: [待确认, 已确认, 已驳回, 待主管确认], description: 处理结论 }
+        decidedBy: { type: string, nullable: true, description: 确认或驳回人的账号编号 }
+        decidedAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 确认或驳回时刻 }
+        overLimit: { type: boolean, description: 金额是否超出客服授权额度 }
+    ForceEndProposal:
+      type: object
+      description: 强制结束提议。客服智能体提议计费终点，客服确认后才执行
+      required: [billedEndAt]
+      properties:
+        billedEndAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 提议的计费终点 }
+        stationId: { type: string, nullable: true, description: 提议的还车站点编号；null 为按车辆当前位置 }
+    ForceEndRecord:
+      type: object
+      description: 已执行的强制结束
+      required: [at, by, reason, billedEndAt]
+      properties:
+        at: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 执行时刻 }
+        by: { type: string, description: 确认客服的账号编号 }
+        reason: { type: string, description: 事由 }
+        billedEndAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 计费终点 }
+    TicketAction:
+      type: object
+      description: 处理动作
+      required: [type, at, by]
+      properties:
+        type: { type: string, enum: [退款, 超额退款确认, 人工转账, 强制结束, 人工解冻], description: 动作类型 }
+        paymentId: { type: string, nullable: true, description: 退款或人工转账的流水号（pay 发号） }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        by: { type: string, description: 操作人账号编号 }
+    UserTicket:
+      type: object
+      description: 用户看到的对话
+      required: [ticketId, category, entry, createdAt, status, messages, awaitingPayee]
+      properties:
+        ticketId: { type: string, description: 工单号 }
+        orderId: { type: string, nullable: true, description: 关联订单号 }
+        category: { $ref: '#/components/schemas/TicketCategory' }
+        entry: { $ref: '#/components/schemas/TicketEntry' }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        status: { $ref: '#/components/schemas/TicketStatus' }
+        closedAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 结案时刻 }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/Message' }
+        refundProposal:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/RefundProposalBrief' }]
+        awaitingPayee: { type: boolean, description: 原路退款失败、等用户填写本人实名收款账户时为 true；页面在对话里放收款账户表单，提交到 pay }
+        refundFailedPaymentId: { type: string, nullable: true, description: 失败的退款流水号，awaitingPayee 为 true 时有值，提交收款账户时带上 }
+    TicketBrief:
+      type: object
+      description: 对话摘要
+      required: [ticketId, category, status, createdAt]
+      properties:
+        ticketId: { type: string, description: 工单号 }
+        category: { $ref: '#/components/schemas/TicketCategory' }
+        status: { $ref: '#/components/schemas/TicketStatus' }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+    Ticket:
+      type: object
+      description: 客服看到的工单。不含用户姓名与手机号（前端按 userId 调 acct）
+      required: [ticketId, userId, category, entry, createdAt, status, messages, actions, awaitingPayee, refundLimit]
+      properties:
+        ticketId: { type: string, description: 工单号 }
+        userId: { type: string, description: 用户编号 }
+        orderId: { type: string, nullable: true, description: 关联订单号 }
+        category: { $ref: '#/components/schemas/TicketCategory' }
+        entry: { $ref: '#/components/schemas/TicketEntry' }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        status: { $ref: '#/components/schemas/TicketStatus' }
+        closedAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 结案时刻 }
+        assignee: { type: string, nullable: true, description: 接手客服的账号编号 }
+        assigneeName: { type: string, nullable: true, description: 接手客服姓名，接手时从登录令牌记下 }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/Message' }
+        facts:
+          nullable: true
+          description: 订单事实快照；没有关联订单为 null
+          allOf: [{ $ref: '#/components/schemas/OrderFacts' }]
+        refundProposal:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/RefundProposal' }]
+        forceEndProposal:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/ForceEndProposal' }]
+        forceEnd:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/ForceEndRecord' }]
+        actions:
+          type: array
+          items: { $ref: '#/components/schemas/TicketAction' }
+        awaitingPayee: { type: boolean, description: 原路退款失败、尚未收到用户收款账户时为 true }
+        refundFailedPaymentId: { type: string, nullable: true, description: 失败的退款流水号 }
+        refundLimit: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 客服授权退款额度（平台参数，现行 2000 分） }
+    TicketPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Ticket' }
+    OpenTicketRequest:
+      type: object
+      required: [entry, text]
+      properties:
+        orderId: { type: string, nullable: true, description: 关联订单号；每单一键联系客服时带上，须是本人的订单 }
+        entry: { $ref: '#/components/schemas/TicketEntry' }
+        text: { type: string, minLength: 1, description: 要咨询的问题 }
+        category:
+          description: 页面预选的类别；客服智能体会按留言重新判定
+          allOf: [{ $ref: '#/components/schemas/TicketCategory' }]
+    TextRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, description: 消息正文 }
+    ReasonRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    UserActionRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        ticketId: { type: string, nullable: true, description: 关联工单号；带上时在该工单记处理动作 }
+    ConfirmRefundRequest:
+      type: object
+      required: [reason]
+      properties:
+        amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 退款金额，须大于 0；缺省取退款提议的金额 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    RefundResult:
+      type: object
+      description: bill 退款命令的结果
+      required: [paymentId, amount, status]
+      properties:
+        paymentId: { type: string, description: 退款流水号（pay 发号） }
+        amount: { $ref: './_common.yaml#/components/schemas/Money' }
+        status: { type: string, enum: [成功, 失败, 结果未知], description: 原路退回结果，与 bill 退款命令的 result 一致；失败时等用户填写收款账户 }
+        failReason: { type: string, nullable: true, description: 失败原因 }
+    ConfirmRefundResult:
+      type: object
+      required: [pendingSupervisor, ticket]
+      properties:
+        pendingSupervisor: { type: boolean, description: true 为超出授权额度、已转客服主管确认，尚未退款 }
+        refund:
+          nullable: true
+          description: 退款结果；pendingSupervisor 为 true 时为 null
+          allOf: [{ $ref: '#/components/schemas/RefundResult' }]
+        ticket: { $ref: '#/components/schemas/Ticket' }
+    RefundExecuted:
+      type: object
+      required: [refund, ticket]
+      properties:
+        refund: { $ref: '#/components/schemas/RefundResult' }
+        ticket: { $ref: '#/components/schemas/Ticket' }
+    ForceEndRequest:
+      type: object
+      required: [reason]
+      properties:
+        billedEndAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 计费终点；缺省取客服智能体的提议 }
+        stationId: { type: string, nullable: true, description: 还车站点编号；缺省取提议，传 null 为按车辆当前位置 }
+        ticketId: { type: string, nullable: true, description: 关联工单号；缺省取该订单未解决的工单 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    ForceEndResult:
+      type: object
+      required: [orderId, forceEnd]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        forceEnd: { $ref: '#/components/schemas/ForceEndRecord' }
+        billedMinutes: { type: integer, nullable: true, description: ride 返回的计费分钟数 }
+        ticket:
+          nullable: true
+          description: 关联并已结案的工单；没有工单为 null
+          allOf: [{ $ref: '#/components/schemas/Ticket' }]
+    UnfreezeResult:
+      type: object
+      required: [ok, userId, accountStatus]
+      properties:
+        ok: { type: boolean }
+        userId: { type: string, description: 用户编号 }
+        accountStatus: { type: string, enum: [正常, 冻结, 已注销], description: acct 返回的解冻后账户状态 }
+    AssistRefundDepositResult:
+      type: object
+      description: deposit 协助退押命令的结果
+      required: [userId, refund]
+      properties:
+        userId: { type: string, description: 用户编号 }
+        refund:
+          type: object
+          required: [appliedAt, expectedAt, amount]
+          properties:
+            appliedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 申请时刻 }
+            stoppedAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 停止开新单的确认时刻 }
+            expectedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 预计到账时刻 }
+            amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 退押金额 }
+            paymentId: { type: string, nullable: true, description: 退押流水号（pay 发号） }
+        text: { type: string, description: 给客服看的一句结果说明 }
+    AssistCancelResult:
+      type: object
+      required: [ok, userId, cancelledAt]
+      properties:
+        ok: { type: boolean }
+        userId: { type: string, description: 用户编号 }
+        cancelledAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 注销时刻 }
+    SearchResult:
+      type: object
+      required: [matchedBy, users, orders]
+      properties:
+        matchedBy: { type: string, enum: [手机号, 手机尾号, 用户编号, 订单号, 车号, 无], description: 查询词被识别成哪一类 }
+        users:
+          type: array
+          description: 命中的用户（含命中订单的用户），最多 20 个
+          items: { $ref: '#/components/schemas/SearchUserHit' }
+        orders:
+          type: array
+          description: 按订单号或车号命中的订单，最多 20 条
+          items: { $ref: '#/components/schemas/SearchOrderHit' }
+    SearchUserHit:
+      type: object
+      required: [userId, ticketCount]
+      properties:
+        userId: { type: string, description: 用户编号 }
+        ticketCount: { type: integer, description: 该用户的工单数 }
+        openTicketCount: { type: integer, description: 未解决的工单数 }
+    SearchOrderHit:
+      type: object
+      required: [orderId, userId, ticketIds]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        userId: { type: string, description: 该订单的用户编号 }
+        ticketIds:
+          type: array
+          description: 该订单的工单号
+          items: { type: string }
+    Todo:
+      type: object
+      required: [key, label, count, menu]
+      properties:
+        key: { type: string, enum: [tickets, overLimit, forceEnd], description: 待办项标识 }
+        label: { type: string, description: 显示名，如"待处理工单""待主管确认的退款""待强制结束的订单" }
+        count: { type: integer, minimum: 1 }
+        menu: { type: string, enum: [退款处理, 强制结束订单], description: 点击后去的菜单 }

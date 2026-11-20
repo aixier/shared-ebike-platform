@@ -1,0 +1,58 @@
+{
+  "version": "0.1.0",
+  "description": "客服智能体工具。每个工具都作用于当前工单（ticketId 由运行时注入，不由模型填写）。金额单位分，时刻 RFC 3339。",
+  "tools": [
+    {
+      "name": "read_ticket",
+      "description": "读订单事实快照、对话、已有提议与客服退款授权额度",
+      "input": { "type": "object", "properties": {}, "additionalProperties": false },
+      "output": { "$ref": "cs.yaml#/components/schemas/Ticket", "note": "字段为 ticketId,userId,orderId,category,entry,status,facts,messages,refundProposal,forceEndProposal,refundLimit" }
+    },
+    {
+      "name": "read_rules",
+      "description": "读客服规则文本与当前授权额度",
+      "input": { "type": "object", "properties": {}, "additionalProperties": false },
+      "output": { "type": "object", "required": ["text", "refundLimit"], "properties": { "text": { "type": "string" }, "refundLimit": { "type": "integer" } } }
+    },
+    {
+      "name": "reply",
+      "description": "在对话里回复用户",
+      "input": { "type": "object", "required": ["text"], "properties": { "text": { "type": "string", "minLength": 1 } }, "additionalProperties": false },
+      "output": { "type": "object", "properties": { "ok": { "type": "boolean" } } }
+    },
+    {
+      "name": "set_category",
+      "description": "按留言与订单事实判定工单类别",
+      "input": {
+        "type": "object", "required": ["category"], "additionalProperties": false,
+        "properties": { "category": { "type": "string", "enum": ["费用异议", "调度费异议", "订单无法结束", "开锁失败", "账户冻结", "退押", "注销", "旧押金咨询", "月卡与优惠券", "稍后扣费咨询", "开具发票", "费用咨询"] } }
+      },
+      "output": { "type": "object", "properties": { "ok": { "type": "boolean" } } }
+    },
+    {
+      "name": "propose_refund",
+      "description": "写退款提议，等客服确认；不退款。金额不超过订单实收净额；不退款时金额为 0",
+      "input": {
+        "type": "object", "required": ["amount", "kind", "basis"], "additionalProperties": false,
+        "properties": {
+          "amount": { "type": "integer", "minimum": 0 },
+          "kind": { "type": "string", "enum": ["全额退款", "部分退款", "不退款"] },
+          "basis": { "type": "string", "minLength": 1, "description": "引用订单事实的一句依据" }
+        }
+      },
+      "output": { "$ref": "cs.yaml#/components/schemas/RefundProposal" }
+    },
+    {
+      "name": "propose_force_end",
+      "description": "写强制结束提议，等客服确认；不结束订单。计费终点须在开锁之后、现在之前",
+      "input": {
+        "type": "object", "required": ["billedEndAt"], "additionalProperties": false,
+        "properties": {
+          "billedEndAt": { "type": "string", "format": "date-time" },
+          "stationId": { "type": ["string", "null"] }
+        }
+      },
+      "output": { "$ref": "cs.yaml#/components/schemas/ForceEndProposal" }
+    }
+  ]
+}

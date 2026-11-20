@@ -1,0 +1,11 @@
+# 各服务专有、且容器里必须给的变量（变量名以各服务 README 的配置表为准）。bike-entrypoint 把它们写进对应 env。
+# 值的写法：普通值原样写入；@secret32b64 = 生成 32 字节随机数的 base64（存 /data/secrets/extra/，重启沿用）；
+#           @dir:<路径> = 建目录（归服务账号）并写入该路径；@pilekey = 桩模拟器设备密钥（/data/secrets/extra/pile-sim.key）。
+# 演示开关（IAM_DEV_SEED_ADMIN 等）不在这里，见 README"环境变量"：由 docker run -e 传入。
+# 模块	变量	值
+opgw	OPGW_SECRET_KEY	@secret32b64
+opgw	OPGW_BASE_URLS	OP01=http://127.0.0.1:18390,OP02=http://127.0.0.1:18390
+enforce	ENFORCE_PHOTO_DIR	@dir:/data/photos
+site	MQTT_ADDR	127.0.0.1:1883
+site	PILE_DEVICES	[{"deviceId":"SIM-CTRL-ST0001","stationId":"ST0001","secret":"@pilekey"}]
+ride	JOURNAL_DIR	@dir:/data/journal

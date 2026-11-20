@@ -1,0 +1,970 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · fleet 车码与接入状态
+  version: 1.0.0
+  description: |
+    运营商、品牌、车联网服务商、车辆、政府码发放、接入状态、暂停可租记录。
+    接入状态迁移只有：未接入→联调中→已接入⇄暂停可租；任一状态→已退出。只有已接入品牌的已启用码可租。
+    运营商岗位的接口只返回本运营商数据，访问他家返回 SCOPE_DENIED；已退出运营商的只读账号写操作返回 READONLY；运营商一旦退出，该运营商范围内的写操作（上传、编辑、移出清单、内部提交清单）一律返回 READONLY，不依赖令牌里的 readonly 何时刷新。
+    车辆清单只含车辆、政府码与桩识别信息（pileTag、pileTagType），不含车辆当前电量与位置，这两项不由本模块提供。
+    开锁成功率不在本模块，由前端另查 ops；品牌现行服务费比例归 rule；站点名由前端另查 site。
+tags:
+  - name: 运营商
+  - name: 主管部门
+  - name: 公共
+  - name: 内部
+paths:
+  /api/fleet/operator/vehicles:
+    get:
+      operationId: listVehicles
+      summary: 车辆清单（运营商）
+      description: 分页车辆，另返回数据范围内的码状态统计。运营商账号只看本家；有 access.view 或 ops.monitor 的平台账号可用 operatorId 指定运营商或不传看全部。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.vehicles.list
+      x-requirements: [R-01, R-41, R-46]
+      x-permissions: [vehicle.view.own, access.view, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, INVALID]
+      parameters:
+        - { name: operatorId, in: query, description: 运营商编号（平台账号用；运营商账号传他家返回 SCOPE_DENIED）, schema: { type: string } }
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string } }
+        - { name: codeStatus, in: query, description: 码状态, schema: { $ref: '#/components/schemas/CodeStatus' } }
+        - { name: status, in: query, description: 车辆当前状态, schema: { $ref: '#/components/schemas/VehicleStatus' } }
+        - { name: q, in: query, description: 车号、政府码、车辆编号或桩识别用车辆标识（包含匹配，不分大小写）, schema: { type: string } }
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { $ref: './_common.yaml#/components/parameters/SortKey' }
+        - { $ref: './_common.yaml#/components/parameters/SortDir' }
+      responses:
+        '200':
+          description: 分页车辆与统计
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VehiclePage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/fleet/operator/vehicles/upload:
+    post:
+      operationId: uploadVehicleList
+      summary: 上传车辆清单（运营商）
+      description: 整批校验，全对才入库并立即发码：已接入（含暂停可租）品牌的码为"已启用"，联调中品牌的码为"待启用"。任一行有错整批拒绝，逐行返回错误。未接入、已退出品牌不能提交车辆。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.vehicles.upload
+      x-requirements: [R-01, R-41, M-04, R-46]
+      x-permissions: [vehicle.edit.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, VEHICLE_LIST_INVALID]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rows]
+              properties:
+                rows:
+                  type: array
+                  minItems: 1
+                  description: 车辆清单行；错误里的 row 从 1 起
+                  items: { $ref: '#/components/schemas/VehicleListRow' }
+      responses:
+        '200':
+          description: 入库结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VehicleListResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/fleet/operator/vehicles/{vehicleId}:
+    patch:
+      operationId: updateVehicle
+      summary: 编辑车辆（运营商）
+      description: 在线编辑车型、桩识别用车辆标识；车辆标识须为 24 位十六进制且不重复。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.vehicles.update
+      x-requirements: [R-41, R-46]
+      x-permissions: [vehicle.edit.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, INVALID, CONFLICT]
+      parameters:
+        - { $ref: '#/components/parameters/VehicleId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                model: { type: string, minLength: 1, description: 车型 }
+                pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+                pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+      responses:
+        '200':
+          description: 更新后的车辆
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vehicle' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/fleet/operator/vehicles/{vehicleId}/remove:
+    post:
+      operationId: removeVehicle
+      summary: 移出车辆清单（运营商）
+      description: 车辆移出清单，政府码随之失效且不复用；车辆记录保留。骑行中的车不能移出（CONFLICT）；码已失效的返回 ALREADY_DONE。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.vehicles.remove
+      x-requirements: [R-01, R-41, R-46]
+      x-permissions: [vehicle.edit.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, CONFLICT, ALREADY_DONE]
+      parameters:
+        - { $ref: '#/components/parameters/VehicleId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 移出后的车辆（码已失效）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vehicle' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/fleet/access/overview:
+    get:
+      operationId: getAccessOverview
+      summary: 接入状态总览（主管部门）
+      description: 按接入状态汇总品牌数与车辆数，并逐品牌给出运营商、车辆与码的分布、可租车数、状态历史、当前暂停记录。运营商账号只返回本运营商。不含开锁成功率（前端另查 ops）。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.access.overview
+      x-requirements: [R-42, BR-35, R-43, R-46]
+      x-permissions: [access.view, access.view.own, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN]
+      responses:
+        '200':
+          description: 接入状态总览
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccessOverview' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/fleet/operators/{operatorId}/exit:
+    post:
+      operationId: setOperatorExit
+      summary: 设置运营商退出（主管部门）
+      description: 按线下结果设置运营商已退出：其品牌全部置已退出、未失效的政府码全部失效；在途订单照常结束。凭证停用与账号转只读由 opgw、onboard、iam 依"运营商已退出"事件处理。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.access.setExit
+      x-requirements: [R-42, BR-35, R-01]
+      x-permissions: [access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, NOT_FOUND, REASON_REQUIRED, ALREADY_DONE]
+      parameters:
+        - { $ref: '#/components/parameters/OperatorId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 退出结果
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [operator, invalidatedCodes]
+                properties:
+                  operator: { $ref: '#/components/schemas/Operator' }
+                  invalidatedCodes: { type: integer, description: 本次失效的政府码数量 }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/fleet/operators:
+    post:
+      operationId: registerOperator
+      summary: 登记运营商（主管部门）
+      description: |
+        主管部门登记一家运营商（或政府自有车队）。编号不传则按 OP + 两位数顺延发放；传了的已存在返回 ALREADY_DONE。
+        代接的运营商须给 providerId（该服务商须已登记）；自行接入不给。登记时间取服务器时间，状态为在营。
+        发 `fleet.operator.registered` 与 `fleet.audit.recorded`。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, R-46]
+      x-permissions: [access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, NOT_FOUND, ALREADY_DONE]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterOperator' }
+      responses:
+        '200':
+          description: 登记后的运营商
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Operator' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+    get:
+      operationId: listOperators
+      summary: 运营商查询
+      description: 各页面下拉与展示用，不分页。运营商账号只返回本运营商。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN]
+      parameters:
+        - { name: status, in: query, description: 运营商状态, schema: { $ref: '#/components/schemas/OperatorStatus' } }
+      responses:
+        '200':
+          description: 运营商
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Operator' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/fleet/operators/{operatorId}:
+    get:
+      operationId: getOperator
+      summary: 运营商详情
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/OperatorId' }
+      responses:
+        '200':
+          description: 运营商
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Operator' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/fleet/brands:
+    post:
+      operationId: registerBrand
+      summary: 登记品牌（主管部门）
+      description: |
+        在已登记且未退出的运营商名下登记品牌，初始接入状态为未接入（状态历史记一条"登记"）。编号不传则按 BR + 两位数顺延发放；传了的已存在返回 ALREADY_DONE。
+        providerId 不传时沿用运营商的代接服务商（自行接入的运营商为空）；传了须是已登记的服务商。platePrefix 为该品牌车牌前缀（两位大写字母），不传则第一次上传车辆清单时按车牌取。
+        发 `fleet.brand.registered` 与 `fleet.audit.recorded`。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, BR-35]
+      x-permissions: [access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, NOT_FOUND, ALREADY_DONE, CONFLICT]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterBrand' }
+      responses:
+        '200':
+          description: 登记后的品牌
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BrandDetail' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+    get:
+      operationId: listBrands
+      summary: 品牌查询
+      description: 各页面下拉与展示用，不分页。运营商账号只返回本运营商的品牌。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, BR-35, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN]
+      parameters:
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string } }
+        - { name: accessStatus, in: query, description: 接入状态, schema: { $ref: '#/components/schemas/AccessStatus' } }
+      responses:
+        '200':
+          description: 品牌
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Brand' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/fleet/brands/{brandId}:
+    get:
+      operationId: getBrand
+      summary: 品牌详情
+      description: 含状态历史与当前暂停记录。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42, BR-35, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/BrandId' }
+      responses:
+        '200':
+          description: 品牌
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BrandDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/fleet/providers:
+    post:
+      operationId: registerProvider
+      summary: 登记车联网服务商（主管部门）
+      description: |
+        登记一家车联网服务商，可同时给出覆盖的运营商（operatorIds）：这些运营商随之变为"车联网服务商代接"。编号不传则按 SP + 两位数顺延发放；传了的已存在返回 ALREADY_DONE。
+        覆盖的运营商须已登记、未退出、且没有被别的服务商覆盖。覆盖有变的每家运营商发 `fleet.operator.registered`；另发 `fleet.audit.recorded`。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42]
+      x-permissions: [access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, NOT_FOUND, ALREADY_DONE, CONFLICT]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterProvider' }
+      responses:
+        '200':
+          description: 登记后的服务商
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Provider' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+    get:
+      operationId: listProviders
+      summary: 车联网服务商查询（主管部门）
+      description: 不分页，含各服务商覆盖的运营商。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42]
+      x-permissions: [access.view, access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN]
+      responses:
+        '200':
+          description: 服务商
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Provider' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/fleet/providers/{providerId}:
+    get:
+      operationId: getProvider
+      summary: 车联网服务商详情（主管部门）
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42]
+      x-permissions: [access.view, access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/ProviderId' }
+      responses:
+        '200':
+          description: 服务商
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Provider' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    put:
+      operationId: updateProvider
+      summary: 更新车联网服务商及其覆盖（主管部门）
+      description: |
+        整体替换名称、联系人与覆盖的运营商。operatorIds 里新增的运营商变为代接，原来覆盖而这次没列的运营商改回自行接入。覆盖有变的每家运营商发 `fleet.operator.registered`；另发 `fleet.audit.recorded`。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42]
+      x-permissions: [access.setExit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, NOT_FOUND, CONFLICT]
+      parameters:
+        - { $ref: '#/components/parameters/ProviderId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterProvider' }
+      responses:
+        '200':
+          description: 更新后的服务商
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Provider' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/fleet/vehicles/{vehicleId}:
+    get:
+      operationId: getVehicle
+      summary: 按车辆编号查车
+      description: 运营商账号只能查本家车辆。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-01, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/VehicleId' }
+      responses:
+        '200':
+          description: 车辆
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vehicle' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/fleet/gov-codes/{govCode}:
+    get:
+      operationId: getVehicleByGovCode
+      summary: 按政府码查车
+      description: 码对得上运营商、品牌、车号；码不存在返回 CODE_NOT_FOUND。已失效的码仍可查到（codeStatus 为"已失效"）。运营商账号只能查本家车辆。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-01, R-46]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SCOPE_DENIED, CODE_NOT_FOUND]
+      parameters:
+        - { name: govCode, in: path, required: true, description: 政府码, schema: { type: string, pattern: '^SF\d{8}$', example: SF86020226 } }
+      responses:
+        '200':
+          description: 车辆
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vehicle' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /internal/fleet/vehicle-lists:
+    post:
+      operationId: submitVehicleListInternal
+      summary: 提交车辆清单（opgw 转交的系统提交）
+      description: 规则同页面上传：整批校验，全对才入库并发码，任一行有错整批拒绝并逐行返回错误。运营商身份由 opgw 验签后在请求体给出。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-01, R-41, M-04]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, READONLY, VEHICLE_LIST_INVALID]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorId, rows, actor]
+              properties:
+                operatorId: { type: string, description: 提交方运营商编号 }
+                rows:
+                  type: array
+                  minItems: 1
+                  description: 新增的车辆清单行；错误里的 row 从 1 起
+                  items: { $ref: '#/components/schemas/VehicleListRow' }
+                actor: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 操作人（系统提交为 kind=系统） }
+      responses:
+        '200':
+          description: 入库结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VehicleListResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/fleet/brands/{brandId}/go-live:
+    post:
+      operationId: goLiveBrandInternal
+      summary: 品牌上线（onboard 验收确认后调用）
+      description: 联调中 → 已接入；该品牌待启用的码全部启用，车辆可租。品牌不在联调中返回 CONFLICT；已是已接入返回 ALREADY_DONE。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-41, R-42, BR-35]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT, ALREADY_DONE]
+      parameters:
+        - { $ref: '#/components/parameters/BrandId' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor, reason]
+              properties:
+                actor: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 确认验收的人 }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 上线结果
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [brand, enabledCodes]
+                properties:
+                  brand: { $ref: '#/components/schemas/Brand' }
+                  enabledCodes: { type: integer, description: 本次启用的政府码数量 }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/fleet/brands/{brandId}/pause:
+    post:
+      operationId: pauseBrandInternal
+      summary: 暂停可租（ops 调用）
+      description: 已接入 → 暂停可租，并记一条暂停可租记录。该不该暂停由 ops 判断，本接口只执行。品牌不是已接入返回 CONFLICT；已是暂停可租返回 ALREADY_DONE。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-43, BR-36, R-42]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT, ALREADY_DONE]
+      parameters:
+        - { $ref: '#/components/parameters/BrandId' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor, metric, reason]
+              properties:
+                actor: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 执行暂停的人或智能体 }
+                metric: { $ref: '#/components/schemas/PauseMetric' }
+                value: { type: number, nullable: true, description: 触发时的指标值（人工暂停为 null）, example: 0.861 }
+                threshold: { type: number, nullable: true, description: 门槛值, example: 0.9 }
+                sustainMinutes: { type: integer, nullable: true, description: 低于门槛的持续分钟数 }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 暂停结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PauseResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/fleet/brands/{brandId}/resume:
+    post:
+      operationId: resumeBrandInternal
+      summary: 恢复可租（ops 调用）
+      description: 暂停可租 → 已接入，并在当前暂停记录上记恢复时刻。品牌不在暂停可租返回 CONFLICT。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-43, BR-36, R-42]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT]
+      parameters:
+        - { $ref: '#/components/parameters/BrandId' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor, reason]
+              properties:
+                actor: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 执行恢复的人或智能体 }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 恢复结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PauseResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/fleet/brands/{brandId}/start-integration:
+    post:
+      operationId: internalStartIntegration
+      summary: 品牌开始联调
+      description: onboard 在该品牌首次发放联调凭证时调用，品牌由"未接入"置为"联调中"。已在联调中或已接入的重复调用直接返回当前状态。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-42]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, INVALID, CONFLICT]
+      parameters:
+        - { name: brandId, in: path, required: true, description: 品牌编号, schema: { type: string } }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor]
+              properties:
+                actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+      responses:
+        '200':
+          description: 当前接入状态
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [brandId, accessStatus, statusSince]
+                properties:
+                  brandId: { type: string }
+                  accessStatus: { type: string, enum: [未接入, 联调中, 已接入, 暂停可租, 已退出] }
+                  statusSince: { $ref: './_common.yaml#/components/schemas/Time' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+  parameters:
+    VehicleId:
+      name: vehicleId
+      in: path
+      required: true
+      description: 车辆编号
+      schema: { type: string, pattern: '^VH\d{6}$', example: VH000001 }
+    OperatorId:
+      name: operatorId
+      in: path
+      required: true
+      description: 运营商编号
+      schema: { type: string, pattern: '^OP\d{2}$', example: OP01 }
+    BrandId:
+      name: brandId
+      in: path
+      required: true
+      description: 品牌编号
+      schema: { type: string, pattern: '^BR\d{2}$', example: BR01 }
+    ProviderId:
+      name: providerId
+      in: path
+      required: true
+      description: 车联网服务商编号
+      schema: { type: string, pattern: '^SP\d{2}$', example: SP01 }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键；/internal 命令必带，重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+  schemas:
+    AccessStatus:
+      type: string
+      enum: [未接入, 联调中, 已接入, 暂停可租, 已退出]
+      description: 品牌接入状态；只是数据，不代表经营许可
+    CodeStatus:
+      type: string
+      enum: [已启用, 待启用, 已失效]
+      description: 政府码状态
+    VehicleStatus:
+      type: string
+      enum: [可用, 骑行中, 低电量, 故障, 离线, 码未启用, 码已失效]
+      description: 车辆当前状态（车端运行状态由接入后的运营商侧写入，本模块不提供电量与位置）
+    OperatorStatus:
+      type: string
+      enum: [在营, 已退出]
+      description: 运营商状态
+    PauseMetric:
+      type: string
+      enum: [开锁成功率, 可用率, 人工]
+      description: 暂停依据
+    Contact:
+      type: object
+      description: 联系人（姓名、手机号已脱敏）
+      properties:
+        name: { type: string, description: 脱敏姓名 }
+        role: { type: string, description: 角色，如"业务负责人" }
+        phone: { type: string, description: 脱敏手机号 }
+    Provider:
+      type: object
+      description: 车联网服务商（代接关系）
+      required: [providerId, name]
+      properties:
+        providerId: { type: string, description: 服务商编号, example: SP01 }
+        name: { type: string, description: 名称 }
+        contact: { $ref: '#/components/schemas/Contact' }
+        operatorIds: { type: array, description: 覆盖的运营商编号（代接关系）, items: { type: string } }
+    RegisterProvider:
+      type: object
+      description: 登记或更新车联网服务商；更新时整体替换
+      required: [name, reason]
+      properties:
+        providerId: { type: string, pattern: '^SP\d{2}$', description: 编号；登记时不传则顺延发放，更新时以路径为准 }
+        name: { type: string, description: 名称 }
+        contact: { $ref: '#/components/schemas/Contact' }
+        operatorIds: { type: array, description: 覆盖的运营商编号, items: { type: string, pattern: '^OP\d{2}$' } }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    RegisterOperator:
+      type: object
+      description: 登记运营商
+      required: [name, shortName, type, reason]
+      properties:
+        operatorId: { type: string, pattern: '^OP\d{2}$', description: 编号；不传则顺延发放 }
+        name: { type: string, description: 全称 }
+        shortName: { type: string, description: 简称 }
+        type: { type: string, enum: [运营商, 政府自有车队] }
+        providerId: { type: string, description: 代接的车联网服务商编号；不给为自行接入 }
+        creditCode: { type: string, description: 统一社会信用代码 }
+        contacts: { type: array, items: { $ref: '#/components/schemas/Contact' } }
+        settlementAccount:
+          type: object
+          properties:
+            bank: { type: string }
+            accountName: { type: string }
+            account: { type: string, description: 脱敏账号 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    RegisterBrand:
+      type: object
+      description: 登记品牌
+      required: [name, operatorId, reason]
+      properties:
+        brandId: { type: string, pattern: '^BR\d{2}$', description: 编号；不传则顺延发放 }
+        name: { type: string, description: 品牌名 }
+        displayName: { type: string, description: 扫码页标题；不传为"【品牌名】车型" }
+        color: { type: string, description: 地图点位颜色 }
+        vehicleType: { type: string, description: 车型大类，默认电单车 }
+        operatorId: { type: string, pattern: '^OP\d{2}$', description: 所属运营商 }
+        providerId: { type: string, pattern: '^SP\d{2}$', description: 车联网服务商；不传沿用运营商的代接服务商 }
+        platePrefix: { type: string, pattern: '^[A-Z]{2}$', description: 车牌前缀 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    Operator:
+      type: object
+      description: 运营商
+      required: [operatorId, name, shortName, type, status, brandIds]
+      properties:
+        operatorId: { type: string, description: 运营商编号, example: OP01 }
+        name: { type: string, description: 全称 }
+        shortName: { type: string, description: 简称 }
+        type: { type: string, enum: [运营商, 政府自有车队], description: 类型 }
+        accessVia: { type: string, enum: [自行接入, 车联网服务商代接], description: 接入方式 }
+        provider: { allOf: [{ $ref: '#/components/schemas/Provider' }], nullable: true, description: 代接的车联网服务商；自行接入为 null }
+        creditCode: { type: string, description: 统一社会信用代码 }
+        joinedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 登记时间 }
+        status: { $ref: '#/components/schemas/OperatorStatus' }
+        exitedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 设置退出的时刻 }
+        contacts: { type: array, description: 联系人, items: { $ref: '#/components/schemas/Contact' } }
+        settlementAccount:
+          type: object
+          nullable: true
+          description: 收款账户（脱敏）
+          properties:
+            bank: { type: string, description: 开户行 }
+            accountName: { type: string, description: 户名 }
+            account: { type: string, description: 脱敏账号 }
+        brandIds: { type: array, description: 旗下品牌编号, items: { type: string } }
+    Brand:
+      type: object
+      description: 品牌
+      required: [brandId, name, operatorId, accessStatus]
+      properties:
+        brandId: { type: string, description: 品牌编号, example: BR01 }
+        name: { type: string, description: 品牌名, example: 青禾 }
+        displayName: { type: string, description: 扫码页标题, example: 【青禾】电单车 }
+        color: { type: string, description: 地图点位颜色, example: '#2E9E5B' }
+        vehicleType: { type: string, description: 车辆类型, example: 电单车 }
+        operatorId: { type: string, description: 运营商编号 }
+        operatorName: { type: string, description: 运营商简称 }
+        accessStatus: { $ref: '#/components/schemas/AccessStatus' }
+        statusSince: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 进入当前接入状态的时刻 }
+        vehicleCount: { type: integer, description: 清单内车辆数 }
+        providerId: { type: string, nullable: true, description: 车联网服务商编号；自行接入为 null }
+        platePrefix: { type: string, description: 车牌前缀；尚未确定为空串 }
+    StatusChange:
+      type: object
+      description: 接入状态历史的一条
+      required: [status, at]
+      properties:
+        status: { $ref: '#/components/schemas/AccessStatus' }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        by: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 操作人 }
+        note: { type: string, nullable: true, description: 说明或事由 }
+    Pause:
+      type: object
+      description: 暂停可租记录
+      required: [pauseId, brandId, pausedAt, metric]
+      properties:
+        pauseId: { type: string, description: 暂停记录编号 }
+        brandId: { type: string, description: 品牌编号 }
+        pausedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        resumedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 恢复可租时刻；仍在暂停为 null }
+        metric: { $ref: '#/components/schemas/PauseMetric' }
+        value: { type: number, nullable: true, description: 触发时的指标值 }
+        threshold: { type: number, nullable: true, description: 门槛值 }
+        sustainMinutes: { type: integer, nullable: true, description: 低于门槛的持续分钟数 }
+        by: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 执行暂停的人或智能体 }
+        resumedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], nullable: true, description: 执行恢复的人或智能体 }
+        note: { type: string, nullable: true, description: 暂停事由 }
+        resumeNote: { type: string, nullable: true, description: 恢复事由 }
+    PauseResult:
+      type: object
+      required: [brand, pause]
+      properties:
+        brand: { $ref: '#/components/schemas/Brand' }
+        pause: { $ref: '#/components/schemas/Pause' }
+    BrandDetail:
+      description: 品牌含状态历史与当前暂停记录
+      allOf:
+        - $ref: '#/components/schemas/Brand'
+        - type: object
+          properties:
+            statusHistory: { type: array, description: 接入状态历史，旧到新, items: { $ref: '#/components/schemas/StatusChange' } }
+            pause: { allOf: [{ $ref: '#/components/schemas/Pause' }], nullable: true, description: 当前未恢复的暂停记录；没有为 null }
+    AccessBrand:
+      description: 接入状态总览里的品牌
+      allOf:
+        - $ref: '#/components/schemas/BrandDetail'
+        - type: object
+          required: [operator, byStatus, byCodeStatus, rentable]
+          properties:
+            operator: { $ref: '#/components/schemas/Operator' }
+            byStatus:
+              type: object
+              description: 按车辆当前状态计数，键为车辆状态
+              additionalProperties: { type: integer }
+              example: { 可用: 420, 骑行中: 31, 低电量: 18 }
+            byCodeStatus:
+              type: object
+              description: 按码状态计数，键为码状态
+              additionalProperties: { type: integer }
+              example: { 已启用: 480 }
+            rentable: { type: integer, description: 当前可租车数 }
+    AccessOverview:
+      type: object
+      required: [summary, brands]
+      properties:
+        summary:
+          type: array
+          description: 五种接入状态各一行
+          items:
+            type: object
+            required: [status, brandCount, vehicleCount]
+            properties:
+              status: { $ref: '#/components/schemas/AccessStatus' }
+              brandCount: { type: integer, description: 品牌数 }
+              vehicleCount: { type: integer, description: 车辆数 }
+        brands: { type: array, items: { $ref: '#/components/schemas/AccessBrand' } }
+    Vehicle:
+      type: object
+      description: 车辆与政府码；一车一码，码不复用
+      required: [vehicleId, brandId, operatorId, plateNo, govCode, pileTag, codeStatus, rentable]
+      properties:
+        vehicleId: { type: string, description: 车辆编号, example: VH000001 }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        operatorId: { type: string, description: 运营商编号 }
+        operatorName: { type: string, description: 运营商简称 }
+        plateNo: { type: string, description: 车号，品牌前缀 2 位字母加 6 位数字, example: QH000001 }
+        govCode: { type: string, description: 政府码, example: SF86020226 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+        vehicleType: { type: string, description: 车辆类型, example: 电单车 }
+        model: { type: string, description: 车型 }
+        listedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 清单提交时间 }
+        codeIssuedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 发码时间 }
+        codeStatus: { $ref: '#/components/schemas/CodeStatus' }
+        codeEnableAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 待启用码的计划启用时刻 }
+        codeInvalidAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 码失效时刻 }
+        status: { $ref: '#/components/schemas/VehicleStatus' }
+        rentable: { type: boolean, description: 是否可租：品牌已接入、码已启用且车辆状态为可用 }
+    VehicleStats:
+      type: object
+      description: 数据范围内（不随筛选与分页变化）的码状态统计
+      required: [total, enabled, pending, invalid]
+      properties:
+        total: { type: integer, description: 车辆总数 }
+        enabled: { type: integer, description: 码已启用 }
+        pending: { type: integer, description: 码待启用 }
+        invalid: { type: integer, description: 码已失效 }
+    VehiclePage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows, stats]
+          properties:
+            rows: { type: array, items: { $ref: '#/components/schemas/Vehicle' } }
+            stats: { $ref: '#/components/schemas/VehicleStats' }
+    VehicleListRow:
+      type: object
+      description: 车辆清单的一行
+      required: [brandId, plateNo, model, pileTag]
+      properties:
+        brandId: { type: string, description: 品牌编号，须属于本运营商且为联调中、已接入或暂停可租 }
+        plateNo: { type: string, pattern: '^[A-Za-z]{2}\d{6}$', description: 车号，2 位字母加 6 位数字，前缀与品牌一致，全平台不重复 }
+        model: { type: string, minLength: 1, description: 车型 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+    VehicleListResult:
+      type: object
+      required: [added, vehicles]
+      properties:
+        added: { type: integer, description: 入库车辆数 }
+        vehicles: { type: array, description: 入库的车辆（含新发的政府码）, items: { $ref: '#/components/schemas/Vehicle' } }

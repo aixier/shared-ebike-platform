@@ -1,0 +1,5337 @@
+{
+ "current": {
+  "degraded": false,
+  "lastDegradeEventId": "OPS-DG-20261127-01",
+  "pausedBrandIds": [
+   "BR02"
+  ],
+  "asOf": "2026-12-01 12:00:00"
+ },
+ "metricsDaily": [
+  {
+   "date": "2026-09-01",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9902,
+   "availability": 0.9343,
+   "rentableVehicles": 448
+  },
+  {
+   "date": "2026-09-01",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9761,
+   "availability": 0.914,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-01",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9876,
+   "availability": 0.9383,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-01",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9564,
+   "availability": 0.8904,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-02",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9887,
+   "availability": 0.9312,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-09-02",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9679,
+   "availability": 0.8967,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-09-02",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.984,
+   "availability": 0.9364,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-02",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9585,
+   "availability": 0.8617,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-09-03",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9918,
+   "availability": 0.9408,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-09-03",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9712,
+   "availability": 0.9098,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-09-03",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9745,
+   "availability": 0.9103,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-09-03",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9638,
+   "availability": 0.8826,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-04",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9864,
+   "availability": 0.938,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-09-04",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9771,
+   "availability": 0.903,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-04",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9815,
+   "availability": 0.9246,
+   "rentableVehicles": 332
+  },
+  {
+   "date": "2026-09-04",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9686,
+   "availability": 0.886,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-05",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9851,
+   "availability": 0.9434,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-09-05",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9752,
+   "availability": 0.8942,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-05",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9755,
+   "availability": 0.9349,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-09-05",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9657,
+   "availability": 0.8827,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-06",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.981,
+   "availability": 0.9446,
+   "rentableVehicles": 453
+  },
+  {
+   "date": "2026-09-06",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9824,
+   "availability": 0.9098,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-09-06",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9767,
+   "availability": 0.9135,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-09-06",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9649,
+   "availability": 0.888,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-07",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9916,
+   "availability": 0.9315,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-09-07",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9672,
+   "availability": 0.8933,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-07",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9775,
+   "availability": 0.9375,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-07",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9644,
+   "availability": 0.8917,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-08",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9827,
+   "availability": 0.9212,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-09-08",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9818,
+   "availability": 0.9024,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-08",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9791,
+   "availability": 0.9146,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-09-08",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9664,
+   "availability": 0.8806,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-09",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9801,
+   "availability": 0.9368,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-09-09",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9824,
+   "availability": 0.9021,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-09",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9784,
+   "availability": 0.9216,
+   "rentableVehicles": 331
+  },
+  {
+   "date": "2026-09-09",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9573,
+   "availability": 0.8685,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-10",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9826,
+   "availability": 0.9402,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-09-10",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.977,
+   "availability": 0.9113,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-09-10",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9787,
+   "availability": 0.9138,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-09-10",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9622,
+   "availability": 0.8859,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-11",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9908,
+   "availability": 0.9182,
+   "rentableVehicles": 440
+  },
+  {
+   "date": "2026-09-11",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9748,
+   "availability": 0.9042,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-11",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.984,
+   "availability": 0.938,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-11",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9612,
+   "availability": 0.8624,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-09-12",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9822,
+   "availability": 0.9217,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-09-12",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.968,
+   "availability": 0.8996,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-09-12",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9885,
+   "availability": 0.9299,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-09-12",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.957,
+   "availability": 0.8908,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-13",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9832,
+   "availability": 0.9242,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-09-13",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9738,
+   "availability": 0.9015,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-13",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9828,
+   "availability": 0.9286,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-09-13",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9565,
+   "availability": 0.8924,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-14",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9869,
+   "availability": 0.9162,
+   "rentableVehicles": 439
+  },
+  {
+   "date": "2026-09-14",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9802,
+   "availability": 0.9181,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-14",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9768,
+   "availability": 0.9373,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-14",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9696,
+   "availability": 0.8776,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-15",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9816,
+   "availability": 0.9219,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-09-15",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9778,
+   "availability": 0.9015,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-15",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9838,
+   "availability": 0.9065,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-09-15",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9665,
+   "availability": 0.872,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-16",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9912,
+   "availability": 0.9259,
+   "rentableVehicles": 444
+  },
+  {
+   "date": "2026-09-16",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9795,
+   "availability": 0.893,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-16",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.975,
+   "availability": 0.9137,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-09-16",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9659,
+   "availability": 0.8762,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-17",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9785,
+   "availability": 0.9378,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-09-17",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9781,
+   "availability": 0.9016,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-17",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9879,
+   "availability": 0.9063,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-09-17",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9692,
+   "availability": 0.8845,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-18",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9867,
+   "availability": 0.9233,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-09-18",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9718,
+   "availability": 0.9049,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-09-18",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9789,
+   "availability": 0.9367,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-18",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9564,
+   "availability": 0.8737,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-19",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9818,
+   "availability": 0.9116,
+   "rentableVehicles": 437
+  },
+  {
+   "date": "2026-09-19",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9807,
+   "availability": 0.9013,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-19",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9788,
+   "availability": 0.9191,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-09-19",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9574,
+   "availability": 0.8876,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-20",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9789,
+   "availability": 0.9222,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-09-20",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9806,
+   "availability": 0.9139,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-20",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9824,
+   "availability": 0.939,
+   "rentableVehicles": 338
+  },
+  {
+   "date": "2026-09-20",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9665,
+   "availability": 0.8862,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-21",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9813,
+   "availability": 0.9127,
+   "rentableVehicles": 438
+  },
+  {
+   "date": "2026-09-21",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.971,
+   "availability": 0.9168,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-21",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9836,
+   "availability": 0.937,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-21",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9656,
+   "availability": 0.8749,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-22",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9791,
+   "availability": 0.9325,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-09-22",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9771,
+   "availability": 0.9139,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-22",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9826,
+   "availability": 0.9298,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-09-22",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9603,
+   "availability": 0.8867,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-23",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9807,
+   "availability": 0.9412,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-09-23",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9748,
+   "availability": 0.9237,
+   "rentableVehicles": 203
+  },
+  {
+   "date": "2026-09-23",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9799,
+   "availability": 0.926,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-09-23",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9633,
+   "availability": 0.8734,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-24",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9791,
+   "availability": 0.9278,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-09-24",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9725,
+   "availability": 0.9165,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-09-24",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9853,
+   "availability": 0.927,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-09-24",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9642,
+   "availability": 0.8636,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-09-25",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9892,
+   "availability": 0.9144,
+   "rentableVehicles": 438
+  },
+  {
+   "date": "2026-09-25",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.8917,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-25",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9857,
+   "availability": 0.9265,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-09-25",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9597,
+   "availability": 0.8813,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-09-26",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9896,
+   "availability": 0.9281,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-09-26",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9739,
+   "availability": 0.8932,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-26",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9898,
+   "availability": 0.9162,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-09-26",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9651,
+   "availability": 0.8914,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-27",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9833,
+   "availability": 0.9146,
+   "rentableVehicles": 439
+  },
+  {
+   "date": "2026-09-27",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9817,
+   "availability": 0.9192,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-09-27",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.983,
+   "availability": 0.9383,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-27",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9695,
+   "availability": 0.8643,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-09-28",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9924,
+   "availability": 0.9239,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-09-28",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9776,
+   "availability": 0.902,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-09-28",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9848,
+   "availability": 0.9259,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-09-28",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9575,
+   "availability": 0.8777,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-09-29",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9925,
+   "availability": 0.9301,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-09-29",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9763,
+   "availability": 0.8911,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-09-29",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9848,
+   "availability": 0.9371,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-09-29",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9649,
+   "availability": 0.8936,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-09-30",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9873,
+   "availability": 0.9208,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-09-30",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9727,
+   "availability": 0.9057,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-09-30",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9863,
+   "availability": 0.94,
+   "rentableVehicles": 338
+  },
+  {
+   "date": "2026-09-30",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9637,
+   "availability": 0.8647,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-01",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.992,
+   "availability": 0.9229,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-10-01",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9766,
+   "availability": 0.8947,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-10-01",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9771,
+   "availability": 0.9381,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-10-01",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.958,
+   "availability": 0.8911,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-10-02",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9818,
+   "availability": 0.9244,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-10-02",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.981,
+   "availability": 0.9126,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-10-02",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.987,
+   "availability": 0.9173,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-10-02",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9661,
+   "availability": 0.8779,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-03",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9912,
+   "availability": 0.9368,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-10-03",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9688,
+   "availability": 0.9241,
+   "rentableVehicles": 203
+  },
+  {
+   "date": "2026-10-03",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9769,
+   "availability": 0.9123,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-10-03",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9642,
+   "availability": 0.8883,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-04",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9801,
+   "availability": 0.9439,
+   "rentableVehicles": 453
+  },
+  {
+   "date": "2026-10-04",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9673,
+   "availability": 0.9062,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-10-04",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9852,
+   "availability": 0.9304,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-10-04",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9556,
+   "availability": 0.8622,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-05",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9898,
+   "availability": 0.9325,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-05",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9809,
+   "availability": 0.9042,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-10-05",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.984,
+   "availability": 0.9359,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-10-05",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9667,
+   "availability": 0.8603,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-06",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.982,
+   "availability": 0.9393,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-10-06",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9758,
+   "availability": 0.9203,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-06",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9799,
+   "availability": 0.9079,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-10-06",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.964,
+   "availability": 0.886,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-07",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9802,
+   "availability": 0.939,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-10-07",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9748,
+   "availability": 0.9142,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-10-07",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9779,
+   "availability": 0.9365,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-10-07",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9571,
+   "availability": 0.8735,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-08",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9805,
+   "availability": 0.9415,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-10-08",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9677,
+   "availability": 0.9197,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-08",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9869,
+   "availability": 0.9178,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-10-08",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9554,
+   "availability": 0.8879,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-09",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.978,
+   "availability": 0.9391,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-10-09",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9791,
+   "availability": 0.9202,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-09",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9204,
+   "rentableVehicles": 331
+  },
+  {
+   "date": "2026-10-09",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9577,
+   "availability": 0.8652,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-10",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9804,
+   "availability": 0.9316,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-10",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9778,
+   "availability": 0.8936,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-10-10",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9827,
+   "availability": 0.9211,
+   "rentableVehicles": 331
+  },
+  {
+   "date": "2026-10-10",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9667,
+   "availability": 0.8692,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-11",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9916,
+   "availability": 0.9396,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-10-11",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9739,
+   "availability": 0.8905,
+   "rentableVehicles": 195
+  },
+  {
+   "date": "2026-10-11",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9893,
+   "availability": 0.9237,
+   "rentableVehicles": 332
+  },
+  {
+   "date": "2026-10-11",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9558,
+   "availability": 0.8847,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-12",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9832,
+   "availability": 0.9138,
+   "rentableVehicles": 438
+  },
+  {
+   "date": "2026-10-12",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9702,
+   "availability": 0.8954,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-10-12",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9831,
+   "availability": 0.9306,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-10-12",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9692,
+   "availability": 0.8846,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-13",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9836,
+   "availability": 0.9294,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-10-13",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9765,
+   "availability": 0.8925,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-10-13",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9747,
+   "availability": 0.9092,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-10-13",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9661,
+   "availability": 0.8938,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-10-14",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.989,
+   "availability": 0.9107,
+   "rentableVehicles": 437
+  },
+  {
+   "date": "2026-10-14",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9806,
+   "availability": 0.909,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-10-14",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9841,
+   "availability": 0.9098,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-10-14",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.962,
+   "availability": 0.8693,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-15",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9912,
+   "availability": 0.9331,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-15",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9698,
+   "availability": 0.8962,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-10-15",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9759,
+   "availability": 0.9147,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-10-15",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9604,
+   "availability": 0.8647,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-16",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9804,
+   "availability": 0.9282,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-10-16",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9796,
+   "availability": 0.9196,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-16",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9838,
+   "availability": 0.9145,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-10-16",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9634,
+   "availability": 0.8674,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-17",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9785,
+   "availability": 0.9271,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-10-17",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9795,
+   "availability": 0.9056,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-10-17",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9871,
+   "availability": 0.9317,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-10-17",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.968,
+   "availability": 0.8771,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-18",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9855,
+   "availability": 0.9388,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-10-18",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9734,
+   "availability": 0.9022,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-10-18",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9744,
+   "availability": 0.9264,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-10-18",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9664,
+   "availability": 0.8883,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-19",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9919,
+   "availability": 0.9264,
+   "rentableVehicles": 444
+  },
+  {
+   "date": "2026-10-19",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9732,
+   "availability": 0.9084,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-10-19",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.987,
+   "availability": 0.9067,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-10-19",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9687,
+   "availability": 0.8799,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-20",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9808,
+   "availability": 0.9316,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-20",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9689,
+   "availability": 0.9116,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-10-20",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9094,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-10-20",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9691,
+   "availability": 0.884,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-21",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9928,
+   "availability": 0.9318,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-21",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9695,
+   "availability": 0.9117,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-10-21",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9788,
+   "availability": 0.9264,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-10-21",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9671,
+   "availability": 0.8892,
+   "rentableVehicles": 80
+  },
+  {
+   "date": "2026-10-22",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.936,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-10-22",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.902,
+   "availability": 0.85,
+   "rentableVehicles": 187
+  },
+  {
+   "date": "2026-10-22",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9872,
+   "availability": 0.9304,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-10-22",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9541,
+   "availability": 0.8827,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-23",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9924,
+   "availability": 0.9429,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-10-23",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9765,
+   "availability": 0.9106,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-10-23",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9744,
+   "availability": 0.9136,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-10-23",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9603,
+   "availability": 0.8724,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-24",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9864,
+   "availability": 0.9292,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-10-24",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9718,
+   "availability": 0.9174,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-10-24",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9866,
+   "availability": 0.9208,
+   "rentableVehicles": 331
+  },
+  {
+   "date": "2026-10-24",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9632,
+   "availability": 0.8744,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-25",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9837,
+   "availability": 0.9164,
+   "rentableVehicles": 439
+  },
+  {
+   "date": "2026-10-25",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9733,
+   "availability": 0.8926,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-10-25",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9872,
+   "availability": 0.9377,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-10-25",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9585,
+   "availability": 0.8631,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-26",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.984,
+   "availability": 0.9199,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-10-26",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9823,
+   "availability": 0.9158,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-10-26",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.982,
+   "availability": 0.9311,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-10-26",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9574,
+   "availability": 0.8718,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-10-27",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9793,
+   "availability": 0.9107,
+   "rentableVehicles": 437
+  },
+  {
+   "date": "2026-10-27",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9705,
+   "availability": 0.9227,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-27",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.989,
+   "availability": 0.9341,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-10-27",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9549,
+   "availability": 0.8616,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-10-28",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9812,
+   "availability": 0.9427,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-10-28",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9689,
+   "availability": 0.8986,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-10-28",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9812,
+   "availability": 0.9069,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-10-28",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9638,
+   "availability": 0.8814,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-29",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9329,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-10-29",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9711,
+   "availability": 0.9204,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-10-29",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9793,
+   "availability": 0.9298,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-10-29",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.966,
+   "availability": 0.8884,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-30",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9852,
+   "availability": 0.9431,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-10-30",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9747,
+   "availability": 0.9241,
+   "rentableVehicles": 203
+  },
+  {
+   "date": "2026-10-30",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9798,
+   "availability": 0.9123,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-10-30",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9574,
+   "availability": 0.8815,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-10-31",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9877,
+   "availability": 0.9243,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-10-31",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9784,
+   "availability": 0.9029,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-10-31",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.981,
+   "availability": 0.9336,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-10-31",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.955,
+   "availability": 0.8769,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-01",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9782,
+   "availability": 0.9386,
+   "rentableVehicles": 450
+  },
+  {
+   "date": "2026-11-01",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9815,
+   "availability": 0.8976,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-11-01",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9854,
+   "availability": 0.9099,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-11-01",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9583,
+   "availability": 0.8703,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-02",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9893,
+   "availability": 0.9437,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-11-02",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9738,
+   "availability": 0.8932,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-11-02",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9899,
+   "availability": 0.9336,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-11-02",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.957,
+   "availability": 0.8647,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-11-03",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9199,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-03",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9673,
+   "availability": 0.9221,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-03",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9764,
+   "availability": 0.9292,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-11-03",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9659,
+   "availability": 0.8745,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-04",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9815,
+   "availability": 0.9429,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-11-04",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.973,
+   "availability": 0.9205,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-04",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9765,
+   "availability": 0.9347,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-11-04",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9644,
+   "availability": 0.885,
+   "rentableVehicles": 79
+  },
+  {
+   "date": "2026-11-05",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9902,
+   "availability": 0.9221,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-11-05",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9738,
+   "availability": 0.9129,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-11-05",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9771,
+   "availability": 0.9304,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-11-05",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9592,
+   "availability": 0.8587,
+   "rentableVehicles": 77
+  },
+  {
+   "date": "2026-11-06",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9817,
+   "availability": 0.9342,
+   "rentableVehicles": 448
+  },
+  {
+   "date": "2026-11-06",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9718,
+   "availability": 0.9247,
+   "rentableVehicles": 203
+  },
+  {
+   "date": "2026-11-06",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9845,
+   "availability": 0.9257,
+   "rentableVehicles": 333
+  },
+  {
+   "date": "2026-11-06",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9519,
+   "availability": 0.8526,
+   "rentableVehicles": 76
+  },
+  {
+   "date": "2026-11-07",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9867,
+   "availability": 0.9367,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-11-07",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9812,
+   "availability": 0.9223,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-07",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.975,
+   "availability": 0.9346,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-11-07",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9551,
+   "availability": 0.8741,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-08",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9833,
+   "availability": 0.92,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-08",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.8988,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-11-08",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9804,
+   "availability": 0.9331,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-11-08",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9588,
+   "availability": 0.8707,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-09",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9825,
+   "availability": 0.9362,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-11-09",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9802,
+   "availability": 0.9187,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-09",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9842,
+   "availability": 0.9134,
+   "rentableVehicles": 328
+  },
+  {
+   "date": "2026-11-09",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9428,
+   "availability": 0.8669,
+   "rentableVehicles": 78
+  },
+  {
+   "date": "2026-11-10",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9904,
+   "availability": 0.9241,
+   "rentableVehicles": 443
+  },
+  {
+   "date": "2026-11-10",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9694,
+   "availability": 0.9118,
+   "rentableVehicles": 200
+  },
+  {
+   "date": "2026-11-10",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9175,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-11-10",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9417,
+   "availability": 0.8438,
+   "rentableVehicles": 75
+  },
+  {
+   "date": "2026-11-11",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9824,
+   "availability": 0.9398,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-11-11",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9755,
+   "availability": 0.9001,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-11-11",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9827,
+   "availability": 0.9172,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-11-11",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9464,
+   "availability": 0.8512,
+   "rentableVehicles": 76
+  },
+  {
+   "date": "2026-11-12",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9141,
+   "rentableVehicles": 438
+  },
+  {
+   "date": "2026-11-12",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9769,
+   "availability": 0.9216,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-12",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9799,
+   "availability": 0.9228,
+   "rentableVehicles": 332
+  },
+  {
+   "date": "2026-11-12",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.952,
+   "availability": 0.8474,
+   "rentableVehicles": 76
+  },
+  {
+   "date": "2026-11-13",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.986,
+   "availability": 0.9337,
+   "rentableVehicles": 448
+  },
+  {
+   "date": "2026-11-13",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9752,
+   "availability": 0.9002,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-11-13",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9802,
+   "availability": 0.9103,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-11-13",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9375,
+   "availability": 0.8324,
+   "rentableVehicles": 74
+  },
+  {
+   "date": "2026-11-14",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9861,
+   "availability": 0.9196,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-14",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9764,
+   "availability": 0.9078,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-11-14",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9777,
+   "availability": 0.9369,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-11-14",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9421,
+   "availability": 0.8466,
+   "rentableVehicles": 76
+  },
+  {
+   "date": "2026-11-15",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9817,
+   "availability": 0.9399,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-11-15",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9681,
+   "availability": 0.9249,
+   "rentableVehicles": 203
+  },
+  {
+   "date": "2026-11-15",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9866,
+   "availability": 0.9313,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-11-15",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9431,
+   "availability": 0.8388,
+   "rentableVehicles": 75
+  },
+  {
+   "date": "2026-11-16",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9776,
+   "availability": 0.933,
+   "rentableVehicles": 447
+  },
+  {
+   "date": "2026-11-16",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.975,
+   "availability": 0.9213,
+   "rentableVehicles": 202
+  },
+  {
+   "date": "2026-11-16",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9818,
+   "availability": 0.923,
+   "rentableVehicles": 332
+  },
+  {
+   "date": "2026-11-16",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9429,
+   "availability": 0.8199,
+   "rentableVehicles": 73
+  },
+  {
+   "date": "2026-11-17",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9812,
+   "availability": 0.9288,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-11-17",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9724,
+   "availability": 0.9075,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-11-17",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9213,
+   "rentableVehicles": 331
+  },
+  {
+   "date": "2026-11-17",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9334,
+   "availability": 0.8292,
+   "rentableVehicles": 74
+  },
+  {
+   "date": "2026-11-18",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9918,
+   "availability": 0.9349,
+   "rentableVehicles": 448
+  },
+  {
+   "date": "2026-11-18",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9797,
+   "availability": 0.9037,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-11-18",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.986,
+   "availability": 0.9165,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-11-18",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9349,
+   "availability": 0.8374,
+   "rentableVehicles": 75
+  },
+  {
+   "date": "2026-11-19",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9892,
+   "availability": 0.942,
+   "rentableVehicles": 452
+  },
+  {
+   "date": "2026-11-19",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9673,
+   "availability": 0.9016,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-11-19",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9083,
+   "rentableVehicles": 326
+  },
+  {
+   "date": "2026-11-19",
+   "brandId": "BR04",
+   "unlockSuccessRate": 0.9373,
+   "availability": 0.8071,
+   "rentableVehicles": 72
+  },
+  {
+   "date": "2026-11-20",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9864,
+   "availability": 0.9211,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-11-20",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9685,
+   "availability": 0.9148,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-11-20",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9778,
+   "availability": 0.9331,
+   "rentableVehicles": 335
+  },
+  {
+   "date": "2026-11-21",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9312,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-11-21",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.976,
+   "availability": 0.9073,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-11-21",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9837,
+   "availability": 0.918,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-11-22",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9865,
+   "availability": 0.9412,
+   "rentableVehicles": 451
+  },
+  {
+   "date": "2026-11-22",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.905,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-11-22",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9898,
+   "availability": 0.9345,
+   "rentableVehicles": 336
+  },
+  {
+   "date": "2026-11-23",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9863,
+   "availability": 0.9202,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-23",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9803,
+   "availability": 0.9175,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-11-23",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9795,
+   "availability": 0.9191,
+   "rentableVehicles": 330
+  },
+  {
+   "date": "2026-11-24",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9815,
+   "availability": 0.9312,
+   "rentableVehicles": 446
+  },
+  {
+   "date": "2026-11-24",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9768,
+   "availability": 0.8917,
+   "rentableVehicles": 196
+  },
+  {
+   "date": "2026-11-24",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9752,
+   "availability": 0.9375,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-11-25",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9783,
+   "availability": 0.9207,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-25",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9794,
+   "availability": 0.9076,
+   "rentableVehicles": 199
+  },
+  {
+   "date": "2026-11-25",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9831,
+   "availability": 0.9378,
+   "rentableVehicles": 337
+  },
+  {
+   "date": "2026-11-26",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.989,
+   "availability": 0.929,
+   "rentableVehicles": 445
+  },
+  {
+   "date": "2026-11-26",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.969,
+   "availability": 0.9181,
+   "rentableVehicles": 201
+  },
+  {
+   "date": "2026-11-26",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9754,
+   "availability": 0.9143,
+   "rentableVehicles": 329
+  },
+  {
+   "date": "2026-11-27",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9918,
+   "availability": 0.9367,
+   "rentableVehicles": 449
+  },
+  {
+   "date": "2026-11-27",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9789,
+   "availability": 0.9037,
+   "rentableVehicles": 198
+  },
+  {
+   "date": "2026-11-27",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9744,
+   "availability": 0.9084,
+   "rentableVehicles": 327
+  },
+  {
+   "date": "2026-11-28",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9836,
+   "availability": 0.9199,
+   "rentableVehicles": 441
+  },
+  {
+   "date": "2026-11-28",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.9754,
+   "availability": 0.8961,
+   "rentableVehicles": 197
+  },
+  {
+   "date": "2026-11-28",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9795,
+   "availability": 0.9283,
+   "rentableVehicles": 334
+  },
+  {
+   "date": "2026-11-29",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9783,
+   "availability": 0.9224,
+   "rentableVehicles": 442
+  },
+  {
+   "date": "2026-11-29",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.921,
+   "availability": 0.86,
+   "rentableVehicles": 189
+  },
+  {
+   "date": "2026-11-29",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9755,
+   "availability": 0.9399,
+   "rentableVehicles": 338
+  },
+  {
+   "date": "2026-11-30",
+   "brandId": "BR01",
+   "unlockSuccessRate": 0.9891,
+   "availability": 0.9442,
+   "rentableVehicles": 453
+  },
+  {
+   "date": "2026-11-30",
+   "brandId": "BR02",
+   "unlockSuccessRate": 0.874,
+   "availability": 0.81,
+   "rentableVehicles": 178
+  },
+  {
+   "date": "2026-11-30",
+   "brandId": "BR03",
+   "unlockSuccessRate": 0.9858,
+   "availability": 0.9295,
+   "rentableVehicles": 334
+  }
+ ],
+ "metricsHourly": [
+  {
+   "at": "2026-11-28 12:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9885,
+   "availability": 0.9181,
+   "rentableVehicles": 440
+  },
+  {
+   "at": "2026-11-28 12:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.983,
+   "availability": 0.9135,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-28 12:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9733,
+   "availability": 0.9253,
+   "rentableVehicles": 333
+  },
+  {
+   "at": "2026-11-28 13:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9793,
+   "availability": 0.9189,
+   "rentableVehicles": 441
+  },
+  {
+   "at": "2026-11-28 13:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9784,
+   "availability": 0.9238,
+   "rentableVehicles": 203
+  },
+  {
+   "at": "2026-11-28 13:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9771,
+   "availability": 0.9304,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-28 14:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9808,
+   "availability": 0.9213,
+   "rentableVehicles": 442
+  },
+  {
+   "at": "2026-11-28 14:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.974,
+   "availability": 0.9078,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-28 14:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9248,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-28 15:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9855,
+   "availability": 0.9175,
+   "rentableVehicles": 440
+  },
+  {
+   "at": "2026-11-28 15:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.969,
+   "availability": 0.9158,
+   "rentableVehicles": 201
+  },
+  {
+   "at": "2026-11-28 15:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9794,
+   "availability": 0.9288,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-28 16:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9889,
+   "availability": 0.9421,
+   "rentableVehicles": 452
+  },
+  {
+   "at": "2026-11-28 16:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.978,
+   "availability": 0.9049,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-28 16:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9724,
+   "availability": 0.9219,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-11-28 17:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9844,
+   "availability": 0.9114,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-28 17:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9653,
+   "availability": 0.922,
+   "rentableVehicles": 202
+  },
+  {
+   "at": "2026-11-28 17:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9811,
+   "availability": 0.9076,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-11-28 18:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9928,
+   "availability": 0.9375,
+   "rentableVehicles": 450
+  },
+  {
+   "at": "2026-11-28 18:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.8942,
+   "rentableVehicles": 196
+  },
+  {
+   "at": "2026-11-28 18:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9765,
+   "availability": 0.9112,
+   "rentableVehicles": 328
+  },
+  {
+   "at": "2026-11-28 19:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9758,
+   "availability": 0.9261,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-28 19:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9814,
+   "availability": 0.8963,
+   "rentableVehicles": 197
+  },
+  {
+   "at": "2026-11-28 19:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9803,
+   "availability": 0.9145,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-28 20:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.979,
+   "availability": 0.9328,
+   "rentableVehicles": 447
+  },
+  {
+   "at": "2026-11-28 20:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9822,
+   "availability": 0.9199,
+   "rentableVehicles": 202
+  },
+  {
+   "at": "2026-11-28 20:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9807,
+   "availability": 0.9081,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-11-28 21:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9821,
+   "availability": 0.9268,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-28 21:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9764,
+   "availability": 0.91,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-28 21:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9803,
+   "availability": 0.9165,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-28 22:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9856,
+   "availability": 0.9375,
+   "rentableVehicles": 450
+  },
+  {
+   "at": "2026-11-28 22:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9732,
+   "availability": 0.9166,
+   "rentableVehicles": 201
+  },
+  {
+   "at": "2026-11-28 22:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.988,
+   "availability": 0.9126,
+   "rentableVehicles": 328
+  },
+  {
+   "at": "2026-11-28 23:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9432,
+   "rentableVehicles": 452
+  },
+  {
+   "at": "2026-11-28 23:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9775,
+   "availability": 0.913,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-28 23:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9804,
+   "availability": 0.908,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-11-29 00:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9894,
+   "availability": 0.93,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-29 00:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9732,
+   "availability": 0.9148,
+   "rentableVehicles": 201
+  },
+  {
+   "at": "2026-11-29 00:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9806,
+   "availability": 0.9204,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-11-29 01:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9863,
+   "availability": 0.9359,
+   "rentableVehicles": 449
+  },
+  {
+   "at": "2026-11-29 01:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9796,
+   "availability": 0.9212,
+   "rentableVehicles": 202
+  },
+  {
+   "at": "2026-11-29 01:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9779,
+   "availability": 0.9317,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-29 02:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9926,
+   "availability": 0.9376,
+   "rentableVehicles": 450
+  },
+  {
+   "at": "2026-11-29 02:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9782,
+   "availability": 0.9228,
+   "rentableVehicles": 203
+  },
+  {
+   "at": "2026-11-29 02:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9878,
+   "availability": 0.9235,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-29 03:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9858,
+   "availability": 0.94,
+   "rentableVehicles": 451
+  },
+  {
+   "at": "2026-11-29 03:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9752,
+   "availability": 0.8948,
+   "rentableVehicles": 196
+  },
+  {
+   "at": "2026-11-29 03:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9849,
+   "availability": 0.9131,
+   "rentableVehicles": 328
+  },
+  {
+   "at": "2026-11-29 04:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9901,
+   "availability": 0.916,
+   "rentableVehicles": 439
+  },
+  {
+   "at": "2026-11-29 04:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9676,
+   "availability": 0.9067,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-29 04:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9789,
+   "availability": 0.9278,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-29 05:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9801,
+   "availability": 0.9251,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-29 05:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9004,
+   "rentableVehicles": 198
+  },
+  {
+   "at": "2026-11-29 05:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9874,
+   "availability": 0.9367,
+   "rentableVehicles": 337
+  },
+  {
+   "at": "2026-11-29 06:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9832,
+   "availability": 0.9106,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-29 06:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9699,
+   "availability": 0.9129,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-29 06:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9751,
+   "availability": 0.9316,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-29 07:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9925,
+   "availability": 0.9369,
+   "rentableVehicles": 449
+  },
+  {
+   "at": "2026-11-29 07:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.965,
+   "availability": 0.8992,
+   "rentableVehicles": 197
+  },
+  {
+   "at": "2026-11-29 07:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9361,
+   "rentableVehicles": 337
+  },
+  {
+   "at": "2026-11-29 08:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9872,
+   "availability": 0.9125,
+   "rentableVehicles": 438
+  },
+  {
+   "at": "2026-11-29 08:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9756,
+   "availability": 0.8951,
+   "rentableVehicles": 196
+  },
+  {
+   "at": "2026-11-29 08:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9827,
+   "availability": 0.9319,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-29 09:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9813,
+   "availability": 0.9299,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-29 09:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9822,
+   "availability": 0.9179,
+   "rentableVehicles": 201
+  },
+  {
+   "at": "2026-11-29 09:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9724,
+   "availability": 0.9325,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-29 10:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9822,
+   "availability": 0.9214,
+   "rentableVehicles": 442
+  },
+  {
+   "at": "2026-11-29 10:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9691,
+   "availability": 0.915,
+   "rentableVehicles": 201
+  },
+  {
+   "at": "2026-11-29 10:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9889,
+   "availability": 0.9141,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-29 11:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.988,
+   "availability": 0.9241,
+   "rentableVehicles": 443
+  },
+  {
+   "at": "2026-11-29 11:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9677,
+   "availability": 0.9209,
+   "rentableVehicles": 202
+  },
+  {
+   "at": "2026-11-29 11:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9852,
+   "availability": 0.9166,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-29 12:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9907,
+   "availability": 0.9154,
+   "rentableVehicles": 439
+  },
+  {
+   "at": "2026-11-29 12:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9652,
+   "availability": 0.9131,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-29 12:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9801,
+   "availability": 0.9363,
+   "rentableVehicles": 337
+  },
+  {
+   "at": "2026-11-29 13:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9824,
+   "availability": 0.9306,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-29 13:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9712,
+   "availability": 0.8904,
+   "rentableVehicles": 195
+  },
+  {
+   "at": "2026-11-29 13:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.983,
+   "availability": 0.9239,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-29 14:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9817,
+   "availability": 0.9294,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-29 14:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9829,
+   "availability": 0.9067,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-29 14:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9164,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-29 15:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9751,
+   "availability": 0.9222,
+   "rentableVehicles": 442
+  },
+  {
+   "at": "2026-11-29 15:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9692,
+   "availability": 0.9055,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-29 15:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9737,
+   "availability": 0.9353,
+   "rentableVehicles": 336
+  },
+  {
+   "at": "2026-11-29 16:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.978,
+   "availability": 0.9196,
+   "rentableVehicles": 441
+  },
+  {
+   "at": "2026-11-29 16:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9816,
+   "availability": 0.9107,
+   "rentableVehicles": 200
+  },
+  {
+   "at": "2026-11-29 16:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9743,
+   "availability": 0.9204,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-11-29 17:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.983,
+   "availability": 0.9416,
+   "rentableVehicles": 451
+  },
+  {
+   "at": "2026-11-29 17:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9796,
+   "availability": 0.9042,
+   "rentableVehicles": 198
+  },
+  {
+   "at": "2026-11-29 17:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9777,
+   "availability": 0.9256,
+   "rentableVehicles": 333
+  },
+  {
+   "at": "2026-11-29 18:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9874,
+   "availability": 0.911,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-29 18:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9772,
+   "availability": 0.9057,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-29 18:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9867,
+   "availability": 0.9247,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-29 19:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9854,
+   "availability": 0.9117,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-29 19:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9677,
+   "availability": 0.8961,
+   "rentableVehicles": 197
+  },
+  {
+   "at": "2026-11-29 19:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9885,
+   "availability": 0.9305,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-29 20:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9837,
+   "availability": 0.9449,
+   "rentableVehicles": 453
+  },
+  {
+   "at": "2026-11-29 20:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9763,
+   "availability": 0.92,
+   "rentableVehicles": 202
+  },
+  {
+   "at": "2026-11-29 20:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9843,
+   "availability": 0.9227,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-29 21:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9921,
+   "availability": 0.9338,
+   "rentableVehicles": 448
+  },
+  {
+   "at": "2026-11-29 21:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9742,
+   "availability": 0.896,
+   "rentableVehicles": 197
+  },
+  {
+   "at": "2026-11-29 21:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9073,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-11-29 22:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9823,
+   "availability": 0.9114,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-29 22:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9724,
+   "availability": 0.8934,
+   "rentableVehicles": 196
+  },
+  {
+   "at": "2026-11-29 22:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9846,
+   "availability": 0.9307,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-29 23:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.984,
+   "availability": 0.9264,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-29 23:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9807,
+   "availability": 0.9082,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-29 23:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9878,
+   "availability": 0.9187,
+   "rentableVehicles": 330
+  },
+  {
+   "at": "2026-11-30 00:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9836,
+   "availability": 0.916,
+   "rentableVehicles": 439
+  },
+  {
+   "at": "2026-11-30 00:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9738,
+   "availability": 0.9048,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-30 00:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9796,
+   "availability": 0.9168,
+   "rentableVehicles": 330
+  },
+  {
+   "at": "2026-11-30 01:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9829,
+   "availability": 0.93,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-30 01:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9655,
+   "availability": 0.9048,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-30 01:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9826,
+   "availability": 0.9185,
+   "rentableVehicles": 330
+  },
+  {
+   "at": "2026-11-30 02:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9866,
+   "availability": 0.9265,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-30 02:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9664,
+   "availability": 0.9056,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-30 02:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9887,
+   "availability": 0.9164,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-30 03:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9913,
+   "availability": 0.9107,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-11-30 03:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.9757,
+   "availability": 0.9053,
+   "rentableVehicles": 199
+  },
+  {
+   "at": "2026-11-30 03:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9808,
+   "availability": 0.9356,
+   "rentableVehicles": 336
+  },
+  {
+   "at": "2026-11-30 04:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9812,
+   "availability": 0.9373,
+   "rentableVehicles": 449
+  },
+  {
+   "at": "2026-11-30 04:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.8523,
+   "availability": 0.8127,
+   "rentableVehicles": 178
+  },
+  {
+   "at": "2026-11-30 04:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9881,
+   "availability": 0.9147,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-30 05:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9858,
+   "availability": 0.9182,
+   "rentableVehicles": 440
+  },
+  {
+   "at": "2026-11-30 05:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.8483,
+   "availability": 0.8238,
+   "rentableVehicles": 181
+  },
+  {
+   "at": "2026-11-30 05:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9879,
+   "availability": 0.9145,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-30 06:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9185,
+   "rentableVehicles": 440
+  },
+  {
+   "at": "2026-11-30 06:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.8558,
+   "availability": 0.8021,
+   "rentableVehicles": 176
+  },
+  {
+   "at": "2026-11-30 06:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9754,
+   "availability": 0.9051,
+   "rentableVehicles": 325
+  },
+  {
+   "at": "2026-11-30 07:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9786,
+   "availability": 0.9404,
+   "rentableVehicles": 451
+  },
+  {
+   "at": "2026-11-30 07:00:00",
+   "brandId": "BR02",
+   "paused": false,
+   "unlockSuccessRate": 0.8636,
+   "availability": 0.8185,
+   "rentableVehicles": 180
+  },
+  {
+   "at": "2026-11-30 07:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.981,
+   "availability": 0.9259,
+   "rentableVehicles": 333
+  },
+  {
+   "at": "2026-11-30 08:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9754,
+   "availability": 0.9309,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-11-30 08:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8831,
+   "availability": 0.7936,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 08:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9832,
+   "availability": 0.9086,
+   "rentableVehicles": 327
+  },
+  {
+   "at": "2026-11-30 09:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9877,
+   "availability": 0.9327,
+   "rentableVehicles": 447
+  },
+  {
+   "at": "2026-11-30 09:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8452,
+   "availability": 0.7857,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 09:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9738,
+   "availability": 0.9149,
+   "rentableVehicles": 329
+  },
+  {
+   "at": "2026-11-30 10:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9928,
+   "availability": 0.9347,
+   "rentableVehicles": 448
+  },
+  {
+   "at": "2026-11-30 10:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8575,
+   "availability": 0.7911,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 10:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9862,
+   "availability": 0.9345,
+   "rentableVehicles": 336
+  },
+  {
+   "at": "2026-11-30 11:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9859,
+   "availability": 0.9178,
+   "rentableVehicles": 440
+  },
+  {
+   "at": "2026-11-30 11:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8594,
+   "availability": 0.7859,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 11:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9822,
+   "availability": 0.9205,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-11-30 12:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.991,
+   "availability": 0.9284,
+   "rentableVehicles": 445
+  },
+  {
+   "at": "2026-11-30 12:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8725,
+   "availability": 0.8191,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 12:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9825,
+   "availability": 0.9214,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-11-30 13:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9799,
+   "availability": 0.9254,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-30 13:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8765,
+   "availability": 0.8286,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 13:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9798,
+   "availability": 0.9362,
+   "rentableVehicles": 337
+  },
+  {
+   "at": "2026-11-30 14:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9858,
+   "availability": 0.9258,
+   "rentableVehicles": 444
+  },
+  {
+   "at": "2026-11-30 14:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8622,
+   "availability": 0.8073,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 14:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9877,
+   "availability": 0.936,
+   "rentableVehicles": 336
+  },
+  {
+   "at": "2026-11-30 15:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9819,
+   "availability": 0.9437,
+   "rentableVehicles": 452
+  },
+  {
+   "at": "2026-11-30 15:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8719,
+   "availability": 0.7917,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 15:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9865,
+   "availability": 0.9117,
+   "rentableVehicles": 328
+  },
+  {
+   "at": "2026-11-30 16:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9845,
+   "availability": 0.9366,
+   "rentableVehicles": 449
+  },
+  {
+   "at": "2026-11-30 16:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8561,
+   "availability": 0.8205,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 16:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9852,
+   "availability": 0.9296,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-30 17:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9851,
+   "availability": 0.9376,
+   "rentableVehicles": 450
+  },
+  {
+   "at": "2026-11-30 17:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8742,
+   "availability": 0.7885,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 17:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9862,
+   "availability": 0.9099,
+   "rentableVehicles": 327
+  },
+  {
+   "at": "2026-11-30 18:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9913,
+   "availability": 0.9349,
+   "rentableVehicles": 448
+  },
+  {
+   "at": "2026-11-30 18:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8421,
+   "availability": 0.7926,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 18:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9808,
+   "availability": 0.9304,
+   "rentableVehicles": 334
+  },
+  {
+   "at": "2026-11-30 19:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.983,
+   "availability": 0.9323,
+   "rentableVehicles": 447
+  },
+  {
+   "at": "2026-11-30 19:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8521,
+   "availability": 0.795,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 19:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9755,
+   "availability": 0.9329,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-11-30 20:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9789,
+   "availability": 0.9421,
+   "rentableVehicles": 452
+  },
+  {
+   "at": "2026-11-30 20:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8737,
+   "availability": 0.7814,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 20:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9829,
+   "availability": 0.9236,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-30 21:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9908,
+   "availability": 0.9142,
+   "rentableVehicles": 438
+  },
+  {
+   "at": "2026-11-30 21:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8796,
+   "availability": 0.8189,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 21:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9796,
+   "availability": 0.9238,
+   "rentableVehicles": 332
+  },
+  {
+   "at": "2026-11-30 22:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9808,
+   "availability": 0.9445,
+   "rentableVehicles": 453
+  },
+  {
+   "at": "2026-11-30 22:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8709,
+   "availability": 0.7933,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 22:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9881,
+   "availability": 0.9182,
+   "rentableVehicles": 330
+  },
+  {
+   "at": "2026-11-30 23:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9873,
+   "availability": 0.9408,
+   "rentableVehicles": 451
+  },
+  {
+   "at": "2026-11-30 23:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8847,
+   "availability": 0.8029,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-11-30 23:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9894,
+   "availability": 0.9112,
+   "rentableVehicles": 328
+  },
+  {
+   "at": "2026-12-01 00:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9857,
+   "availability": 0.9332,
+   "rentableVehicles": 447
+  },
+  {
+   "at": "2026-12-01 00:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8655,
+   "availability": 0.7999,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 00:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.975,
+   "availability": 0.9274,
+   "rentableVehicles": 333
+  },
+  {
+   "at": "2026-12-01 01:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9816,
+   "availability": 0.9227,
+   "rentableVehicles": 442
+  },
+  {
+   "at": "2026-12-01 01:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8584,
+   "availability": 0.8009,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 01:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.976,
+   "availability": 0.9058,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-12-01 02:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.976,
+   "availability": 0.9206,
+   "rentableVehicles": 441
+  },
+  {
+   "at": "2026-12-01 02:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8401,
+   "availability": 0.7875,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 02:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9839,
+   "availability": 0.9315,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-12-01 03:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9825,
+   "availability": 0.9341,
+   "rentableVehicles": 448
+  },
+  {
+   "at": "2026-12-01 03:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8614,
+   "availability": 0.8268,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 03:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9863,
+   "availability": 0.908,
+   "rentableVehicles": 326
+  },
+  {
+   "at": "2026-12-01 04:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9856,
+   "availability": 0.9215,
+   "rentableVehicles": 442
+  },
+  {
+   "at": "2026-12-01 04:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8532,
+   "availability": 0.7813,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 04:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9782,
+   "availability": 0.9199,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-12-01 05:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.981,
+   "availability": 0.9302,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-12-01 05:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8414,
+   "availability": 0.8067,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 05:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9764,
+   "availability": 0.9368,
+   "rentableVehicles": 337
+  },
+  {
+   "at": "2026-12-01 06:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9876,
+   "availability": 0.9389,
+   "rentableVehicles": 450
+  },
+  {
+   "at": "2026-12-01 06:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8926,
+   "availability": 0.8588,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 06:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9769,
+   "availability": 0.9089,
+   "rentableVehicles": 327
+  },
+  {
+   "at": "2026-12-01 07:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9836,
+   "availability": 0.9333,
+   "rentableVehicles": 448
+  },
+  {
+   "at": "2026-12-01 07:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8884,
+   "availability": 0.8574,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 07:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9876,
+   "availability": 0.932,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-12-01 08:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9897,
+   "availability": 0.9115,
+   "rentableVehicles": 437
+  },
+  {
+   "at": "2026-12-01 08:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8952,
+   "availability": 0.842,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 08:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9882,
+   "availability": 0.9317,
+   "rentableVehicles": 335
+  },
+  {
+   "at": "2026-12-01 09:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.977,
+   "availability": 0.9234,
+   "rentableVehicles": 443
+  },
+  {
+   "at": "2026-12-01 09:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8892,
+   "availability": 0.8304,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 09:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9813,
+   "availability": 0.918,
+   "rentableVehicles": 330
+  },
+  {
+   "at": "2026-12-01 10:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9873,
+   "availability": 0.9249,
+   "rentableVehicles": 443
+  },
+  {
+   "at": "2026-12-01 10:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8962,
+   "availability": 0.8291,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 10:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.98,
+   "availability": 0.921,
+   "rentableVehicles": 331
+  },
+  {
+   "at": "2026-12-01 11:00:00",
+   "brandId": "BR01",
+   "paused": false,
+   "unlockSuccessRate": 0.9835,
+   "availability": 0.93,
+   "rentableVehicles": 446
+  },
+  {
+   "at": "2026-12-01 11:00:00",
+   "brandId": "BR02",
+   "paused": true,
+   "unlockSuccessRate": 0.8974,
+   "availability": 0.8259,
+   "rentableVehicles": 0
+  },
+  {
+   "at": "2026-12-01 11:00:00",
+   "brandId": "BR03",
+   "paused": false,
+   "unlockSuccessRate": 0.9772,
+   "availability": 0.9077,
+   "rentableVehicles": 326
+  }
+ ],
+ "platformDaily": [
+  {
+   "date": "2026-09-01",
+   "entryAvailability": 0.9997,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.7
+  },
+  {
+   "date": "2026-09-02",
+   "entryAvailability": 0.9995,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 5.2
+  },
+  {
+   "date": "2026-09-03",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-09-04",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 4.6
+  },
+  {
+   "date": "2026-09-05",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 3.6
+  },
+  {
+   "date": "2026-09-06",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 5.9
+  },
+  {
+   "date": "2026-09-07",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 3.1,
+   "billPushP90Sec": 6.1
+  },
+  {
+   "date": "2026-09-08",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 4.2
+  },
+  {
+   "date": "2026-09-09",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 5.8
+  },
+  {
+   "date": "2026-09-10",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 4.5
+  },
+  {
+   "date": "2026-09-11",
+   "entryAvailability": 0.9986,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 5.5
+  },
+  {
+   "date": "2026-09-12",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 5.7
+  },
+  {
+   "date": "2026-09-13",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 4.4
+  },
+  {
+   "date": "2026-09-14",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 4.7
+  },
+  {
+   "date": "2026-09-15",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-09-16",
+   "entryAvailability": 0.9986,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 3.3
+  },
+  {
+   "date": "2026-09-17",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 6.1
+  },
+  {
+   "date": "2026-09-18",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 5.4
+  },
+  {
+   "date": "2026-09-19",
+   "entryAvailability": 0.9987,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-09-20",
+   "entryAvailability": 0.9997,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 4.4
+  },
+  {
+   "date": "2026-09-21",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 4.3
+  },
+  {
+   "date": "2026-09-22",
+   "entryAvailability": 0.9987,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.2
+  },
+  {
+   "date": "2026-09-23",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 5.3
+  },
+  {
+   "date": "2026-09-24",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.1
+  },
+  {
+   "date": "2026-09-25",
+   "entryAvailability": 0.9995,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 6.0
+  },
+  {
+   "date": "2026-09-26",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 5.8
+  },
+  {
+   "date": "2026-09-27",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 5.9
+  },
+  {
+   "date": "2026-09-28",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-09-29",
+   "entryAvailability": 0.9996,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 6.1
+  },
+  {
+   "date": "2026-09-30",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 4.2
+  },
+  {
+   "date": "2026-10-01",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 3.3,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-10-02",
+   "entryAvailability": 0.9987,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-10-03",
+   "entryAvailability": 0.9987,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 3.4
+  },
+  {
+   "date": "2026-10-04",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.4
+  },
+  {
+   "date": "2026-10-05",
+   "entryAvailability": 0.9995,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.5
+  },
+  {
+   "date": "2026-10-06",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 5.8
+  },
+  {
+   "date": "2026-10-07",
+   "entryAvailability": 0.9992,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-10-08",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 4.9
+  },
+  {
+   "date": "2026-10-09",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 5.5
+  },
+  {
+   "date": "2026-10-10",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-10-11",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.0,
+   "billPushP90Sec": 5.2
+  },
+  {
+   "date": "2026-10-12",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-10-13",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 4.1
+  },
+  {
+   "date": "2026-10-14",
+   "entryAvailability": 0.9996,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.2
+  },
+  {
+   "date": "2026-10-15",
+   "entryAvailability": 1.0,
+   "unlockP90Sec": 3.3,
+   "billPushP90Sec": 4.2
+  },
+  {
+   "date": "2026-10-16",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 5.9
+  },
+  {
+   "date": "2026-10-17",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 3.2
+  },
+  {
+   "date": "2026-10-18",
+   "entryAvailability": 0.9934,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 5.6
+  },
+  {
+   "date": "2026-10-19",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 3.3
+  },
+  {
+   "date": "2026-10-20",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 5.5
+  },
+  {
+   "date": "2026-10-21",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 3.0,
+   "billPushP90Sec": 5.6
+  },
+  {
+   "date": "2026-10-22",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 2.4,
+   "billPushP90Sec": 5.2
+  },
+  {
+   "date": "2026-10-23",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-10-24",
+   "entryAvailability": 0.9992,
+   "unlockP90Sec": 2.4,
+   "billPushP90Sec": 5.8
+  },
+  {
+   "date": "2026-10-25",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 3.1
+  },
+  {
+   "date": "2026-10-26",
+   "entryAvailability": 0.9986,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 4.9
+  },
+  {
+   "date": "2026-10-27",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 3.6,
+   "billPushP90Sec": 5.2
+  },
+  {
+   "date": "2026-10-28",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 3.1,
+   "billPushP90Sec": 4.4
+  },
+  {
+   "date": "2026-10-29",
+   "entryAvailability": 0.9992,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-10-30",
+   "entryAvailability": 0.9996,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 5.7
+  },
+  {
+   "date": "2026-10-31",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 4.1
+  },
+  {
+   "date": "2026-11-01",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 5.5
+  },
+  {
+   "date": "2026-11-02",
+   "entryAvailability": 0.9997,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 5.3
+  },
+  {
+   "date": "2026-11-03",
+   "entryAvailability": 1.0,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.2
+  },
+  {
+   "date": "2026-11-04",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 2.4,
+   "billPushP90Sec": 3.5
+  },
+  {
+   "date": "2026-11-05",
+   "entryAvailability": 0.9988,
+   "unlockP90Sec": 3.0,
+   "billPushP90Sec": 5.9
+  },
+  {
+   "date": "2026-11-06",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 5.9
+  },
+  {
+   "date": "2026-11-07",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 4.2
+  },
+  {
+   "date": "2026-11-08",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-11-09",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 3.2
+  },
+  {
+   "date": "2026-11-10",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 4.3
+  },
+  {
+   "date": "2026-11-11",
+   "entryAvailability": 0.999,
+   "unlockP90Sec": 3.5,
+   "billPushP90Sec": 4.0
+  },
+  {
+   "date": "2026-11-12",
+   "entryAvailability": 0.9964,
+   "unlockP90Sec": 3.0,
+   "billPushP90Sec": 3.3
+  },
+  {
+   "date": "2026-11-13",
+   "entryAvailability": 0.9995,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 5.7
+  },
+  {
+   "date": "2026-11-14",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 3.0,
+   "billPushP90Sec": 4.9
+  },
+  {
+   "date": "2026-11-15",
+   "entryAvailability": 0.9992,
+   "unlockP90Sec": 2.8,
+   "billPushP90Sec": 5.1
+  },
+  {
+   "date": "2026-11-16",
+   "entryAvailability": 0.9998,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 3.9
+  },
+  {
+   "date": "2026-11-17",
+   "entryAvailability": 0.9994,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.9
+  },
+  {
+   "date": "2026-11-18",
+   "entryAvailability": 0.9993,
+   "unlockP90Sec": 2.7,
+   "billPushP90Sec": 6.0
+  },
+  {
+   "date": "2026-11-19",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 2.6,
+   "billPushP90Sec": 3.7
+  },
+  {
+   "date": "2026-11-20",
+   "entryAvailability": 0.9997,
+   "unlockP90Sec": 3.3,
+   "billPushP90Sec": 4.8
+  },
+  {
+   "date": "2026-11-21",
+   "entryAvailability": 0.9995,
+   "unlockP90Sec": 3.1,
+   "billPushP90Sec": 3.8
+  },
+  {
+   "date": "2026-11-22",
+   "entryAvailability": 0.9999,
+   "unlockP90Sec": 2.9,
+   "billPushP90Sec": 5.3
+  },
+  {
+   "date": "2026-11-23",
+   "entryAvailability": 0.9986,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.6
+  },
+  {
+   "date": "2026-11-24",
+   "entryAvailability": 0.9992,
+   "unlockP90Sec": 2.4,
+   "billPushP90Sec": 5.2
+  },
+  {
+   "date": "2026-11-25",
+   "entryAvailability": 0.9997,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.5
+  },
+  {
+   "date": "2026-11-26",
+   "entryAvailability": 0.9987,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 3.4
+  },
+  {
+   "date": "2026-11-27",
+   "entryAvailability": 0.9935,
+   "unlockP90Sec": 3.4,
+   "billPushP90Sec": 4.7
+  },
+  {
+   "date": "2026-11-28",
+   "entryAvailability": 0.9989,
+   "unlockP90Sec": 3.2,
+   "billPushP90Sec": 4.9
+  },
+  {
+   "date": "2026-11-29",
+   "entryAvailability": 0.9996,
+   "unlockP90Sec": 2.5,
+   "billPushP90Sec": 3.7
+  },
+  {
+   "date": "2026-11-30",
+   "entryAvailability": 0.9991,
+   "unlockP90Sec": 3.3,
+   "billPushP90Sec": 3.6
+  }
+ ],
+ "degradeEvents": [
+  {
+   "eventId": "OPS-DG-20261018-01",
+   "cause": "支付通道故障（微信支付回调持续超时）",
+   "components": [
+    "微信支付收款"
+   ],
+   "enteredAt": "2026-10-18 19:41:26",
+   "exitedAt": "2026-10-18 20:14:03",
+   "durationMinutes": 32,
+   "enteredBy": "AC0901",
+   "status": "已退出",
+   "orderIds": [
+    "OD2026101813365",
+    "OD2026101812981",
+    "OD2026101813220",
+    "OD2026101813073",
+    "OD2026101813036",
+    "OD2026101813386",
+    "OD2026101813269",
+    "OD2026101813132",
+    "OD2026101812974",
+    "OD2026101813433",
+    "OD2026101813001",
+    "OD2026101813201",
+    "OD2026101813392",
+    "OD2026101813182",
+    "OD2026101813454",
+    "OD2026101813509",
+    "OD2026101813308",
+    "OD2026101813140"
+   ],
+   "orderCount": 18,
+   "receivableSum": 211.0,
+   "admissionCounts": {
+    "老用户": 16,
+    "押金状态未知的老用户": 2
+   },
+   "limitsVersionId": "PR0002",
+   "limits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 60.0
+    },
+    "tight": {
+     "maxMinutes": 45,
+     "maxAmount": 20.0
+    },
+    "hourlyDegradedOrders": 300,
+    "degradeDurationAlertMinutes": 30
+   },
+   "maxHourlyOrders": 9,
+   "maxUserOpenOrders": 1,
+   "overLimitReminders": 0,
+   "closure": {
+    "status": "已全部闭合",
+    "closed": 18,
+    "pendingOrderIds": [],
+    "paymentResults": {
+     "已收款": 18
+    },
+    "newUserVerification": {}
+   },
+   "timeline": [
+    {
+     "at": "2026-10-18 19:38:26",
+     "by": "AC0901",
+     "action": "检测到故障",
+     "text": "检测到支付通道故障（微信支付回调持续超时），判断仍可请求运营商开锁"
+    },
+    {
+     "at": "2026-10-18 19:41:26",
+     "by": "AC0901",
+     "action": "降级进入",
+     "text": "自动进入降级开单并通知值班人"
+    },
+    {
+     "at": "2026-10-18 19:43:26",
+     "by": "AC0401",
+     "action": "值班人确认",
+     "text": "已知悉，保持降级开单，持续关注限额"
+    },
+    {
+     "at": "2026-10-18 20:14:03",
+     "by": "AC0901",
+     "action": "降级退出",
+     "text": "故障恢复，退出降级开单，开始恢复闭合"
+    },
+    {
+     "at": "2026-10-18 20:51:51",
+     "by": "AC0902",
+     "action": "全部闭合",
+     "text": "降级单 18 笔全部匹配运营商报告并计价、收款结果已落定"
+    }
+   ]
+  },
+  {
+   "eventId": "OPS-DG-20261112-01",
+   "cause": "支付通道故障（支付宝扣款接口返回系统繁忙）",
+   "components": [
+    "支付宝收款",
+    "信用免押扣款"
+   ],
+   "enteredAt": "2026-11-12 07:58:12",
+   "exitedAt": "2026-11-12 08:52:40",
+   "durationMinutes": 54,
+   "enteredBy": "AC0901",
+   "status": "已退出",
+   "orderIds": [
+    "OD2026111212946",
+    "OD2026111212844",
+    "OD2026111212804",
+    "OD2026111212789",
+    "OD2026111212848",
+    "OD2026111213176",
+    "OD2026111213149",
+    "OD2026111212735",
+    "OD2026111212982",
+    "OD2026111213038",
+    "OD2026111212966",
+    "OD2026111213215",
+    "OD2026111212686",
+    "OD2026111213261",
+    "OD2026111213103",
+    "OD2026111213191",
+    "OD2026111212853",
+    "OD2026111212927",
+    "OD2026111212628",
+    "OD2026111212614",
+    "OD2026111213080",
+    "OD2026111212905"
+   ],
+   "orderCount": 22,
+   "receivableSum": 245.0,
+   "admissionCounts": {
+    "老用户": 20,
+    "押金状态未知的老用户": 2
+   },
+   "limitsVersionId": "PR0002",
+   "limits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 60.0
+    },
+    "tight": {
+     "maxMinutes": 45,
+     "maxAmount": 20.0
+    },
+    "hourlyDegradedOrders": 300,
+    "degradeDurationAlertMinutes": 30
+   },
+   "maxHourlyOrders": 22,
+   "maxUserOpenOrders": 1,
+   "overLimitReminders": 0,
+   "closure": {
+    "status": "已全部闭合",
+    "closed": 22,
+    "pendingOrderIds": [],
+    "paymentResults": {
+     "已收款": 20,
+     "已转欠费": 2
+    },
+    "newUserVerification": {}
+   },
+   "timeline": [
+    {
+     "at": "2026-11-12 07:55:12",
+     "by": "AC0901",
+     "action": "检测到故障",
+     "text": "检测到支付通道故障（支付宝扣款接口返回系统繁忙），判断仍可请求运营商开锁"
+    },
+    {
+     "at": "2026-11-12 07:58:12",
+     "by": "AC0901",
+     "action": "降级进入",
+     "text": "自动进入降级开单并通知值班人"
+    },
+    {
+     "at": "2026-11-12 08:00:12",
+     "by": "AC0402",
+     "action": "值班人确认",
+     "text": "已知悉，保持降级开单，持续关注限额"
+    },
+    {
+     "at": "2026-11-12 08:31:05",
+     "by": "AC0402",
+     "action": "降级收紧",
+     "text": "降级已持续超过 30 分钟，暂停押金状态未知用户与先骑后验新用户的降级开单"
+    },
+    {
+     "at": "2026-11-12 08:52:40",
+     "by": "AC0901",
+     "action": "降级退出",
+     "text": "故障恢复，退出降级开单，开始恢复闭合"
+    },
+    {
+     "at": "2026-11-12 09:30:12",
+     "by": "AC0902",
+     "action": "全部闭合",
+     "text": "降级单 22 笔全部匹配运营商报告并计价、收款结果已落定"
+    }
+   ]
+  },
+  {
+   "eventId": "OPS-DG-20261127-01",
+   "cause": "实名核验服务不可用（第三方核验接口连续超时）",
+   "components": [
+    "实名核验"
+   ],
+   "enteredAt": "2026-11-27 21:06:44",
+   "exitedAt": "2026-11-27 21:47:19",
+   "durationMinutes": 40,
+   "enteredBy": "AC0901",
+   "status": "已退出",
+   "orderIds": [
+    "OD2026112714252",
+    "OD2026112714209",
+    "OD2026112714120",
+    "OD2026112714005",
+    "OD2026112713877",
+    "OD2026112714184",
+    "OD2026112714053",
+    "OD2026112714058",
+    "OD2026112713962",
+    "OD2026112713937",
+    "OD2026112714104",
+    "OD2026112713790",
+    "OD2026112713841",
+    "OD2026112714132",
+    "OD2026112714304"
+   ],
+   "orderCount": 15,
+   "receivableSum": 203.0,
+   "admissionCounts": {
+    "押金状态未知的老用户": 1,
+    "老用户": 2,
+    "先骑后验新用户": 12
+   },
+   "limitsVersionId": "PR0002",
+   "limits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 60.0
+    },
+    "tight": {
+     "maxMinutes": 45,
+     "maxAmount": 20.0
+    },
+    "hourlyDegradedOrders": 300,
+    "degradeDurationAlertMinutes": 30
+   },
+   "maxHourlyOrders": 15,
+   "maxUserOpenOrders": 1,
+   "overLimitReminders": 1,
+   "closure": {
+    "status": "部分待人工",
+    "closed": 13,
+    "pendingOrderIds": [
+     "OD2026112714209",
+     "OD2026112714304"
+    ],
+    "paymentResults": {
+     "已收款": 11,
+     "未收款": 1,
+     "已转欠费": 2,
+     "结果未知": 1
+    },
+    "newUserVerification": {
+     "待核验": 8,
+     "通过": 2,
+     "未通过": 2
+    }
+   },
+   "timeline": [
+    {
+     "at": "2026-11-27 21:03:44",
+     "by": "AC0901",
+     "action": "检测到故障",
+     "text": "检测到实名核验服务不可用（第三方核验接口连续超时），判断仍可请求运营商开锁"
+    },
+    {
+     "at": "2026-11-27 21:06:44",
+     "by": "AC0901",
+     "action": "降级进入",
+     "text": "自动进入降级开单并通知值班人"
+    },
+    {
+     "at": "2026-11-27 21:08:44",
+     "by": "AC0401",
+     "action": "值班人确认",
+     "text": "已知悉，保持降级开单，持续关注限额"
+    },
+    {
+     "at": "2026-11-27 21:47:19",
+     "by": "AC0901",
+     "action": "降级退出",
+     "text": "故障恢复，退出降级开单，开始恢复闭合"
+    },
+    {
+     "at": "2026-11-27 22:21:40",
+     "by": "AC0902",
+     "action": "部分闭合",
+     "text": "降级单 15 笔，13 笔闭合，2 笔缺项待人工处理"
+    }
+   ]
+  }
+ ],
+ "pauses": [
+  {
+   "id": "OPS-PS-20261022-01",
+   "brandId": "BR02",
+   "pausedAt": "2026-10-22 09:05:00",
+   "resumedAt": "2026-10-22 12:40:00",
+   "metric": "开锁成功率",
+   "value": 0.874,
+   "threshold": 0.9,
+   "sustainMinutes": 125,
+   "by": "AC0901",
+   "note": "运营商车联网平台升级导致开锁结果回报延迟；恢复后自动回到已接入"
+  },
+  {
+   "id": "OPS-PS-20261108-01",
+   "brandId": "BR04",
+   "pausedAt": "2026-11-08 14:10:00",
+   "resumedAt": "2026-11-09 10:20:00",
+   "metric": "可用率",
+   "value": 0.762,
+   "threshold": 0.8,
+   "sustainMinutes": 130,
+   "by": "AC0901",
+   "note": "大批车辆电量不足未及时换电；恢复后自动回到已接入"
+  },
+  {
+   "id": "OPS-PS-20261130-01",
+   "brandId": "BR02",
+   "pausedAt": "2026-11-30 08:00:00",
+   "resumedAt": null,
+   "metric": "开锁成功率",
+   "value": 0.861,
+   "threshold": 0.9,
+   "sustainMinutes": 240,
+   "by": "AC0901",
+   "note": "自 11-30 04:00 起开锁成功率持续低于 90%，运营商反馈车载通信模块固件问题，正在分批升级"
+  }
+ ],
+ "suspendSuggestions": [],
+ "alerts": [
+  {
+   "alertId": "OPS-AL-20261018-01",
+   "at": "2026-10-18 19:41:26",
+   "level": "严重",
+   "type": "降级进入",
+   "text": "已自动进入降级开单：支付通道故障（微信支付回调持续超时）",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261018-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-10-18 19:43:26"
+  },
+  {
+   "alertId": "OPS-AL-20261018-02",
+   "at": "2026-10-18 20:11:26",
+   "level": "警告",
+   "type": "降级持续超阈值",
+   "text": "降级已持续 30 分钟，请决定是否收紧或停止",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261018-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-10-18 20:12:26"
+  },
+  {
+   "alertId": "OPS-AL-20261018-03",
+   "at": "2026-10-18 20:14:03",
+   "level": "提示",
+   "type": "降级退出",
+   "text": "故障恢复，已退出降级开单",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261018-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": null,
+   "ackAt": null
+  },
+  {
+   "alertId": "OPS-AL-20261022-11",
+   "at": "2026-10-22 09:05:00",
+   "level": "警告",
+   "type": "暂停可租",
+   "text": "木棉 开锁成功率持续低于门槛（87.4% < 90%），已标为暂停可租",
+   "brandId": "BR02",
+   "degradeEventId": null,
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-10-22 09:11:00"
+  },
+  {
+   "alertId": "OPS-AL-20261022-12",
+   "at": "2026-10-22 12:40:00",
+   "level": "提示",
+   "type": "恢复可租",
+   "text": "木棉 指标恢复，已自动回到已接入",
+   "brandId": "BR02",
+   "degradeEventId": null,
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": null,
+   "ackAt": null
+  },
+  {
+   "alertId": "OPS-AL-20261108-13",
+   "at": "2026-11-08 14:10:00",
+   "level": "警告",
+   "type": "暂停可租",
+   "text": "简途 可用率持续低于门槛（76.2% < 80%），已标为暂停可租",
+   "brandId": "BR04",
+   "degradeEventId": null,
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-11-08 14:16:00"
+  },
+  {
+   "alertId": "OPS-AL-20261109-14",
+   "at": "2026-11-09 10:20:00",
+   "level": "提示",
+   "type": "恢复可租",
+   "text": "简途 指标恢复，已自动回到已接入",
+   "brandId": "BR04",
+   "degradeEventId": null,
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": null,
+   "ackAt": null
+  },
+  {
+   "alertId": "OPS-AL-20261112-04",
+   "at": "2026-11-12 07:58:12",
+   "level": "严重",
+   "type": "降级进入",
+   "text": "已自动进入降级开单：支付通道故障（支付宝扣款接口返回系统繁忙）",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261112-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0402",
+   "ackAt": "2026-11-12 08:00:12"
+  },
+  {
+   "alertId": "OPS-AL-20261112-05",
+   "at": "2026-11-12 08:28:12",
+   "level": "警告",
+   "type": "降级持续超阈值",
+   "text": "降级已持续 30 分钟，请决定是否收紧或停止",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261112-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0402",
+   "ackAt": "2026-11-12 08:29:12"
+  },
+  {
+   "alertId": "OPS-AL-20261112-06",
+   "at": "2026-11-12 08:52:40",
+   "level": "提示",
+   "type": "降级退出",
+   "text": "故障恢复，已退出降级开单",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261112-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": null,
+   "ackAt": null
+  },
+  {
+   "alertId": "OPS-AL-20261127-07",
+   "at": "2026-11-27 21:06:44",
+   "level": "严重",
+   "type": "降级进入",
+   "text": "已自动进入降级开单：实名核验服务不可用（第三方核验接口连续超时）",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261127-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-11-27 21:08:44"
+  },
+  {
+   "alertId": "OPS-AL-20261127-08",
+   "at": "2026-11-27 21:36:44",
+   "level": "警告",
+   "type": "降级持续超阈值",
+   "text": "降级已持续 30 分钟，请决定是否收紧或停止",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261127-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-11-27 21:37:44"
+  },
+  {
+   "alertId": "OPS-AL-20261127-10",
+   "at": "2026-11-27 21:47:19",
+   "level": "提示",
+   "type": "降级退出",
+   "text": "故障恢复，已退出降级开单",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261127-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": null,
+   "ackAt": null
+  },
+  {
+   "alertId": "OPS-AL-20261127-09",
+   "at": "2026-11-27 22:16:17",
+   "level": "提示",
+   "type": "降级单超时长上限",
+   "text": "降级单 OD2026112714120 已骑行超过 45 分钟上限，已提醒用户尽快还车，骑行不结束",
+   "brandId": null,
+   "degradeEventId": "OPS-DG-20261127-01",
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-11-27 22:18:17"
+  },
+  {
+   "alertId": "OPS-AL-20261130-15",
+   "at": "2026-11-30 08:00:00",
+   "level": "警告",
+   "type": "暂停可租",
+   "text": "木棉 开锁成功率持续低于门槛（86.1% < 90%），已标为暂停可租",
+   "brandId": "BR02",
+   "degradeEventId": null,
+   "notified": [
+    "AC0401",
+    "AC0402"
+   ],
+   "ackBy": "AC0401",
+   "ackAt": "2026-11-30 08:06:00"
+  }
+ ]
+}

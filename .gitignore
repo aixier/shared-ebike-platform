@@ -1,0 +1,10 @@
+.tmp/
+*.exe
+deploy/local/bin/
+deploy/local/data/
+deploy/local/env/
+deploy/local/secrets/
+deploy/local/logs/
+deploy/local/run/
+deploy/docker/.dl/
+node_modules/

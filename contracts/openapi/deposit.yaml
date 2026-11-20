@@ -1,0 +1,657 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · deposit 押金与免押
+  version: 1.0.0
+  description: |
+    deposit 持有押金账户、免押授权、押金缴纳、押金抵扣、退押申请、专户台账。
+    不碰支付渠道（由 pay 执行）、不判断能不能开锁（归 ride）、不算欠费（归 bill）。
+    姓名、手机号由前端按 userId 另查 acct；骑行收入户的数字另查 pay。金额一律整数分，时间 RFC 3339。
+    请求体须为 UTF-8，否则 400 INVALID（"请求体不是 UTF-8 编码"）。
+    管理端目前只有读接口；今后若加管理端写接口，带 readonly=true 的令牌一律 403 READONLY。押金数据不属于任何运营商，带数据范围（scope）的管理令牌一律 403 SCOPE_DENIED，因此本服务不订阅 fleet.operator.exited。
+    用户注册渠道取自 acct.user.registered：开通免押缺省的信用服务按渠道取（微信为微信支付分，支付宝为芝麻信用），押金收款渠道按渠道取（微信为微信支付，支付宝为支付宝），未收到注册事件的用户用部署配置的缺省值。
+tags:
+  - name: 用户端
+  - name: 财务
+  - name: 客服
+  - name: 内部
+paths:
+  /api/deposit/me/state:
+    get:
+      operationId: getMyDepositState
+      summary: 我的押金与免押状态
+      description: UserView 中归 deposit 的部分（deposit 字段），三种形态之一：免押、未开通、押金。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.me
+      x-requirements: [R-15, R-16]
+      x-errors: [NOT_LOGGED_IN, INTERNAL]
+      responses:
+        '200':
+          description: 押金与免押状态
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DepositState' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/deposit/me:
+    get:
+      operationId: getMyDepositPage
+      summary: 押金页数据
+      description: 当前形态、现行规则、能否退押与待处理项、现在申请的预计到账时间、退押原路失败后是否在等收款账户。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.deposit.get
+      x-requirements: [R-15, R-16, R-17, BR-23, BR-25, R-11]
+      x-errors: [NOT_LOGGED_IN, SERVER_BUSY, INTERNAL]
+      responses:
+        '200':
+          description: 押金页数据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DepositPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/deposit/me/credit-free:
+    post:
+      operationId: openCreditFree
+      summary: 开通信用免押
+      description: 以平台公司商户身份开通；信用分须达到现行规则门槛。还有押金未退时须先退押（REFUND_BLOCKED，next 为申请退押）。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.openCreditFree
+      x-requirements: [R-16]
+      x-errors: [NOT_LOGGED_IN, INVALID, NEED_ONBOARDING, ACCOUNT_FROZEN, ACCOUNT_CANCELLED, ALREADY_DONE, REFUND_BLOCKED, CREDIT_SCORE_LOW, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  allOf: [{ $ref: '#/components/schemas/CreditProvider' }]
+                  description: 缺省按注册入口取：微信为微信支付分，支付宝为芝麻信用
+      responses:
+        '200':
+          description: 已开通
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deposit, score, threshold]
+                properties:
+                  deposit: { $ref: '#/components/schemas/DepositState' }
+                  score: { type: integer, description: 信用分 }
+                  threshold: { type: integer, description: 现行免押门槛 }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/deposit/me/payment:
+    post:
+      operationId: payDeposit
+      summary: 缴押金
+      description: 金额取现行规则，全市各品牌通用。调 pay 押金收款，进押金专户。收款结果未知时返回 CONFLICT，稍后再查押金状态。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.payDeposit
+      x-requirements: [R-15, R-18, BR-21]
+      x-errors: [NOT_LOGGED_IN, NEED_ONBOARDING, ACCOUNT_FROZEN, ACCOUNT_CANCELLED, ALREADY_DONE, CONFLICT, PAY_DECLINED, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 已缴纳
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DepositPayResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/deposit/me/topup:
+    post:
+      operationId: topupDeposit
+      summary: 补缴押金
+      description: 押金被抵扣后补足到缴纳时金额，押金金额调整后不补差。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.topupDeposit
+      x-requirements: [R-15, BR-25]
+      x-errors: [NOT_LOGGED_IN, NOTHING_TO_PAY, CONFLICT, PAY_DECLINED]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 已补缴
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DepositPayResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/deposit/me/refund:
+    post:
+      operationId: requestDepositRefund
+      summary: 申请退押
+      description: |
+        一键申请，按余额原路退回，返回预计到账时间。有骑行中订单、未结欠费或待支付订单时拒绝并列出待处理项（REFUND_BLOCKED）。
+        申请即发"已申请退押"事件让 ride 停止开新单，收到"已阻止开单"回执后才向 pay 发退押命令。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.deposit.refund
+      x-requirements: [R-17, BR-23, BR-24, BR-25]
+      x-errors: [NOT_LOGGED_IN, NOT_DEPOSIT_USER, REFUND_BLOCKED, CONFLICT]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 已申请
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RefundApplyResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/deposit/admin/summary:
+    get:
+      operationId: getDepositSummary
+      summary: 押金专户收支汇总
+      description: 专户台账汇总与各状态用户数。恒等式：专户余额 = 缴纳 + 补缴 − 抵扣 − 已退 − 人工转账退押。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.deposit.summary
+      x-requirements: [R-18, BR-21]
+      x-permissions: [deposit.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      responses:
+        '200':
+          description: 专户汇总
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DepositSummary' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/deposit/admin/flows:
+    get:
+      operationId: listDepositFlows
+      summary: 押金专户流水
+      description: 专户台账逐笔记录（缴纳、补缴、抵扣、退押、人工转账退押），按创建时间新到旧。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.deposit.flows
+      x-requirements: [R-18, BR-21]
+      x-permissions: [deposit.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, INVALID]
+      parameters:
+        - name: type
+          in: query
+          schema: { $ref: '#/components/schemas/DepositFlowType' }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/DepositFlowStatus' }
+        - name: userId
+          in: query
+          schema: { type: string, example: U100004 }
+        - name: from
+          in: query
+          description: 创建时间起（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: to
+          in: query
+          description: 创建时间止（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 流水分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './_common.yaml#/components/schemas/PageMeta'
+                  - type: object
+                    required: [rows]
+                    properties:
+                      rows:
+                        type: array
+                        items: { $ref: '#/components/schemas/DepositFlow' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/deposit/admin/users/{userId}:
+    get:
+      operationId: getUserDeposit
+      summary: 按用户编号查押金状态（客服用）
+      description: 客服"用户全貌"的押金部分：当前形态、改开免押前的旧押金、现在能否退押与待处理项。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, R-17, BR-23]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 用户编号
+          schema: { type: string, example: U100004 }
+      responses:
+        '200':
+          description: 用户押金状态
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDeposit' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /internal/deposit/deductions:
+    post:
+      operationId: deductDeposit
+      summary: 押金抵扣（bill 调用）
+      description: |
+        支付期限届满未付时，从本人押金抵本人未付骑行费。余额不够时抵多少算多少，不足部分由 bill 记欠费。
+        本模块调 pay 做专户划转、记台账、把押金状态置为"押金不足"并发"押金已抵扣"事件；通知用户在事后。
+        同一 Idempotency-Key 重复到达只执行一次，返回首次的结果。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [BR-22, R-18, BR-21]
+      x-errors: [UNAUTHORIZED, FORBIDDEN, INVALID, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeductCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeductResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /internal/deposit/assist-refunds:
+    post:
+      operationId: assistRefundDeposit
+      summary: 协助退押（cs 调用）
+      description: 客服代用户发起退押，规则与用户自助相同；有待处理项时 result 为失败并列出 blockers。请求里的 `actor` 是代办的客服，本服务执行并记"退押处理"留痕（操作人取该 actor），cs 只记工单本身的留痕。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-17, BR-23, BR-24, R-10]
+      x-errors: [UNAUTHORIZED, FORBIDDEN, INVALID, NOT_FOUND, REASON_REQUIRED]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssistRefundCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistRefundResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+components:
+  parameters:
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键，模块间命令必带；重复到达只执行一次并返回首次结果
+      schema: { type: string, maxLength: 64 }
+
+  schemas:
+    CreditProvider:
+      type: string
+      description: 信用免押服务方
+      enum: [微信支付分, 芝麻信用]
+    DepositStatus:
+      type: string
+      description: 押金状态；押金不足指被抵扣后未补缴
+      enum: [已缴, 押金不足, 退押中, 已退]
+    DepositFlowType:
+      type: string
+      description: 专户台账类型
+      enum: [押金缴纳, 押金补缴, 押金抵扣, 退押, 人工转账退押]
+    DepositFlowStatus:
+      type: string
+      enum: [成功, 失败, 处理中]
+
+    DepositRefund:
+      type: object
+      description: 退押申请
+      required: [appliedAt, expectedAt, amount, awaitingPayee]
+      properties:
+        appliedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        stoppedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 收到 ride"已阻止开单"回执的时刻；收到后才退款
+        expectedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 预计到账时间（退押时限个工作日）
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 退押金额（申请时余额）
+        paymentId: { type: string, nullable: true, description: 退押流水号；发出退押命令后有值 }
+        manualPaymentId: { type: string, nullable: true, description: 人工转账退押流水号 }
+        awaitingPayee: { type: boolean, description: 原路失败、等用户向 pay 提交收款账户 }
+
+    CreditFreeState:
+      type: object
+      description: 免押形态
+      required: [mode, provider, creditOpenedAt]
+      properties:
+        mode: { type: string, enum: [免押] }
+        provider: { $ref: '#/components/schemas/CreditProvider' }
+        score: { type: integer, description: 开通时的信用分 }
+        creditOpenedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+
+    NotOpenedState:
+      type: object
+      description: 未开通形态（没有免押也没有押金）
+      required: [mode]
+      properties:
+        mode: { type: string, enum: [未开通] }
+
+    PaidDepositState:
+      type: object
+      description: 押金形态
+      required: [mode, amountPaid, balance, status]
+      properties:
+        mode: { type: string, enum: [押金] }
+        amountPaid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 缴纳时规则的金额；退押按此退，不补差不退差
+        balance:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 当前余额
+        status: { $ref: '#/components/schemas/DepositStatus' }
+        paidAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 缴纳时刻
+        paymentId: { type: string, nullable: true, description: 缴纳流水号 }
+        topupPaymentIds:
+          type: array
+          description: 补缴流水号
+          items: { type: string }
+        deductionPaymentIds:
+          type: array
+          description: 抵扣流水号
+          items: { type: string }
+        refund:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/DepositRefund' }]
+          description: 退押申请，没有为 null
+
+    DepositState:
+      description: 押金与免押状态，按 mode 分三种形态
+      oneOf:
+        - $ref: '#/components/schemas/CreditFreeState'
+        - $ref: '#/components/schemas/NotOpenedState'
+        - $ref: '#/components/schemas/PaidDepositState'
+      discriminator:
+        propertyName: mode
+        mapping:
+          免押: '#/components/schemas/CreditFreeState'
+          未开通: '#/components/schemas/NotOpenedState'
+          押金: '#/components/schemas/PaidDepositState'
+
+    DepositRule:
+      type: object
+      description: 现行规则中与押金有关的部分
+      required: [depositAmount, creditFreeThreshold, refundWorkdays]
+      properties:
+        depositAmount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 现行押金金额
+        creditFreeThreshold: { type: integer, description: 现行免押信用分门槛 }
+        refundWorkdays: { type: integer, description: 退押时限（工作日） }
+
+    PreviousDeposit:
+      type: object
+      description: 改开免押之前的旧押金（已退或退押中）
+      required: [amountPaid, status]
+      properties:
+        amountPaid: { $ref: './_common.yaml#/components/schemas/Money' }
+        status: { $ref: '#/components/schemas/DepositStatus' }
+        refund:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/DepositRefund' }]
+
+    DepositPage:
+      type: object
+      description: 押金页数据
+      required: [mode, deposit, creditFree, previousDeposit, rule, canRefund, blockers, refundAmount, expectedAtIfApplyNow, awaitingPayee, refundFailedPaymentId]
+      properties:
+        mode: { type: string, enum: [免押, 未开通, 押金] }
+        deposit:
+          type: object
+          nullable: true
+          description: 押金形态时有值
+          required: [amountPaid, balance, status]
+          properties:
+            amountPaid: { $ref: './_common.yaml#/components/schemas/Money' }
+            balance: { $ref: './_common.yaml#/components/schemas/Money' }
+            status: { $ref: '#/components/schemas/DepositStatus' }
+            paidAt:
+              nullable: true
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+            refund:
+              nullable: true
+              allOf: [{ $ref: '#/components/schemas/DepositRefund' }]
+        creditFree:
+          type: object
+          nullable: true
+          description: 免押形态时有值
+          required: [provider, openedAt]
+          properties:
+            provider: { $ref: '#/components/schemas/CreditProvider' }
+            openedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        previousDeposit:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PreviousDeposit' }]
+        rule: { $ref: '#/components/schemas/DepositRule' }
+        canRefund: { type: boolean, description: 现在能否申请退押：押金已缴或押金不足、余额大于 0、且没有待处理项 }
+        blockers:
+          type: array
+          description: 退押前的待处理项（骑行中订单、未结欠费、待支付订单）
+          items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+        refundAmount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 现在申请可退金额（余额）；非押金形态为 0
+        expectedAtIfApplyNow:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 现在申请的预计到账时间
+        awaitingPayee: { type: boolean, description: 退押原路失败、等用户填写收款账户 }
+        refundFailedPaymentId: { type: string, nullable: true, description: 失败的退押流水号；提交收款账户时带给 pay }
+
+    DepositPayResult:
+      type: object
+      required: [deposit, paymentId, amount]
+      properties:
+        deposit: { $ref: '#/components/schemas/DepositState' }
+        paymentId: { type: string, description: 收款流水号 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 本次缴纳或补缴金额
+
+    RefundApplyResult:
+      type: object
+      required: [refund, text]
+      properties:
+        refund: { $ref: '#/components/schemas/DepositRefund' }
+        text: { type: string, description: 提示语，如"押金 ¥199.0 将原路退回，预计 12月4日 前到账。退押后需重新缴押或开通免押才能骑行。" }
+
+    DepositSummary:
+      type: object
+      description: 专户汇总（只含 deposit 持有的部分；骑行收入户净额由 pay 给）
+      required: [ledger, users, userBalanceSum]
+      properties:
+        ledger:
+          type: object
+          description: 专户台账汇总
+          required: [paidIn, toppedUp, deducted, refunded, manualRefunded, balance, refundingAmount]
+          properties:
+            paidIn:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 缴纳合计
+            toppedUp:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 补缴合计
+            deducted:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 抵扣合计
+            refunded:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 原路退押合计
+            manualRefunded:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 人工转账退押合计
+            balance:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 专户余额
+            refundingAmount:
+              allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+              description: 退押处理中的金额
+        users:
+          type: object
+          description: 各状态用户数
+          required: [已缴, 押金不足, 退押中, 已退]
+          properties:
+            已缴: { type: integer }
+            押金不足: { type: integer }
+            退押中: { type: integer }
+            已退: { type: integer }
+        userBalanceSum:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 各用户押金余额之和，应与专户余额一致
+        note: { type: string, description: 说明，如"押金专户与骑行收入户分开记账；押金只抵扣本人未付骑行费，不用于支付服务费" }
+
+    DepositFlow:
+      type: object
+      description: 专户台账的一笔
+      required: [paymentId, type, direction, userId, amount, status, createdAt]
+      properties:
+        paymentId: { type: string, description: pay 的流水号 }
+        type: { $ref: '#/components/schemas/DepositFlowType' }
+        direction: { type: string, enum: [收, 付, 转], description: 转为划入骑行收入户（押金抵扣） }
+        userId: { type: string }
+        orderId: { type: string, nullable: true, description: 押金抵扣对应的订单 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 金额，正数
+        channel: { type: string, enum: [微信支付, 支付宝, 银行转账, 押金专户划转] }
+        status: { $ref: '#/components/schemas/DepositFlowStatus' }
+        failReason: { type: string, nullable: true }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        completedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+        relatedPaymentId: { type: string, nullable: true, description: 人工转账退押指向失败的原路退押 }
+
+    UserDeposit:
+      type: object
+      required: [userId, deposit, previousDeposit, canRefund, refundBlockers]
+      properties:
+        userId: { type: string }
+        deposit: { $ref: '#/components/schemas/DepositState' }
+        previousDeposit:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PreviousDeposit' }]
+        canRefund: { type: boolean, description: 现在能否退押 }
+        refundBlockers:
+          type: array
+          description: 退押前的待处理项
+          items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+
+    DeductCommand:
+      type: object
+      required: [userId, orderId, amount]
+      properties:
+        userId: { type: string }
+        orderId: { type: string, description: 支付期限届满未付的订单 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 该单未付金额，大于 0
+
+    DeductResult:
+      type: object
+      description: 押金抵扣结果
+      required: [result, userId, orderId, deducted, shortfall]
+      properties:
+        result:
+          type: string
+          description: 成功为已抵扣（可能只抵了一部分，看 shortfall）；失败时没有动押金；结果未知表示专户划转尚未返回，最终以"押金已抵扣"事件为准
+          enum: [成功, 失败, 结果未知]
+        failCode:
+          type: string
+          nullable: true
+          description: 失败原因分类。NOT_DEPOSIT_USER 不是押金用户；NO_BALANCE 押金余额为 0 或正在退押；TRANSFER_FAILED 专户划转失败
+          enum: [NOT_DEPOSIT_USER, NO_BALANCE, TRANSFER_FAILED]
+        failReason: { type: string, nullable: true, description: 一句失败原因 }
+        userId: { type: string }
+        orderId: { type: string }
+        deducted:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 实际抵扣金额
+        shortfall:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 没抵到的金额，由 bill 记欠费
+        balanceAfter:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 抵扣后押金余额
+        status:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/DepositStatus' }]
+          description: 抵扣后押金状态
+        paymentId: { type: string, nullable: true, description: 专户划转流水号 }
+
+    AssistRefundCommand:
+      type: object
+      required: [userId, reason, actor]
+      properties:
+        userId: { type: string }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+        ticketId: { type: string, description: 发起工单号 }
+
+    AssistRefundResult:
+      type: object
+      description: 协助退押结果
+      required: [result, userId]
+      properties:
+        result:
+          type: string
+          description: 成功为已受理退押申请（到账以"已退押"事件为准）；失败看 failCode、failReason 与 blockers；结果未知表示申请是否落账尚不确定，用同一幂等键重试
+          enum: [成功, 失败, 结果未知]
+        failCode:
+          type: string
+          nullable: true
+          description: 失败原因分类，与用户自助的错误码一致
+          enum: [NOT_DEPOSIT_USER, REFUND_BLOCKED]
+        failReason: { type: string, nullable: true, description: 一句失败原因，如"暂不能退押：有一单正在骑行，还车后再处理" }
+        userId: { type: string }
+        blockers:
+          type: array
+          description: 待处理项（REFUND_BLOCKED 时）
+          items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+        refund:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/DepositRefund' }]
+        text: { type: string, description: 可转述给用户的提示语 }

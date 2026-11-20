@@ -1,0 +1,982 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · ride 骑行
+  version: 1.0.0
+  description: |
+    骑行订单、扫码确认、开锁、结束骑行、在点判定、降级标记。
+    只返回行程部分：费用、账单、支付状态、实时费用估算归 bill，流水归 pay，工单归 cs，结算归属归 settle，页面按订单号分别查询后拼装。
+    扫码确认与准入判断只读本地准入快照。
+    请求体必须是 UTF-8，否则 400 INVALID（请求体不是 UTF-8 编码）。管理端写接口遇 readonly 令牌返回 403 READONLY（本服务目前没有管理端写接口，护栏已就位）。
+tags:
+  - name: 用户端
+  - name: 客服
+  - name: 财务
+  - name: 运维
+  - name: 内部
+paths:
+  /api/ride/scan:
+    post:
+      operationId: scanVehicle
+      summary: 扫码确认
+      description: 不因不能开锁而失败，原因放在 check 里。未登录也可扫码，此时 check 给出"请先授权登录"。
+      tags: [用户端]
+      security:
+        - userAuth: []
+        - {}
+      x-prototype: api.user.scan
+      x-requirements: [R-02, R-04, R-05, R-31, R-32, BR-27, BR-28, NFR-06]
+      x-errors: [CODE_NOT_FOUND, INVALID, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScanRequest' }
+      responses:
+        '200':
+          description: 扫码结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScanResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/ride/nearby:
+    get:
+      operationId: listNearbyVehicles
+      summary: 附近可租车
+      description: 按距离升序，最多 5 辆。按各车最后一次锁车位置推算，只列可租且不在骑行中的车。传 vehicleId 时以该车位置为中心并排除该车。
+      tags: [用户端]
+      security:
+        - userAuth: []
+        - {}
+      x-prototype: api.user.nearby
+      x-requirements: [R-05]
+      x-errors: [INVALID, SERVER_BUSY]
+      parameters:
+        - { name: vehicleId, in: query, description: 以这辆车的位置为中心, schema: { type: string } }
+        - { name: lng, in: query, description: 中心点经度（与 lat 同传）, schema: { type: number } }
+        - { name: lat, in: query, description: 中心点纬度, schema: { type: number } }
+        - { name: radiusM, in: query, description: 半径（米），缺省取平台参数 500, schema: { type: integer, minimum: 1 } }
+      responses:
+        '200':
+          description: 附近可租车
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 5
+                items: { $ref: '#/components/schemas/Nearby' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+  /api/ride/unlock:
+    post:
+      operationId: unlockVehicle
+      summary: 开锁
+      description: |
+        先建订单再请求运营商开锁，接口保持到运营商报告开锁结果或开锁报告时限届满后返回。
+        成功即开始计时（计费起点为开锁成功报告时刻）。时限内未报告视为失败不计费。
+        请求中断时页面改查"当前骑行中订单"或订单详情。重复请求（同一幂等键）不产生第二单。
+        判定顺序：码未启用 → 品牌暂停可租 → 码已失效 → 品牌未开放 → 未登录 → 已注销 → 冻结 → 已有骑行中 → 未实名或待核验 → 欠费 → 待支付 → 押金 → 运营商报告。降级时按 BR-28 准入。
+        开锁失败关怀券由 bill 发放，不在本接口返回。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.unlock
+      x-requirements: [R-05, R-06, BR-02, BR-03, BR-04, BR-05, R-31, R-32, R-33, BR-27, BR-28, BR-29, BR-30, NFR-01, NFR-08]
+      x-errors:
+        - NOT_LOGGED_IN
+        - INVALID
+        - ACCOUNT_CANCELLED
+        - ACCOUNT_FROZEN
+        - NEED_ONBOARDING
+        - CODE_NOT_FOUND
+        - CODE_NOT_ENABLED
+        - BRAND_PAUSED
+        - CODE_INVALID
+        - BRAND_NOT_AVAILABLE
+        - HAS_ARREARS
+        - UNPAID_ORDER
+        - DEPOSIT_REQUIRED
+        - DEPOSIT_INSUFFICIENT
+        - DEPOSIT_REFUNDING
+        - HAS_RIDING
+        - UNLOCK_NO_RESPONSE
+        - UNLOCK_LOW_BATTERY
+        - UNLOCK_FAULT
+        - UNLOCK_OCCUPIED
+        - DEGRADE_REJECT_ARREARS
+        - DEGRADE_REJECT_REFUNDING
+        - DEGRADE_USER_LIMIT
+        - DEGRADE_PAUSED_TIGHT
+        - DEGRADE_NEW_USER_UNAVAILABLE
+        - DEGRADE_STOPPED
+        - SERVER_BUSY
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScanRequest' }
+      responses:
+        '200':
+          description: 已开锁，返回骑行中订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideView' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409':
+          description: 不能开锁或开锁失败。附加字段随错误码返回：nearby（附近可租车）、orderId、amount、depositAmount、topupAmount、codeEnableAt、codeInvalidAt、unfreezeHow、lateSuccess
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+  /api/ride/current:
+    get:
+      operationId: getCurrentRide
+      summary: 当前骑行中订单
+      description: 骑行中页每 1～5 秒轮询。也用于首页取"骑行中订单号"。实时费用估算另查 bill。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.ride
+      x-requirements: [R-06, R-07, R-33]
+      x-errors: [NOT_LOGGED_IN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 骑行中订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideView' }
+        '204':
+          description: 当前没有骑行中的订单
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/ride/return-preview:
+    get:
+      operationId: previewReturn
+      summary: 还车前预判
+      description: 不传参数时按车辆最近一次上报位置判断。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.returnPreview
+      x-requirements: [R-07, R-29, BR-08, BR-10, BR-11, BR-12]
+      x-errors: [NOT_LOGGED_IN, NO_RIDING, INVALID, SERVER_BUSY]
+      parameters:
+        - { name: stationId, in: query, description: 打算还车的站点, schema: { type: string } }
+        - { name: lng, in: query, description: 当前位置经度（与 lat 同传）, schema: { type: number } }
+        - { name: lat, in: query, description: 当前位置纬度, schema: { type: number } }
+      responses:
+        '200':
+          description: 预判结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReturnPreview' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/ride/return:
+    post:
+      operationId: returnBike
+      summary: 页面还车
+      description: |
+        用户在页面点［还车］：平台请求运营商结束骑行，以锁车报告为准结束订单。
+        站外须先带 confirmDispatch=true，否则返回 DISPATCH_CONFIRM_REQUIRED（含调度费与最近站点）。
+        锁车报告未到时返回 ended=false，页面提示"还车确认中，你可以离开"，按实际锁车时刻计费。
+        原型 returnBike 的 pile、pileNoLock、lock 三种方式在后端由桩在位事件与运营商锁车报告触发，不经本接口。收款结果（collect）另查 bill。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.returnBike
+      x-requirements: [R-07, R-29, BR-01, BR-08, BR-09, BR-10, BR-11, BR-12, BR-13]
+      x-errors: [NOT_LOGGED_IN, NO_RIDING, DISPATCH_CONFIRM_REQUIRED, PILE_FULL, PILE_UNAVAILABLE, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReturnRequest' }
+      responses:
+        '200':
+          description: 已受理还车
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReturnResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409':
+          description: 不能还车。DISPATCH_CONFIRM_REQUIRED 附 dispatchFee、nearestStation，charged=true；PILE_FULL、PILE_UNAVAILABLE 附 stationId
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+  /api/ride/orders:
+    get:
+      operationId: listMyRideOrders
+      summary: 我的订单（行程部分）
+      description: 新到旧。费用部分按订单号向 bill 批量查。"待付款"筛选由 bill 给出订单号后，用 orderIds 回查本接口。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.orders
+      x-requirements: [R-12]
+      x-errors: [NOT_LOGGED_IN, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - name: status
+          in: query
+          description: 订单状态
+          schema: { $ref: '#/components/schemas/OrderStatus' }
+        - name: orderIds
+          in: query
+          description: 按订单号批量查，逗号分隔，最多 100 个
+          style: form
+          explode: false
+          schema: { type: array, maxItems: 100, items: { type: string } }
+      responses:
+        '200':
+          description: 分页订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideOrderPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/ride/orders/{orderId}:
+    get:
+      operationId: getMyRideOrder
+      summary: 订单详情（行程部分）
+      description: 只能看本人订单。账单、流水、工单分别向 bill、pay、cs 查。
+      tags: [用户端]
+      security:
+        - userAuth: []
+      x-prototype: api.user.order
+      x-requirements: [R-12]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+      responses:
+        '200':
+          description: 订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideOrder' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/ride/admin/orders:
+    get:
+      operationId: listAdminRideOrders
+      summary: 订单查询（行程与用户编号）
+      description: |
+        平台公司岗位用；运营商查订单走 settle。也是"按用户编号查订单"的页面接口（客服用户全貌）。
+        q 可为订单号、用户编号、车号；按手机号查时前端先向 acct 换成用户编号。按支付状态筛选由 bill 给出订单号后用 orderIds 回查。
+      tags: [客服, 财务, 运维]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.orders.list
+      x-requirements: [R-12, R-13, R-30, R-46]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { $ref: './_common.yaml#/components/parameters/SortKey' }
+        - { $ref: './_common.yaml#/components/parameters/SortDir' }
+        - { name: q, in: query, description: 订单号（可部分匹配）、用户编号或车号, schema: { type: string } }
+        - { name: userId, in: query, description: 用户编号, schema: { type: string } }
+        - name: status
+          in: query
+          description: 订单状态
+          schema: { $ref: '#/components/schemas/OrderStatus' }
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string } }
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string } }
+        - { name: degraded, in: query, description: 是否降级单, schema: { type: boolean } }
+        - name: from
+          in: query
+          description: 开锁请求时刻起
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: to
+          in: query
+          description: 开锁请求时刻止
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: orderIds
+          in: query
+          description: 按订单号批量查，逗号分隔，最多 100 个
+          style: form
+          explode: false
+          schema: { type: array, maxItems: 100, items: { type: string } }
+      responses:
+        '200':
+          description: 分页订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminRideOrderPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/ride/admin/orders/{orderId}:
+    get:
+      operationId: getAdminRideOrder
+      summary: 订单详情（行程与用户编号）
+      description: 流水、工单、留痕分别向 pay、cs、iam 查。
+      tags: [客服, 财务, 运维]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.orders.get
+      x-requirements: [R-12, R-13, R-30, R-46]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+      responses:
+        '200':
+          description: 订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminRideOrder' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /internal/ride/orders:
+    get:
+      operationId: internalListRideOrders
+      summary: 按用户编号或订单号查订单事实
+      description: 供 cs 等模块读订单事实。userId、orderIds、plateNo 至少传一个。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [R-12, R-13]
+      x-errors: [UNAUTHORIZED, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { name: userId, in: query, description: 用户编号, schema: { type: string } }
+        - { name: plateNo, in: query, description: 车号（客服按车号查订单）, schema: { type: string } }
+        - name: status
+          in: query
+          description: 订单状态
+          schema: { $ref: '#/components/schemas/OrderStatus' }
+        - name: orderIds
+          in: query
+          description: 订单号，逗号分隔，最多 100 个
+          style: form
+          explode: false
+          schema: { type: array, maxItems: 100, items: { type: string } }
+      responses:
+        '200':
+          description: 分页订单事实
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminRideOrderPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /internal/ride/orders/{orderId}:
+    get:
+      operationId: internalGetRideOrder
+      summary: 读订单事实
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [R-12, R-13]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+      responses:
+        '200':
+          description: 订单事实
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminRideOrder' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /internal/ride/orders/{orderId}/force-end:
+    post:
+      operationId: internalForceEndRide
+      summary: 强制结束
+      description: cs 的命令。结束订单并请求运营商锁车，按 billedEndAt 作计费终点，记事由。对应原型 api.admin.cs.forceEnd 中属于 ride 的部分。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [R-13]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, NOT_RIDING, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForceEndRequest' }
+      responses:
+        '200':
+          description: 已结束
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ForceEndResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/ride/orders/{orderId}/lock-fact:
+    post:
+      operationId: internalBackfillLockFact
+      summary: 补录锁车事实
+      description: ops 的命令。给"待人工处理"的降级单补录锁车时刻与站点，订单结束并发布"订单已结束"。对应原型 api.admin.ops.closure.handle 中 action=补录锁车事实 属于 ride 的部分。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [R-34, BR-32]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, CONFLICT, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LockFactRequest' }
+      responses:
+        '200':
+          description: 已补录
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminRideOrder' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/ride/ride-events:
+    post:
+      operationId: internalDeliverRideEvent
+      summary: 送达运营商的骑行事件
+      description: |
+        opgw 验签、去重后把运营商经 M-03 报告的开锁结果或锁车同步送到这里。本接口按 operatorEventId 去重，重复送达返回同样结果。
+        返回 200 即表示本服务已持久化（数据库不可用时已写入本地日志），opgw 可以不再重试。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [M-03, R-06, R-07, R-30, BR-38]
+      x-errors: [UNAUTHORIZED, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorEventId, plateNo, brandId, operatorId, kind, receivedAt, late]
+              properties:
+                operatorEventId: { type: string, description: 运营商给的事件编号 }
+                orderId: { type: string, nullable: true, description: 平台订单号；运营商未带订单号的手动锁车为空 }
+                plateNo: { type: string, description: 车号 }
+                brandId: { type: string }
+                operatorId: { type: string }
+                kind: { type: string, enum: [开锁结果, 锁车] }
+                unlock:
+                  type: object
+                  nullable: true
+                  description: kind 为开锁结果时必填
+                  required: [result, at]
+                  properties:
+                    result: { type: string, enum: [成功, 失败] }
+                    reason: { type: string, nullable: true, enum: [车辆无响应, 电量不足, 车辆故障, 车辆被占用, null] }
+                    at: { $ref: './_common.yaml#/components/schemas/Time' }
+                lock:
+                  type: object
+                  nullable: true
+                  description: kind 为锁车时必填
+                  required: [at]
+                  properties:
+                    at: { $ref: './_common.yaml#/components/schemas/Time' }
+                    location: { $ref: './_common.yaml#/components/schemas/Location' }
+                    vehicleSideInStation: { type: boolean, nullable: true, description: 车端在点判定 }
+                    durationSec: { type: integer, nullable: true }
+                    distanceKm: { type: number, nullable: true }
+                    manual: { type: boolean, description: 是否用户手动锁车 }
+                receivedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+                late: { type: boolean, description: 是否补报 }
+      responses:
+        '200':
+          description: 已持久化
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted]
+                properties:
+                  accepted: { type: boolean }
+                  orderId: { type: string, nullable: true, description: 匹配到的订单号；未匹配为空（保留待匹配） }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    userAuth: { $ref: './_common.yaml#/components/securitySchemes/userAuth' }
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+  parameters:
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: 订单号
+      schema: { type: string, example: OD2026102613011 }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键；重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+  schemas:
+    NullableTime:
+      nullable: true
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/Time' }
+    UnlockLocation:
+      type: object
+      nullable: true
+      description: 开锁位置，扫码开锁时车辆所在位置；没有位置时为 null。与 startLocation 同一来源，写法为对象 {lat, lng}（GCJ-02）
+      required: [lat, lng]
+      properties:
+        lat: { type: number, description: 纬度 }
+        lng: { type: number, description: 经度 }
+    NullableLocation:
+      nullable: true
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/Location' }
+    OrderStatus:
+      type: string
+      description: 订单状态。开锁中指已扫码建单、运营商开锁结果尚未回来（开锁报告时限内）；占车占人，不计费
+      enum: [开锁中, 开锁失败, 骑行中, 已结束, 待人工处理]
+    UnlockResult:
+      type: string
+      description: 开锁结果
+      enum: [成功, 失败, 超时后成功]
+    UnlockFailReason:
+      type: string
+      nullable: true
+      description: 开锁失败原因；车辆无响应指开锁报告时限内未报告
+      enum: [车辆无响应, 电量不足, 车辆故障, 车辆被占用, null]
+    EndMethod:
+      type: string
+      nullable: true
+      description: 结束方式
+      enum: [入桩识别, 用户锁车, 页面还车, 入桩未锁·平台请求结束, 超时开锁·平台请求结束, 客服强制结束, null]
+    InStationBasis:
+      type: string
+      nullable: true
+      description: |
+        在点判定依据。桩识别：以桩在位为准（含桩与车端冲突时以桩为准，冲突另见 vehicleSideInStation）；运营商车端：无桩站点、桩故障或离线、有空闲桩但未识别时以车端报告为准；围栏：桩满时站点围栏内桩旁锁车；站外：不在任何站点。
+      enum: [桩识别, 运营商车端, 围栏, 站外, null]
+    Admission:
+      type: string
+      description: 降级准入类别（BR-28）
+      enum: [老用户, 押金状态未知的老用户, 先骑后验新用户]
+    ScanRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          description: 政府码 SF########、含政府码的网址，或车辆编号 VH######
+          example: SF86020226
+    ScanVehicle:
+      type: object
+      description: 车辆（准入快照里的投影）
+      required: [vehicleId, govCode, plateNo, brandId]
+      properties:
+        vehicleId: { type: string, description: 车辆编号 }
+        govCode: { type: string, description: 政府码 }
+        plateNo: { type: string, description: 车号 }
+        model: { type: string, description: 车型 }
+        vehicleType: { type: string, description: 车辆类型, example: 电单车 }
+        battery: { type: integer, nullable: true, description: 电量 %，没有上报时为空 }
+        location:
+          description: 最近一次上报位置
+          allOf:
+            - { $ref: '#/components/schemas/NullableLocation' }
+        stationId: { type: string, nullable: true, description: 所在站点编号 }
+        stationName: { type: string, nullable: true, description: 所在站点名称 }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        displayName: { type: string, description: 扫码页标题, example: 【青禾】电单车 }
+        color: { type: string, description: 地图点位颜色 }
+    ScanBrand:
+      type: object
+      description: 品牌（准入快照里的投影）
+      required: [brandId, name, accessStatus]
+      properties:
+        brandId: { type: string, description: 品牌编号 }
+        name: { type: string, description: 品牌名 }
+        displayName: { type: string, description: 扫码页标题 }
+        operatorId: { type: string, description: 运营商编号 }
+        vehicleType: { type: string, description: 车辆类型 }
+        color: { type: string, description: 地图点位颜色 }
+        accessStatus:
+          type: string
+          description: 接入状态
+          enum: [未接入, 联调中, 已接入, 暂停可租, 已退出]
+    PriceSummary:
+      type: object
+      description: 现行价格文案（取自规则版本的本地快照，只用于展示，不用于算钱）
+      required: [versionId, startFee, startMinutes, perMinute, dispatchFee, text, dispatchText]
+      properties:
+        versionId: { type: string, description: 规则版本号 }
+        startFee:
+          description: 起步价
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        startMinutes: { type: integer, description: 起步价包含的分钟数 }
+        perMinute:
+          description: 起步后每分钟价格
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        dispatchFee:
+          description: 站点外还车的调度费
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        text: { type: string, description: 价格一句话, example: '起步 ¥1.5（含 3 分钟），之后每分钟 ¥0.5' }
+        dispatchText: { type: string, description: 调度费一句话, example: '站点外还车加收调度费 ¥5.0' }
+        monthCard:
+          type: object
+          description: 月卡规则
+          properties:
+            price:
+              description: 月卡价格
+              allOf:
+                - { $ref: './_common.yaml#/components/schemas/Money' }
+            days: { type: integer, description: 有效天数 }
+            perOrderCap:
+              description: 每单抵扣上限
+              allOf:
+                - { $ref: './_common.yaml#/components/schemas/Money' }
+        deposit:
+          description: 押金金额
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        creditFreeThreshold: { type: integer, description: 信用免押门槛分 }
+    DegradeAdmission:
+      type: object
+      nullable: true
+      description: 降级且可开时的准入信息
+      required: [category, limitMinutes, limitAmount, line]
+      properties:
+        category: { $ref: '#/components/schemas/Admission' }
+        limitMinutes: { type: integer, description: 单笔时长上限（分钟） }
+        limitAmount:
+          description: 单笔金额上限
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        line: { type: string, description: 页面多出的一行, example: 费用将稍后收取 }
+        notice: { type: string, nullable: true, description: 紧档用户开锁前须显示的说明（单笔上限与核验不通过的后果）；老用户为空 }
+    ScanDegrade:
+      type: object
+      description: 降级提示
+      required: [active]
+      properties:
+        active: { type: boolean, description: 当前是否降级开单 }
+        line: { type: string, nullable: true, description: 降级时显示的一行 }
+        admission: { $ref: '#/components/schemas/DegradeAdmission' }
+    ScanCheck:
+      type: object
+      description: 检查结果。ok=false 时结构同统一错误，页面据此直接显示失败卡
+      required: [ok]
+      properties:
+        ok: { type: boolean, description: 现在能否开锁 }
+        code: { type: string, description: 不能开锁的错误码，取值同开锁接口的 x-errors }
+        message: { type: string, description: 一句原因 }
+        charged: { type: boolean, description: 是否产生费用，恒为 false }
+        next: { $ref: './_common.yaml#/components/schemas/Next' }
+      additionalProperties: true
+    Nearby:
+      type: object
+      description: 附近可租车
+      required: [vehicleId, plateNo, govCode, brandId, location, distanceM]
+      properties:
+        vehicleId: { type: string, description: 车辆编号 }
+        plateNo: { type: string, description: 车号 }
+        govCode: { type: string, description: 政府码 }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        displayName: { type: string, description: 扫码页标题 }
+        color: { type: string, description: 地图点位颜色 }
+        battery: { type: integer, nullable: true, description: 电量 % }
+        location: { $ref: './_common.yaml#/components/schemas/Location' }
+        distanceM: { type: integer, description: 距离（米） }
+        stationId: { type: string, nullable: true, description: 所在站点编号 }
+        stationName: { type: string, nullable: true, description: 所在站点名称 }
+    ScanResult:
+      type: object
+      required: [vehicle, brand, price, degrade, check]
+      properties:
+        vehicle: { $ref: '#/components/schemas/ScanVehicle' }
+        brand: { $ref: '#/components/schemas/ScanBrand' }
+        price: { $ref: '#/components/schemas/PriceSummary' }
+        degrade: { $ref: '#/components/schemas/ScanDegrade' }
+        check: { $ref: '#/components/schemas/ScanCheck' }
+        nearby:
+          type: array
+          description: 车辆本身不可租（码未启用、暂停可租、码失效）时给出；暂停可租时只含其他品牌
+          items: { $ref: '#/components/schemas/Nearby' }
+    DegradedMark:
+      type: object
+      nullable: true
+      description: 降级标记；非降级单为空
+      required: [admission, limitMinutes, limitAmount, feeLater, line]
+      properties:
+        eventId: { type: string, description: 降级事件编号（ops 发号，不透明） }
+        admission: { $ref: '#/components/schemas/Admission' }
+        limitMinutes: { type: integer, description: 单笔时长上限（分钟） }
+        limitAmount:
+          description: 单笔金额上限
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        overLimitRemindedAt:
+          description: 超限提醒用户还车的时刻；骑行不结束
+          allOf:
+            - { $ref: '#/components/schemas/NullableTime' }
+        feeLater: { type: boolean, description: 费用是否稍后收取 }
+        line: { type: string, description: 页面显示的一行, example: 费用将稍后收取 }
+    ForceEnd:
+      type: object
+      nullable: true
+      description: 强制结束或补录记录
+      required: [at, billedEndAt, by, reason]
+      properties:
+        at:
+          description: 操作时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        billedEndAt:
+          description: 计费终点
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        by: { $ref: './_common.yaml#/components/schemas/Actor' }
+        reason: { type: string, description: 事由 }
+        ticketId: { type: string, nullable: true, description: 工单号（cs 发号，不透明） }
+    RideOrder:
+      type: object
+      description: 订单的行程部分。不含费用、账单、支付状态、退款状态、工单
+      required: [orderId, vehicleId, brandId, status, requestAt]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        vehicleId: { type: string, description: 车辆编号 }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        displayName: { type: string, description: 扫码页标题 }
+        plateNo: { type: string, description: 车号 }
+        govCode: { type: string, description: 政府码 }
+        channel: { type: string, description: 用户入口, enum: [微信, 支付宝] }
+        pricingVersionId: { type: string, description: 开锁请求时刻有效的规则版本号 }
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        requestAt:
+          description: 用户点开锁、平台发出开锁请求的时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        unlockResult: { $ref: '#/components/schemas/UnlockResult' }
+        unlockFailReason: { $ref: '#/components/schemas/UnlockFailReason' }
+        unlockReportAt:
+          description: 运营商报告开锁结果的时刻
+          allOf:
+            - { $ref: '#/components/schemas/NullableTime' }
+        startAt:
+          description: 计费起点，即开锁成功报告时刻；开锁失败为空
+          allOf:
+            - { $ref: '#/components/schemas/NullableTime' }
+        startStationId: { type: string, nullable: true, description: 起点站点编号 }
+        startStationName: { type: string, nullable: true, description: 起点站点名称 }
+        startLocation:
+          description: 开锁位置（[经度, 纬度] 数组，沿用）
+          allOf:
+            - { $ref: '#/components/schemas/NullableLocation' }
+        unlockLocation: { $ref: '#/components/schemas/UnlockLocation' }
+        endAt:
+          description: 计费终点，锁车报告与桩在位中较早者；强制结束时为指定的计费终点
+          allOf:
+            - { $ref: '#/components/schemas/NullableTime' }
+        endMethod: { $ref: '#/components/schemas/EndMethod' }
+        endStationId: { type: string, nullable: true, description: 终点站点编号 }
+        endStationName: { type: string, nullable: true, description: 终点站点名称 }
+        endPileId: { type: string, nullable: true, description: 终点桩编号 }
+        endLocation:
+          description: 锁车位置
+          allOf:
+            - { $ref: '#/components/schemas/NullableLocation' }
+        inStation: { type: boolean, nullable: true, description: 是否在点 }
+        inStationBasis: { $ref: '#/components/schemas/InStationBasis' }
+        distanceToStationM: { type: integer, nullable: true, description: 站外还车时距最近站点的距离（米） }
+        durationSec: { type: integer, nullable: true, description: 骑行时长（秒），endAt − startAt }
+        distanceKm: { type: number, nullable: true, description: 里程（公里，一位小数），不参与计价 }
+        degraded: { $ref: '#/components/schemas/DegradedMark' }
+        forceEnd: { $ref: '#/components/schemas/ForceEnd' }
+    RideView:
+      description: 骑行中订单。实时计费分钟与费用估算另查 bill
+      allOf:
+        - { $ref: '#/components/schemas/RideOrder' }
+        - type: object
+          required: [elapsedSec]
+          properties:
+            elapsedSec: { type: integer, description: 已骑行秒数 }
+            price: { $ref: '#/components/schemas/PriceSummary' }
+            battery: { type: integer, nullable: true, description: 电量 %，没有上报时为空 }
+            currentLocation:
+              description: 车辆最近一次上报位置
+              allOf:
+                - { $ref: '#/components/schemas/NullableLocation' }
+            nearestStation: { $ref: '#/components/schemas/NearestStation' }
+            overLimit:
+              type: object
+              nullable: true
+              description: 只在降级单出现。超限只提醒还车，不结束骑行
+              required: [reached]
+              properties:
+                reached: { type: boolean, description: 是否已超限 }
+                remindedAt:
+                  description: 提醒时刻
+                  allOf:
+                    - { $ref: '#/components/schemas/NullableTime' }
+                text: { type: string, description: 提醒文案 }
+    NearestStation:
+      type: object
+      nullable: true
+      description: 最近站点
+      required: [stationId, name, distanceM]
+      properties:
+        stationId: { type: string, description: 站点编号 }
+        name: { type: string, description: 站点名称 }
+        type: { type: string, description: 站点类型, enum: [有桩, 无桩] }
+        distanceM: { type: integer, description: 距离（米） }
+        center: { $ref: './_common.yaml#/components/schemas/Location' }
+        freePiles: { type: integer, description: 空闲桩位数 }
+    ReturnPreview:
+      type: object
+      required: [inStation, basis, dispatchFee, text]
+      properties:
+        location:
+          description: 用于判断的位置
+          allOf:
+            - { $ref: '#/components/schemas/NullableLocation' }
+        inStation: { type: boolean, description: 现在还车是否在点 }
+        basis: { $ref: '#/components/schemas/InStationBasis' }
+        dispatchFee:
+          description: 现在还车将收的调度费，在点为 0
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Money' }
+        station:
+          type: object
+          nullable: true
+          description: 所在站点；站外为空
+          properties:
+            stationId: { type: string, description: 站点编号 }
+            name: { type: string, description: 站点名称 }
+            type: { type: string, description: 站点类型, enum: [有桩, 无桩] }
+            freePiles: { type: integer, description: 空闲桩位数 }
+        nearestStation: { $ref: '#/components/schemas/NearestStation' }
+        text: { type: string, description: 一句提示 }
+    ReturnRequest:
+      type: object
+      properties:
+        stationId: { type: string, description: 在该站点还车 }
+        pileId: { type: string, description: 所在桩位 }
+        location:
+          description: 手机当前位置；与 stationId 都不传时按车辆最近一次上报位置判断
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Location' }
+        confirmDispatch: { type: boolean, default: false, description: 已确认站外还车收调度费 }
+    ReturnResult:
+      type: object
+      required: [order, ended, deferred, message]
+      properties:
+        order: { $ref: '#/components/schemas/RideOrder' }
+        ended: { type: boolean, description: 订单是否已结束；false 表示还车确认中，等运营商锁车报告 }
+        deferred: { type: boolean, description: 降级期间结束，费用稍后收取 }
+        message: { type: string, description: 一句结果 }
+    RideOrderPage:
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/RideOrder' }
+    AdminRideOrder:
+      description: 订单事实（行程部分加用户编号与报告细节）。不含用户姓名与手机号
+      allOf:
+        - { $ref: '#/components/schemas/RideOrder' }
+        - type: object
+          required: [userId, operatorId]
+          properties:
+            userId: { type: string, description: 用户编号 }
+            operatorId: { type: string, description: 运营商编号 }
+            operatorName: { type: string, description: 运营商简称 }
+            lockReportAt:
+              description: 运营商锁车报告中的锁车时刻
+              allOf:
+                - { $ref: '#/components/schemas/NullableTime' }
+            pileInAt:
+              description: 桩识别在位时刻
+              allOf:
+                - { $ref: '#/components/schemas/NullableTime' }
+            reportReceivedAt:
+              description: 平台收到结束事件的时刻
+              allOf:
+                - { $ref: '#/components/schemas/NullableTime' }
+            lateReport: { type: boolean, description: 是否补报（晚到） }
+            vehicleSideInStation: { type: boolean, nullable: true, description: 车端在点判定结果 }
+            dispatchPromptShown: { type: boolean, description: 页面还车前是否已提示调度费 }
+            failNotifiedAt:
+              description: 页面告知开锁失败的时刻
+              allOf:
+                - { $ref: '#/components/schemas/NullableTime' }
+            afterFailOrderId: { type: string, nullable: true, description: 本单是该失败单之后换车成功的订单 }
+            lockRequest:
+              type: string
+              nullable: true
+              description: 平台请求运营商结束骑行的结果
+              enum: [已受理, 拒绝, 不可达, null]
+    AdminRideOrderPage:
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/AdminRideOrder' }
+    ForceEndRequest:
+      type: object
+      required: [reason, actor]
+      properties:
+        billedEndAt:
+          description: 计费终点；缺省取当前时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        stationId: { type: string, nullable: true, description: 还车站点；为空按站外 }
+        ticketId: { type: string, nullable: true, description: 发起的工单号 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+    ForceEndResult:
+      type: object
+      required: [order, lockRequest]
+      properties:
+        order: { $ref: '#/components/schemas/AdminRideOrder' }
+        lockRequest:
+          type: string
+          description: 请求运营商锁车的结果；不可达或拒绝时订单仍按 billedEndAt 结束
+          enum: [已受理, 拒绝, 不可达]
+    LockFactRequest:
+      type: object
+      required: [endAt, reason, actor]
+      properties:
+        endAt:
+          description: 补录的锁车时刻，作计费终点
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        stationId: { type: string, nullable: true, description: 还车站点；为空按站外 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }

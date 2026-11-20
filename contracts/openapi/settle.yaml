@@ -1,0 +1,998 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · settle 结算
+  version: 1.0.0
+  description: |
+    月度结算单、调整项、运营商异议、运营商订单明细（settle 自己的投影，不含任何用户字段）。
+    金额一律整数分；服务费比例为小数（如 0.62）；时间 RFC 3339。
+    settle 没有 /internal 接口，只被页面调用。
+    运营商岗位的接口只返回本运营商数据，访问他家返回 SCOPE_DENIED；已退出运营商的只读账号写操作返回 READONLY；收到 `fleet.operator.exited` 之后，该运营商范围（令牌 `scope`）的写操作一律返回 READONLY，不等令牌里的 `readonly` 刷新。
+    请求体必须是 UTF-8，否则返回 400 INVALID（请求体不是 UTF-8 编码）。写接口重复提交同一 Idempotency-Key 而首次仍在处理时返回 409 IN_PROGRESS。
+tags:
+  - name: 财务
+  - name: 运营商
+  - name: 公共
+paths:
+  /api/settle/finance/settlements:
+    get:
+      operationId: listFinanceSettlements
+      summary: 结算单列表（财务）
+      description: 按结算月新到旧、同月按运营商编号升序；不含逐单明细，给出 detailCount。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.list
+      x-requirements: [R-23, BR-17, BR-20]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID]
+      parameters:
+        - { name: month, in: query, description: 结算月, schema: { $ref: './_common.yaml#/components/schemas/Month' } }
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string } }
+        - { name: status, in: query, description: 结算单状态, schema: { $ref: '#/components/schemas/SettlementStatus' } }
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: 分页结算单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/finance/settlements/preview:
+    get:
+      operationId: previewFinanceSettlement
+      summary: 本期实时预览（财务）
+      description: 指定运营商本期（未出单）的实时汇总，随新订单、退款、补报、异议实时变化；status 为"未出单"，含明细与待进单调整项。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.preview
+      x-requirements: [R-23, R-24, BR-19]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - { name: operatorId, in: query, required: true, description: 运营商编号, schema: { type: string } }
+      responses:
+        '200':
+          description: 本期预览
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/finance/settlements/generate:
+    post:
+      operationId: generateSettlements
+      summary: 手动出单（财务）
+      description: 该结算月结束（次月 1 日 00:00）后即可为各运营商生成结算单；未手动生成时次月 1 日 00:30 自动出单。没有明细也没有调整项的运营商不出单。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.generate
+      x-requirements: [R-23, BR-17, BR-19, BR-20]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID, MONTH_NOT_ENDED, ALREADY_GENERATED, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [month]
+              properties:
+                month: { allOf: [{ $ref: './_common.yaml#/components/schemas/Month' }], description: 要出单的结算月 }
+      responses:
+        '200':
+          description: 本次生成的结算单（不含明细）
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Settlement' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/settlements/{settlementId}:
+    get:
+      operationId: getFinanceSettlement
+      summary: 结算单详情（财务）
+      description: 含逐单明细与调整项。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.get
+      x-requirements: [R-23, BR-17, BR-18]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+      responses:
+        '200':
+          description: 结算单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/finance/settlements/{settlementId}/export:
+    get:
+      operationId: exportFinanceSettlement
+      summary: 导出结算单明细（财务）
+      description: 返回 CSV 文件（UTF-8 带 BOM），文件名 `<结算单号>.csv`。列：订单号、品牌、结束、计费分钟、订单应收、服务费基数、比例、服务费、备注；金额列以元显示。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.export
+      x-requirements: [R-23, BR-17]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+      responses:
+        '200': { $ref: '#/components/responses/CsvFile' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/finance/settlements/{settlementId}/adjustments:
+    post:
+      operationId: addSettlementAdjustment
+      summary: 录入人工调整项（财务）
+      description: 只有待审核的结算单可以录入；类型为"人工调整"，录入即视为已确认，结算单合计随之重算。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.addAdjustment
+      x-requirements: [R-23, BR-18, BR-20]
+      x-permissions: [settlement.adjust]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, INVALID, REASON_REQUIRED, SETTLEMENT_STATE, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brandId, feeDelta, reason]
+              properties:
+                brandId: { type: string, description: 品牌编号，须属于该结算单的运营商 }
+                feeDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费增减（分），非零，可为负 }
+                orderIds: { type: array, description: 关联订单号（可空）, items: { type: string } }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 更新后的结算单（不含明细）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/settlements/{settlementId}/adjustments/{adjustmentId}/confirm:
+    post:
+      operationId: confirmSettlementAdjustment
+      summary: 确认调整项（财务）
+      description: 确认对账智能体生成的调整项；只有待审核的结算单可以确认。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.confirmAdjustment
+      x-requirements: [R-23, BR-19, BR-20]
+      x-permissions: [settlement.adjust]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, SETTLEMENT_STATE, ALREADY_DONE, INVALID, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+        - { name: adjustmentId, in: path, required: true, description: 调整项编号, schema: { type: string, example: ADJ-202610-OP01-01 } }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: string, description: 确认备注（可空，空时留痕取调整项原因） }
+      responses:
+        '200':
+          description: 更新后的结算单（不含明细）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/settlements/{settlementId}/review:
+    post:
+      operationId: reviewSettlement
+      summary: 审核结算单（财务）
+      description: 待审核 → 已审核；有未确认调整项时不能审核。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.review
+      x-requirements: [R-23, BR-20]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, SETTLEMENT_STATE, ADJUSTMENT_UNCONFIRMED, INVALID, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: string, description: 审核备注（可空） }
+      responses:
+        '200':
+          description: 更新后的结算单（不含明细）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/settlements/{settlementId}/send:
+    post:
+      operationId: sendSettlement
+      summary: 发送结算单给运营商（财务）
+      description: 已审核 → 已发送。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.send
+      x-requirements: [R-23, BR-20]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, SETTLEMENT_STATE, INVALID, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: 更新后的结算单（不含明细）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/settlements/{settlementId}/payment:
+    post:
+      operationId: registerSettlementPayment
+      summary: 登记到账（财务）
+      description: 已发送 → 已到账；记录银行流水号与到账时间。本模块不付款，只登记。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.settlements.registerPayment
+      x-requirements: [R-23, BR-20]
+      x-permissions: [settlement.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, INVALID, SETTLEMENT_STATE, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bankTradeNo]
+              properties:
+                bankTradeNo: { type: string, pattern: '^[A-Z0-9]{8,32}$', description: 银行流水号 }
+                paidAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 到账时间，缺省为当前时刻 }
+      responses:
+        '200':
+          description: 更新后的结算单（不含明细）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/finance/disputes:
+    get:
+      operationId: listFinanceDisputes
+      summary: 异议列表（财务）
+      description: 按提交时间新到旧。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.disputes.list
+      x-requirements: [R-23, BR-16]
+      x-permissions: [dispute.decide]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN]
+      parameters:
+        - { name: status, in: query, description: 异议状态, schema: { $ref: '#/components/schemas/DisputeStatus' } }
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string } }
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: 分页异议
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DisputePage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/finance/disputes/{disputeId}:
+    get:
+      operationId: getFinanceDispute
+      summary: 异议详情（财务）
+      description: 含异议订单事实 orders[]（settle 的订单投影，不含用户）。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.disputes.get
+      x-requirements: [R-23, BR-16]
+      x-permissions: [dispute.decide]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/DisputeId' }
+      responses:
+        '200':
+          description: 异议
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DisputeDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/finance/disputes/{disputeId}/decide:
+    post:
+      operationId: decideDispute
+      summary: 处理异议（财务）
+      description: 采纳、驳回或判无需调整。采纳时长异议须给每单核实后的分钟数；里程不参与计价，不能采纳（INVALID，应选"无需调整"）。采纳只更正服务费基数、不向用户补收，差额进下一期"异议核实"调整项。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.disputes.decide
+      x-requirements: [R-23, BR-16, BR-19]
+      x-permissions: [dispute.decide]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, INVALID, REASON_REQUIRED, ALREADY_DONE, READONLY, IN_PROGRESS]
+      parameters:
+        - { $ref: '#/components/parameters/DisputeId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, reason]
+              properties:
+                decision: { type: string, enum: [采纳, 驳回, 无需调整], description: 处理结果 }
+                corrections:
+                  type: array
+                  description: 采纳时必填：每单核实后的计费分钟数
+                  items:
+                    type: object
+                    required: [orderId, minutes]
+                    properties:
+                      orderId: { type: string, description: 订单号，须在该异议中 }
+                      minutes: { type: integer, minimum: 1, maximum: 600, description: 核实后的计费分钟数 }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 处理后的异议
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Dispute' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/operator/orders:
+    get:
+      operationId: listOperatorOrders
+      summary: 订单明细（运营商）
+      description: 本运营商订单，按开锁请求时刻新到旧，含降级单与补报标记；另返回筛选范围内的汇总。不含任何用户字段。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.orders.list
+      x-requirements: [R-24, R-46, NFR-11]
+      x-permissions: [order.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, INVALID]
+      parameters:
+        - { name: date, in: query, description: 开锁请求日期（单日）, schema: { $ref: './_common.yaml#/components/schemas/Date' } }
+        - { name: from, in: query, description: 开锁请求时刻起, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+        - { name: to, in: query, description: 开锁请求时刻止, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string } }
+        - { name: status, in: query, description: 订单状态, schema: { $ref: '#/components/schemas/OrderStatus' } }
+        - { name: degraded, in: query, description: 只看降级单或只看非降级单, schema: { type: boolean } }
+        - { name: q, in: query, description: 订单号（包含匹配）或车号（完全匹配）, schema: { type: string } }
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { $ref: './_common.yaml#/components/parameters/SortKey' }
+        - { $ref: './_common.yaml#/components/parameters/SortDir' }
+      responses:
+        '200':
+          description: 分页订单与汇总
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OperatorOrderPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/operator/orders/export:
+    get:
+      operationId: exportOperatorOrders
+      summary: 下载订单明细（运营商）
+      description: 返回 CSV 文件（UTF-8 带 BOM），按开锁请求时刻旧到新，含降级单与补报标记；文件名 `<运营商简称>_订单明细_<日期或起止>.csv`，条数在响应头 X-Total-Count。金额列以元显示。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.orders.export
+      x-requirements: [R-24, R-46, NFR-11]
+      x-permissions: [order.export.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, INVALID]
+      parameters:
+        - { name: date, in: query, description: 开锁请求日期（单日）, schema: { $ref: './_common.yaml#/components/schemas/Date' } }
+        - { name: from, in: query, description: 开锁请求时刻起, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+        - { name: to, in: query, description: 开锁请求时刻止, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/CsvFile' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/operator/orders/{orderId}:
+    get:
+      operationId: getOperatorOrder
+      summary: 订单详情（运营商）
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.orders.get
+      x-requirements: [R-24, R-46, NFR-11]
+      x-permissions: [order.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+      responses:
+        '200':
+          description: 订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OperatorOrder' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/operator/settlements:
+    get:
+      operationId: listOperatorSettlements
+      summary: 结算单列表（运营商）
+      description: 本运营商结算单，按结算月新到旧；不含逐单明细，给出 detailCount。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.settlements.list
+      x-requirements: [R-24, R-46]
+      x-permissions: [settlement.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: 分页结算单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/operator/settlements/current:
+    get:
+      operationId: getOperatorCurrentSettlement
+      summary: 本期实时预览（运营商）
+      description: 本运营商本期（未出单）的实时预览，status 为"未出单"，含明细与待进单调整项。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.settlements.current
+      x-requirements: [R-24, R-46, BR-19]
+      x-permissions: [settlement.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      responses:
+        '200':
+          description: 本期预览
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/operator/settlements/{settlementId}:
+    get:
+      operationId: getOperatorSettlement
+      summary: 结算单详情（运营商）
+      description: 含逐单明细与调整项。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.settlements.get
+      x-requirements: [R-24, R-46, BR-17]
+      x-permissions: [settlement.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+      responses:
+        '200':
+          description: 结算单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SettlementDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/operator/settlements/{settlementId}/export:
+    get:
+      operationId: exportOperatorSettlement
+      summary: 下载结算单明细（运营商）
+      description: 返回 CSV 文件（UTF-8 带 BOM），含逐单明细与调整项逐单行，文件名 `<结算单号>.csv`。列：订单号、品牌、开始、结束、计费分钟、里程、降级单、价格版本、订单应收、出单时已退款、服务费基数、比例、服务费、备注；金额列以元显示。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.settlements.export
+      x-requirements: [R-24, R-46]
+      x-permissions: [settlement.export.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/SettlementId' }
+      responses:
+        '200': { $ref: '#/components/responses/CsvFile' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/operator/disputes:
+    get:
+      operationId: listOperatorDisputes
+      summary: 本运营商异议列表（运营商）
+      description: 按提交时间新到旧。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.disputes.list
+      x-requirements: [R-23, BR-16, R-46]
+      x-permissions: [dispute.submit.own, settlement.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: 分页异议
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DisputePage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: submitOperatorDispute
+      summary: 提交异议（运营商）
+      description: 只能对时长、里程提异议，价格不受理；订单须在该结算单的明细或调整项中。提交后对账智能体即时比对订单事实，给出 agentComparison 与 agentSuggestion。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.disputes.submit
+      x-requirements: [R-23, BR-16, R-46]
+      x-permissions: [dispute.submit.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, INVALID, PRICE_NOT_DISPUTABLE, IN_PROGRESS]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [settlementId, orderIds, field, claim]
+              properties:
+                settlementId: { type: string, description: 结算单号 }
+                orderIds: { type: array, minItems: 1, description: 有异议的订单号, items: { type: string } }
+                field: { type: string, description: 异议项；只受理"时长""里程"，其他值（如"价格"）返回 PRICE_NOT_DISPUTABLE, example: 时长 }
+                claim: { type: string, minLength: 6, description: 运营商方的记录与理由（至少 6 个字） }
+      responses:
+        '200':
+          description: 新建的异议
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Dispute' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/settle/orders/{orderId}/settlement:
+    get:
+      operationId: getOrderSettlement
+      summary: 按订单号查结算归属
+      description: 前端拼订单详情（AdminOrder）用：结算月、所在结算单、差额去向说明、关联异议。订单尚未结束或 settle 尚未收到该订单时返回 NOT_FOUND。运营商账号只能查本家订单。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.get
+      x-requirements: [R-23, BR-19, BR-20]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view, order.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { $ref: '#/components/parameters/OrderId' }
+      responses:
+        '200':
+          description: 结算归属
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderSettlement' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/settle/order-settlements:
+    get:
+      operationId: listOrderSettlements
+      summary: 按订单号批量查结算归属
+      description: 前端拼订单列表（AdminOrder）用；没有结算记录的订单号不出现在结果里。运营商账号只返回本家订单。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.list
+      x-requirements: [R-23, BR-19, BR-20]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view, order.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID]
+      parameters:
+        - name: orderIds
+          in: query
+          required: true
+          description: 订单号，逗号分隔，最多 200 个
+          style: form
+          explode: false
+          schema: { type: array, maxItems: 200, items: { type: string } }
+      responses:
+        '200':
+          description: 结算归属列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/OrderSettlement' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/settle/todos:
+    get:
+      operationId: getSettleTodos
+      summary: 结算待办计数
+      description: 按当前账号权限返回本模块的待办：有 settlement.manage 给"待审核结算单"，有 dispute.decide 给"待核实异议"，有 dispute.submit.own 给本运营商"异议待平台核实"。count 为 0 的项也返回，由前端汇总时过滤。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me
+      x-requirements: [R-23, BR-20]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 待办计数
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [todos]
+                properties:
+                  todos:
+                    type: array
+                    items: { $ref: '#/components/schemas/Todo' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+  parameters:
+    SettlementId:
+      name: settlementId
+      in: path
+      required: true
+      description: 结算单号
+      schema: { type: string, example: ST-M-202610-OP01 }
+    DisputeId:
+      name: disputeId
+      in: path
+      required: true
+      description: 异议编号
+      schema: { type: string, example: DS202611003 }
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: 订单号
+      schema: { type: string, example: OD2026102613011 }
+  responses:
+    CsvFile:
+      description: CSV 文件
+      headers:
+        Content-Disposition:
+          description: 'attachment; filename*=UTF-8''''<文件名>'
+          schema: { type: string }
+        X-Total-Count:
+          description: 数据行数
+          schema: { type: integer }
+      content:
+        text/csv:
+          schema: { type: string, format: binary }
+  schemas:
+    SettlementStatus:
+      type: string
+      enum: [待审核, 已审核, 已发送, 已到账]
+      description: 结算单状态
+    DisputeStatus:
+      type: string
+      enum: [待核实, 已采纳, 已驳回, 无需调整]
+      description: 异议状态
+    OrderStatus:
+      type: string
+      enum: [开锁失败, 骑行中, 已结束, 待人工处理]
+      description: 订单状态
+    AdjustmentType:
+      type: string
+      enum: [晚到补报, 出单后退款, 异议核实, 人工调整]
+      description: 调整项类型
+    SettlementTotals:
+      type: object
+      description: 结算单合计；payableFee = detailFee + adjustmentFee
+      required: [orderCount, receivableSum, baseSum, detailFee, adjustmentFee, payableFee]
+      properties:
+        orderCount: { type: integer, description: 明细订单数 }
+        receivableSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 订单应收合计 }
+        baseSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费基数合计 }
+        detailFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 明细服务费合计 }
+        adjustmentFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 调整项服务费差额合计（可负） }
+        payableFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 应付服务费 }
+    MonthCardAllocation:
+      type: object
+      description: 当月全平台月卡收入及分摊规则；基数取订单应收时只作收入归属展示，不进服务费
+      properties:
+        platformIncome: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 当月全平台月卡收入（按支付时间归月） }
+        allocationRule: { type: string, description: 分配规则, example: 按骑行单数 }
+        platformCardOrders: { type: integer, description: 当月全平台使用月卡抵扣的订单数 }
+        note: { type: string, nullable: true, description: 说明 }
+    RatioGroup:
+      type: object
+      description: 同一品牌按服务费比例分组（月内比例变过时有多组）
+      required: [ratio, orderCount, baseSum, fee]
+      properties:
+        ratio: { type: number, description: 服务费比例, example: 0.62 }
+        pricingVersionIds: { type: array, description: 该比例对应的规则版本号, items: { type: string } }
+        orderCount: { type: integer, description: 订单数 }
+        baseSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 基数合计 }
+        fee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费合计 }
+    SettlementBrand:
+      type: object
+      description: 结算单上某品牌的汇总
+      required: [brandId, orderCount, receivableSum, baseSum, detailFee, adjustmentFee]
+      properties:
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名（settle 订阅 fleet 事件得到的投影） }
+        orderCount: { type: integer, description: 明细订单数 }
+        receivableSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 订单应收合计 }
+        baseSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费基数合计 }
+        detailFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 明细服务费合计 }
+        ratioBreakdown: { type: array, description: 按比例分组, items: { $ref: '#/components/schemas/RatioGroup' } }
+        adjustmentFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 该品牌调整项服务费差额合计 }
+        monthCardOrderCount: { type: integer, description: 该品牌当月使用月卡抵扣的订单数 }
+        monthCardShare: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 该品牌分得的月卡收入 }
+    AdjustmentItem:
+      type: object
+      description: 调整项逐单记录；feeDelta = 服务费(newBase) − 服务费(previousBase)
+      required: [orderId, previousBase, newBase, baseDelta, ratio, feeDelta]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        endAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 订单结束时刻 }
+        previousBase: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 调整前服务费基数（晚到补报为 0） }
+        newBase: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 调整后服务费基数 }
+        baseDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 基数差额（可负） }
+        ratio: { type: number, description: 开锁时刻该品牌服务费比例, example: 0.62 }
+        feeDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费差额（可负） }
+    Adjustment:
+      type: object
+      description: 调整项
+      required: [adjustmentId, type, brandId, feeDelta, reason, createdBy, createdAt]
+      properties:
+        adjustmentId: { type: string, description: 调整项编号, example: ADJ-202610-OP01-01 }
+        type: { $ref: '#/components/schemas/AdjustmentType' }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        items: { type: array, description: 逐单记录（人工调整为空）, items: { $ref: '#/components/schemas/AdjustmentItem' } }
+        orderIds: { type: array, description: 人工调整关联的订单号, items: { type: string } }
+        baseDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 基数差额合计（人工调整为 0） }
+        feeDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费差额合计（可负） }
+        reason: { type: string, description: 原因或事由 }
+        disputeId: { type: string, nullable: true, description: 异议核实类调整项对应的异议编号 }
+        createdBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 生成人（对账智能体或财务） }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        confirmedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], nullable: true, description: 确认人；未确认为 null }
+        confirmedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 确认时刻 }
+    SettlementLine:
+      type: object
+      description: 结算单逐单明细（出单时冻结，不再修改）
+      required: [orderId, brandId, endAt, receivable, base, ratio, fee]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        brandId: { type: string, description: 品牌编号 }
+        startAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 计费起点 }
+        endAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 计费终点（决定结算月） }
+        billedMinutes: { type: integer, description: 计费分钟 }
+        distanceKm: { type: number, description: 里程（公里，一位小数，不参与计价） }
+        degraded: { type: boolean, description: 是否降级单 }
+        pricingVersionId: { type: string, description: 开锁时刻有效的规则版本号 }
+        receivable: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 订单应收 }
+        refundedAtGeneration: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 出单时已退款金额 }
+        base: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费基数 }
+        ratio: { type: number, description: 服务费比例, example: 0.62 }
+        fee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 单单服务费 = 基数 × 比例，四舍五入到分 }
+        remark: { type: string, nullable: true, description: 备注，如"降级单""0 元订单" }
+    Settlement:
+      type: object
+      description: 结算单（不含逐单明细）
+      required: [settlementId, operatorId, month, status, totals, brands, adjustments]
+      properties:
+        settlementId: { type: string, description: 结算单号, example: ST-M-202610-OP01 }
+        operatorId: { type: string, description: 运营商编号 }
+        operatorName: { type: string, description: 运营商简称（settle 订阅 fleet 事件得到的投影） }
+        month: { allOf: [{ $ref: './_common.yaml#/components/schemas/Month' }], description: 结算月 }
+        generatedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 出单时刻；预览时为当前时刻 }
+        dueDate: { allOf: [{ $ref: './_common.yaml#/components/schemas/Date' }], description: 到账期限（次月 6 日，含） }
+        status: { type: string, enum: [未出单, 待审核, 已审核, 已发送, 已到账], description: 状态；"未出单"只出现在本期预览 }
+        overdue: { type: boolean, description: 已过到账期限仍未到账 }
+        reviewedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], nullable: true, description: 审核人 }
+        reviewedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 审核时刻 }
+        sentAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 发送给运营商的时刻 }
+        paidAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 到账时刻 }
+        bankTradeNo: { type: string, nullable: true, description: 银行流水号 }
+        invoiceStatus: { type: string, nullable: true, description: 发票状态，如"待开票""已收到发票" }
+        totals: { $ref: '#/components/schemas/SettlementTotals' }
+        monthCard: { $ref: '#/components/schemas/MonthCardAllocation' }
+        brands: { type: array, description: 各品牌汇总, items: { $ref: '#/components/schemas/SettlementBrand' } }
+        adjustments: { type: array, description: 调整项, items: { $ref: '#/components/schemas/Adjustment' } }
+        detailCount: { type: integer, description: 明细条数 }
+        note: { type: string, nullable: true, description: 备注，如"运营商已退出，本期为最后一期结算" }
+        previewNote: { type: string, nullable: true, description: 仅本期预览：预览口径说明 }
+    SettlementDetail:
+      description: 结算单含逐单明细
+      allOf:
+        - $ref: '#/components/schemas/Settlement'
+        - type: object
+          required: [details]
+          properties:
+            details: { type: array, description: 逐单明细，按结束时刻升序, items: { $ref: '#/components/schemas/SettlementLine' } }
+    SettlementPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows: { type: array, items: { $ref: '#/components/schemas/Settlement' } }
+    DisputeCorrection:
+      type: object
+      description: 采纳异议时逐单的更正
+      required: [orderId, minutes, baseDelta]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        minutes: { type: integer, description: 核实后的计费分钟数 }
+        baseDelta: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 服务费基数更正额（可负） }
+    Dispute:
+      type: object
+      description: 运营商异议
+      required: [disputeId, operatorId, settlementId, orderIds, field, operatorClaim, status, submittedAt]
+      properties:
+        disputeId: { type: string, description: 异议编号, example: DS202611003 }
+        operatorId: { type: string, description: 运营商编号 }
+        operatorName: { type: string, description: 运营商简称 }
+        settlementId: { type: string, description: 结算单号 }
+        orderIds: { type: array, description: 异议订单号, items: { type: string } }
+        field: { type: string, enum: [时长, 里程], description: 异议项 }
+        operatorClaim: { type: string, description: 运营商方的记录与理由 }
+        platformFact: { type: string, description: 平台记录的订单事实 }
+        agentComparison: { type: string, description: 对账智能体比对结论 }
+        agentSuggestion: { type: string, nullable: true, description: 对账智能体建议（采纳、驳回、无需调整之一及说明） }
+        status: { $ref: '#/components/schemas/DisputeStatus' }
+        submittedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        submittedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 提交人 }
+        decidedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 处理时刻 }
+        decidedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], nullable: true, description: 处理人 }
+        decisionReason: { type: string, nullable: true, description: 处理事由 }
+        corrections: { type: array, description: 采纳时的逐单更正, items: { $ref: '#/components/schemas/DisputeCorrection' } }
+        adjustmentId: { type: string, nullable: true, description: 差额进入的调整项编号（下一期出单后才有） }
+    DisputeDetail:
+      description: 异议含订单事实
+      allOf:
+        - $ref: '#/components/schemas/Dispute'
+        - type: object
+          required: [orders]
+          properties:
+            orders: { type: array, description: 异议订单事实, items: { $ref: '#/components/schemas/OperatorOrder' } }
+    DisputePage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows: { type: array, items: { $ref: '#/components/schemas/Dispute' } }
+    SettlementPointer:
+      type: object
+      description: 订单所在的结算记录；退款类调整项不改此指针（仍以首次结算为准）
+      required: [settlementId, kind]
+      properties:
+        settlementId: { type: string, description: 结算单号 }
+        kind: { type: string, enum: [明细, 调整项], description: 进入方式 }
+        adjustmentId: { type: string, nullable: true, description: 以调整项进入时的调整项编号 }
+    OrderSettlement:
+      type: object
+      description: 订单的结算归属
+      required: [orderId, operatorId]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        operatorId: { type: string, description: 运营商编号 }
+        settleMonth: { allOf: [{ $ref: './_common.yaml#/components/schemas/Month' }], nullable: true, description: 结算月 = 结束时刻所在月；未结束为 null }
+        settlement: { allOf: [{ $ref: '#/components/schemas/SettlementPointer' }], nullable: true, description: 所在结算记录；尚未结算为 null }
+        settlementNote: { type: string, nullable: true, description: 差额去向说明，如"出单后才收到补报，计入 2026-12 结算单调整项" }
+        disputeIds: { type: array, description: 关联异议编号, items: { type: string } }
+    OperatorOrder:
+      type: object
+      description: 运营商看的订单（settle 订阅 ride、bill 事件得到的投影）。不含用户编号、姓名、手机号等任何用户字段。
+      required: [orderId, vehicleId, brandId, status, requestAt, degraded, lateReport]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        vehicleId: { type: string, description: 车辆编号 }
+        plateNo: { type: string, nullable: true, description: 车号 }
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名 }
+        status: { $ref: '#/components/schemas/OrderStatus' }
+        requestAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 开锁请求时刻 }
+        unlockResult: { type: string, nullable: true, enum: [成功, 失败, 超时后成功, null], description: 开锁结果 }
+        unlockFailReason: { type: string, nullable: true, enum: [车辆无响应, 电量不足, 车辆故障, 车辆被占用, null], description: 开锁失败原因 }
+        startAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 计费起点 = 开锁成功报告时刻 }
+        startLocation: { allOf: [{ $ref: './_common.yaml#/components/schemas/Location' }], nullable: true, description: 开锁位置 }
+        endAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 计费终点 }
+        lockReportAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 运营商锁车报告中的锁车时刻 }
+        pileInAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 桩识别在位时刻 }
+        endLocation: { allOf: [{ $ref: './_common.yaml#/components/schemas/Location' }], nullable: true, description: 锁车位置 }
+        endMethod:
+          type: string
+          nullable: true
+          enum: [入桩识别, 用户锁车, 页面还车, 入桩未锁·平台请求结束, 超时开锁·平台请求结束, 客服强制结束, null]
+          description: 结束方式
+        inStation: { type: boolean, nullable: true, description: 是否在点 }
+        inStationBasis:
+          type: string
+          nullable: true
+          enum: [桩识别, 无桩站点·车端判定, 车端判定, 桩满·围栏内, 桩故障或离线·车端判定, 桩与车端冲突·以桩为准, 站外, null]
+          description: 在点依据
+        endStationId: { type: string, nullable: true, description: 还车站点编号 }
+        endStationName: { type: string, nullable: true, description: 还车站点名（订单已结束事件带来的快照） }
+        durationSec: { type: integer, nullable: true, description: 时长（秒） }
+        billedMinutes: { type: integer, nullable: true, description: 计费分钟 }
+        distanceKm: { type: number, nullable: true, description: 里程（公里，一位小数） }
+        pricingVersionId: { type: string, description: 开锁时刻有效的规则版本号 }
+        receivable: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], nullable: true, description: 订单应收；没有金额时为 null }
+        dispatchFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], nullable: true, description: 调度费 }
+        degraded: { type: boolean, description: 是否降级单 }
+        lateReport: { type: boolean, description: 是否补报 }
+        reportReceivedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 平台收到结束事件的时刻 }
+        settleMonth: { allOf: [{ $ref: './_common.yaml#/components/schemas/Month' }], nullable: true, description: 结算月 }
+        settlement: { allOf: [{ $ref: '#/components/schemas/SettlementPointer' }], nullable: true, description: 所在结算记录 }
+        settlementNote: { type: string, nullable: true, description: 差额去向说明 }
+        disputeIds: { type: array, description: 关联异议编号, items: { type: string } }
+    OperatorOrderSummary:
+      type: object
+      description: 筛选范围内全部订单的汇总（不随分页变化）
+      required: [count, finished, receivableSum, degraded]
+      properties:
+        count: { type: integer, description: 订单数 }
+        finished: { type: integer, description: 有金额的订单数 }
+        receivableSum: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 订单应收合计 }
+        degraded: { type: integer, description: 降级单数 }
+    OperatorOrderPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows, summary]
+          properties:
+            rows: { type: array, items: { $ref: '#/components/schemas/OperatorOrder' } }
+            summary: { $ref: '#/components/schemas/OperatorOrderSummary' }
+    Todo:
+      type: object
+      description: 一项待办计数
+      required: [key, label, count, menu]
+      properties:
+        key: { type: string, enum: [settlements, disputes, myDisputes], description: 待办键 }
+        label: { type: string, description: 展示文字, example: 待审核结算单 }
+        count: { type: integer, description: 条数 }
+        menu: { type: string, description: 对应菜单, example: 结算单管理 }

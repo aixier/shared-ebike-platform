@@ -1,0 +1,39 @@
+# 一个服务实例一个单元：bike@<实例名>.service
+# 实例名 = 模块名，或模块名-序号（同机多实例时），如 bike@ride-1、bike@ride-2、bike@pay。
+# 每个实例一份环境文件 /etc/bike/<实例名>.env，其中 BIKE_MODULE 指出跑哪个可执行文件。
+# 安装：cp bike@.service /etc/systemd/system/ && systemctl daemon-reload && systemctl enable --now bike@ride-1
+[Unit]
+Description=共享电单车监管平台服务 %i
+After=network-online.target
+Wants=network-online.target
+# 数据库与事件总线不可用时服务照常启动（热路径不依赖它们），故不写 Requires
+
+[Service]
+Type=simple
+User=bike
+Group=bike
+EnvironmentFile=/etc/bike/city.env
+EnvironmentFile=/etc/bike/%i.env
+ExecStart=/bin/sh -c 'exec /opt/bike/bin/${BIKE_MODULE}'
+Restart=always
+RestartSec=2
+StartLimitIntervalSec=0
+TimeoutStopSec=20
+KillSignal=SIGTERM
+LimitNOFILE=65536
+# 日志：服务用 slog 输出 JSON 到标准输出，journald 收集；集中收集见 prod/README.md 第 5 节
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bike-%i
+# 加固
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/bike/%i
+
+StateDirectory=bike/%i
+WorkingDirectory=/var/lib/bike/%i
+
+[Install]
+WantedBy=multi-user.target

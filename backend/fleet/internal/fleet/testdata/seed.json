@@ -1,0 +1,673 @@
+{
+ "providers": [
+  {
+   "providerId": "SP01",
+   "name": "联泰车联网科技有限公司",
+   "contact": {
+    "name": "闫＊＊",
+    "role": "接入工程师",
+    "phone": "182****9156"
+   }
+  }
+ ],
+ "operators": [
+  {
+   "operatorId": "OP01",
+   "name": "青禾出行科技有限公司",
+   "shortName": "青禾出行",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510100MA6X3K7Q2B",
+   "joinedAt": "2026-06-18 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "何＊＊",
+     "role": "业务负责人",
+     "phone": "139****2716"
+    },
+    {
+     "name": "邓＊",
+     "role": "技术负责人",
+     "phone": "186****0543"
+    },
+    {
+     "name": "罗＊＊",
+     "role": "财务",
+     "phone": "135****8810"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市农商银行高新支行",
+    "accountName": "青禾出行科技有限公司",
+    "account": "6230 **** **** 4417"
+   }
+  },
+  {
+   "operatorId": "OP02",
+   "name": "驰路智行科技有限公司",
+   "shortName": "驰路智行",
+   "type": "运营商",
+   "accessVia": "车联网服务商代接",
+   "providerId": "SP01",
+   "creditCode": "91510107MA62QH8L5N",
+   "joinedAt": "2026-07-02 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "沈＊＊",
+     "role": "业务负责人",
+     "phone": "138****6629"
+    },
+    {
+     "name": "汪＊",
+     "role": "财务",
+     "phone": "159****3307"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市商业银行滨河支行",
+    "accountName": "驰路智行科技有限公司",
+    "account": "6214 **** **** 0928"
+   }
+  },
+  {
+   "operatorId": "OP03",
+   "name": "简途共享出行有限公司",
+   "shortName": "简途共享",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510104MA6C9TW03R",
+   "joinedAt": "2026-06-25 10:00:00",
+   "status": "已退出",
+   "contacts": [
+    {
+     "name": "韦＊＊",
+     "role": "业务负责人",
+     "phone": "187****5502"
+    },
+    {
+     "name": "孔＊",
+     "role": "技术负责人",
+     "phone": "133****7190"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市农商银行东城支行",
+    "accountName": "简途共享出行有限公司",
+    "account": "6230 **** **** 7761"
+   }
+  },
+  {
+   "operatorId": "OP04",
+   "name": "示范市公共交通集团有限公司",
+   "shortName": "公交集团车队",
+   "type": "政府自有车队",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "12510100MB0F28734K",
+   "joinedAt": "2026-11-03 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "龚＊＊",
+     "role": "车队负责人",
+     "phone": "180****4471"
+    },
+    {
+     "name": "黎＊",
+     "role": "技术负责人",
+     "phone": "177****2068"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市商业银行营业部",
+    "accountName": "示范市公共交通集团有限公司",
+    "account": "6214 **** **** 3105"
+   }
+  },
+  {
+   "operatorId": "OP05",
+   "name": "途迈出行科技有限公司",
+   "shortName": "途迈出行",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510112MA7E5UJ64W",
+   "joinedAt": null,
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "侯＊＊",
+     "role": "业务联系人",
+     "phone": "199****0835"
+    }
+   ],
+   "settlementAccount": null
+  }
+ ],
+ "brands": [
+  {
+   "brandId": "BR01",
+   "name": "青禾",
+   "operatorId": "OP01",
+   "vehicleType": "电单车",
+   "color": "#2E7D5B",
+   "accessStatus": "已接入",
+   "statusSince": "2026-07-20 16:30:00",
+   "displayName": "【青禾】电单车",
+   "platePrefix": "QH",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-07 15:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-20 16:30:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "验收通过，上线可租"
+    }
+   ]
+  },
+  {
+   "brandId": "BR02",
+   "name": "木棉",
+   "operatorId": "OP01",
+   "vehicleType": "电单车",
+   "color": "#B83B5E",
+   "accessStatus": "暂停可租",
+   "statusSince": "2026-11-30 08:00:00",
+   "displayName": "【木棉】电单车",
+   "platePrefix": "MM",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-07 15:30:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-20 16:35:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "验收通过，上线可租"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-10-22 09:05:00",
+     "by": {
+      "kind": "智能体",
+      "id": "AC0901",
+      "name": "运行智能体"
+     },
+     "note": "开锁成功率持续低于门槛"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-10-22 12:40:00",
+     "by": {
+      "kind": "智能体",
+      "id": "AC0901",
+      "name": "运行智能体"
+     },
+     "note": "指标恢复，自动回到已接入"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-11-30 08:00:00",
+     "by": {
+      "kind": "智能体",
+      "id": "AC0901",
+      "name": "运行智能体"
+     },
+     "note": "开锁成功率持续低于门槛"
+    }
+   ]
+  },
+  {
+   "brandId": "BR03",
+   "name": "驰路",
+   "operatorId": "OP02",
+   "vehicleType": "电单车",
+   "color": "#2563EB",
+   "accessStatus": "已接入",
+   "statusSince": "2026-08-12 11:00:00",
+   "displayName": "【驰路】电单车",
+   "platePrefix": "CL",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-28 10:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-08-12 11:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "验收通过，上线可租"
+    }
+   ]
+  },
+  {
+   "brandId": "BR04",
+   "name": "简途",
+   "operatorId": "OP03",
+   "vehicleType": "电单车",
+   "color": "#7C3AED",
+   "accessStatus": "已退出",
+   "statusSince": "2026-11-20 10:00:00",
+   "displayName": "【简途】电单车",
+   "platePrefix": "JT",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-02 10:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-15 10:30:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "验收通过，上线可租"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-11-08 14:10:00",
+     "by": {
+      "kind": "智能体",
+      "id": "AC0901",
+      "name": "运行智能体"
+     },
+     "note": "可用率持续低于门槛"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-11-09 10:20:00",
+     "by": {
+      "kind": "智能体",
+      "id": "AC0901",
+      "name": "运行智能体"
+     },
+     "note": "指标恢复，自动回到已接入"
+    },
+    {
+     "status": "已退出",
+     "at": "2026-11-20 10:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0001",
+      "name": "AC0001"
+     },
+     "note": "按主管部门线下决定设置退出，车辆码同时失效"
+    }
+   ]
+  },
+  {
+   "brandId": "BR05",
+   "name": "市民骑行",
+   "operatorId": "OP04",
+   "vehicleType": "电单车",
+   "color": "#0F766E",
+   "accessStatus": "联调中",
+   "statusSince": "2026-11-10 09:30:00",
+   "displayName": "【市民骑行】电单车",
+   "platePrefix": "GJ",
+   "statusHistory": [
+    {
+     "status": "未接入",
+     "at": "2026-11-03 10:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0404",
+      "name": "AC0404"
+     },
+     "note": "登记政府自有车队"
+    },
+    {
+     "status": "联调中",
+     "at": "2026-11-10 09:30:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0403",
+      "name": "AC0403"
+     },
+     "note": "发放联调环境凭证"
+    }
+   ]
+  },
+  {
+   "brandId": "BR06",
+   "name": "途迈",
+   "operatorId": "OP05",
+   "vehicleType": "电单车",
+   "color": "#6B7280",
+   "accessStatus": "未接入",
+   "statusSince": "2026-10-30 14:00:00",
+   "displayName": "【途迈】电单车",
+   "platePrefix": "TM",
+   "statusHistory": [
+    {
+     "status": "未接入",
+     "at": "2026-10-30 14:00:00",
+     "by": {
+      "kind": "人",
+      "id": "AC0404",
+      "name": "AC0404"
+     },
+     "note": "主管部门登记，尚未开始联调"
+    }
+   ]
+  }
+ ],
+ "pauses": [
+  {
+   "pauseId": "OPS-PS-20261022-01",
+   "brandId": "BR02",
+   "pausedAt": "2026-10-22 09:05:00",
+   "resumedAt": "2026-10-22 12:40:00",
+   "metric": "开锁成功率",
+   "value": 0.874,
+   "threshold": 0.9,
+   "sustainMinutes": 125,
+   "by": {
+    "kind": "智能体",
+    "id": "AC0901",
+    "name": "运行智能体"
+   },
+   "note": "运营商车联网平台升级导致开锁结果回报延迟；恢复后自动回到已接入"
+  },
+  {
+   "pauseId": "OPS-PS-20261108-01",
+   "brandId": "BR04",
+   "pausedAt": "2026-11-08 14:10:00",
+   "resumedAt": "2026-11-09 10:20:00",
+   "metric": "可用率",
+   "value": 0.762,
+   "threshold": 0.8,
+   "sustainMinutes": 130,
+   "by": {
+    "kind": "智能体",
+    "id": "AC0901",
+    "name": "运行智能体"
+   },
+   "note": "大批车辆电量不足未及时换电；恢复后自动回到已接入"
+  },
+  {
+   "pauseId": "OPS-PS-20261130-01",
+   "brandId": "BR02",
+   "pausedAt": "2026-11-30 08:00:00",
+   "resumedAt": null,
+   "metric": "开锁成功率",
+   "value": 0.861,
+   "threshold": 0.9,
+   "sustainMinutes": 240,
+   "by": {
+    "kind": "智能体",
+    "id": "AC0901",
+    "name": "运行智能体"
+   },
+   "note": "自 11-30 04:00 起开锁成功率持续低于 90%，运营商反馈车载通信模块固件问题，正在分批升级"
+  }
+ ],
+ "vehicles": [
+  {
+   "vehicleId": "VH000001",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "plateNo": "QH788371",
+   "govCode": "SF57122121",
+   "pileTag": "E28011F425CC4A1483995C39",
+   "vehicleType": "电单车",
+   "model": "青禾 Q3 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 15:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 46,
+   "status": "可用",
+   "location": [
+    104.071617,
+    30.614471
+   ],
+   "lastReportAt": "2026-12-01 11:34:00"
+  },
+  {
+   "vehicleId": "VH000004",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "plateNo": "QH464022",
+   "govCode": "SF86020226",
+   "pileTag": "E28011C79479F55A38EC7779",
+   "vehicleType": "电单车",
+   "model": "青禾 Q3 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 17:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 47,
+   "status": "可用",
+   "location": [
+    104.066702,
+    30.599905
+   ],
+   "lastReportAt": "2026-12-01 11:43:00"
+  },
+  {
+   "vehicleId": "VH000015",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "plateNo": "QH265662",
+   "govCode": "SF59764025",
+   "pileTag": "E280118F03C192930E0FC0A5",
+   "vehicleType": "电单车",
+   "model": "青禾 Q3 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 18:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 9,
+   "status": "低电量",
+   "location": [
+    104.071721,
+    30.602249
+   ],
+   "lastReportAt": "2026-12-01 11:58:00"
+  },
+  {
+   "vehicleId": "VH000016",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "plateNo": "QH369816",
+   "govCode": "SF82587544",
+   "pileTag": "E280112CED126474F88FA9F7",
+   "vehicleType": "电单车",
+   "model": "青禾 Q3 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 17:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 41,
+   "status": "离线",
+   "location": [
+    104.085653,
+    30.61499
+   ],
+   "lastReportAt": "2026-11-30 02:00:00"
+  },
+  {
+   "vehicleId": "VH000110",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "plateNo": "QH269884",
+   "govCode": "SF34253257",
+   "pileTag": "E280115756D0D4CF7998D343",
+   "vehicleType": "电单车",
+   "model": "青禾 Q3 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 19:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 96,
+   "status": "骑行中",
+   "location": [
+    104.064962,
+    30.620445
+   ],
+   "lastReportAt": "2026-12-01 11:59:46"
+  },
+  {
+   "vehicleId": "VH000481",
+   "brandId": "BR02",
+   "operatorId": "OP01",
+   "plateNo": "MM263777",
+   "govCode": "SF54838002",
+   "pileTag": "E28011BE43AD932D1DD552D8",
+   "vehicleType": "电单车",
+   "model": "木棉 M2 电单车",
+   "listedAt": "2026-07-08 14:20:11",
+   "codeIssuedAt": "2026-07-09 19:20:11",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 90,
+   "status": "可用",
+   "location": [
+    104.035759,
+    30.598327
+   ],
+   "lastReportAt": "2026-12-01 11:59:00"
+  },
+  {
+   "vehicleId": "VH000707",
+   "brandId": "BR03",
+   "operatorId": "OP02",
+   "plateNo": "CL987739",
+   "govCode": "SF22048694",
+   "pileTag": "E28011F894655FA2A56B8D34",
+   "vehicleType": "电单车",
+   "model": "驰路 C5 电单车",
+   "listedAt": "2026-07-28 10:05:42",
+   "codeIssuedAt": "2026-07-29 14:05:42",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 22,
+   "status": "可用",
+   "location": [
+    104.092228,
+    30.597738
+   ],
+   "lastReportAt": "2026-12-01 11:55:00"
+  },
+  {
+   "vehicleId": "VH000712",
+   "brandId": "BR03",
+   "operatorId": "OP02",
+   "plateNo": "CL823698",
+   "govCode": "SF21960305",
+   "pileTag": "E28011F2C52DC46E28836E52",
+   "vehicleType": "电单车",
+   "model": "驰路 C5 电单车",
+   "listedAt": "2026-07-28 10:05:42",
+   "codeIssuedAt": "2026-07-29 14:05:42",
+   "codeStatus": "已启用",
+   "codeEnableAt": null,
+   "codeInvalidAt": null,
+   "battery": 80,
+   "status": "故障",
+   "location": [
+    104.0441,
+    30.574324
+   ],
+   "lastReportAt": "2026-12-01 11:26:00"
+  },
+  {
+   "vehicleId": "VH001061",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "plateNo": "JT542568",
+   "govCode": "SF71009215",
+   "pileTag": "E2801172186BDE1E8ECE392B",
+   "vehicleType": "电单车",
+   "model": "简途 J1 电单车",
+   "listedAt": "2026-07-03 16:41:09",
+   "codeIssuedAt": "2026-07-04 19:41:09",
+   "codeStatus": "已失效",
+   "codeEnableAt": null,
+   "codeInvalidAt": "2026-11-20 10:00:00",
+   "battery": 9,
+   "status": "码已失效",
+   "location": [
+    104.040753,
+    30.60688
+   ],
+   "lastReportAt": "2026-11-20 09:15:00"
+  },
+  {
+   "vehicleId": "VH001151",
+   "brandId": "BR05",
+   "operatorId": "OP04",
+   "plateNo": "GJ459524",
+   "govCode": "SF27239795",
+   "pileTag": "E280115ABE1055F4B4C506AB",
+   "vehicleType": "电单车",
+   "model": "公交 G1 电单车",
+   "listedAt": "2026-11-14 15:02:37",
+   "codeIssuedAt": "2026-11-15 18:02:37",
+   "codeStatus": "待启用",
+   "codeEnableAt": "2026-12-08 09:00:00",
+   "codeInvalidAt": null,
+   "battery": 36,
+   "status": "码未启用",
+   "location": [
+    104.04458,
+    30.600544
+   ],
+   "lastReportAt": "2026-12-01 11:21:00"
+  }
+ ]
+}

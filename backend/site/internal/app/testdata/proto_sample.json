@@ -1,0 +1,782 @@
+{
+ "_source": "原型/mockdata/stations.json、vehicles.json 中 ST0001～ST0004 及相关车辆（时间为北京时间）",
+ "region": {
+  "city": "示范市",
+  "center": [
+   104.066,
+   30.596
+  ],
+  "bounds": [
+   [
+    104.03,
+    30.57
+   ],
+   [
+    104.102,
+    30.622
+   ]
+  ],
+  "coordSystem": "GCJ-02"
+ },
+ "stations": [
+  {
+   "stationId": "ST0001",
+   "name": "文昌街老城区商业街",
+   "district": "高新区",
+   "type": "有桩",
+   "center": [
+    104.095901,
+    30.578808
+   ],
+   "fence": [
+    [
+     104.09559,
+     30.57871
+    ],
+    [
+     104.09623,
+     30.578779
+    ],
+    [
+     104.096212,
+     30.578905
+    ],
+    [
+     104.095572,
+     30.578836
+    ],
+    [
+     104.09559,
+     30.57871
+    ]
+   ],
+   "capacity": 16,
+   "pileIds": [
+    "PL00001",
+    "PL00002",
+    "PL00003",
+    "PL00004",
+    "PL00005",
+    "PL00006",
+    "PL00007",
+    "PL00008",
+    "PL00009",
+    "PL00010",
+    "PL00011"
+   ],
+   "createdAt": "2026-06-10 09:17:00",
+   "updatedAt": "2026-06-10 09:17:00",
+   "updatedBy": "AC0001"
+  },
+  {
+   "stationId": "ST0002",
+   "name": "桂溪路与建设大道路口",
+   "district": "滨河区",
+   "type": "无桩",
+   "center": [
+    104.046362,
+    30.579147
+   ],
+   "fence": [
+    [
+     104.046503,
+     30.578999
+    ],
+    [
+     104.046351,
+     30.579337
+    ],
+    [
+     104.046222,
+     30.579294
+    ],
+    [
+     104.046374,
+     30.578956
+    ],
+    [
+     104.046503,
+     30.578999
+    ]
+   ],
+   "capacity": 16,
+   "pileIds": [],
+   "createdAt": "2026-06-10 09:39:00",
+   "updatedAt": "2026-11-12 14:35:59",
+   "updatedBy": "AC0002"
+  },
+  {
+   "stationId": "ST0003",
+   "name": "人民南路市民中心",
+   "district": "西城区",
+   "type": "有桩",
+   "center": [
+    104.038326,
+    30.619686
+   ],
+   "fence": [
+    [
+     104.038654,
+     30.619636
+    ],
+    [
+     104.038056,
+     30.619856
+    ],
+    [
+     104.037997,
+     30.619737
+    ],
+    [
+     104.038595,
+     30.619517
+    ],
+    [
+     104.038654,
+     30.619636
+    ]
+   ],
+   "capacity": 16,
+   "pileIds": [
+    "PL00012",
+    "PL00013",
+    "PL00014",
+    "PL00015",
+    "PL00016",
+    "PL00017",
+    "PL00018",
+    "PL00019",
+    "PL00020",
+    "PL00021"
+   ],
+   "createdAt": "2026-06-10 10:26:00",
+   "updatedAt": "2026-06-10 10:26:00",
+   "updatedBy": "AC0001"
+  },
+  {
+   "stationId": "ST0004",
+   "name": "锦绣路与科创大道路口",
+   "district": "西城区",
+   "type": "有桩",
+   "center": [
+    104.048693,
+    30.616583
+   ],
+   "fence": [
+    [
+     104.048981,
+     30.616476
+    ],
+    [
+     104.048486,
+     30.616785
+    ],
+    [
+     104.048405,
+     30.616689
+    ],
+    [
+     104.0489,
+     30.61638
+    ],
+    [
+     104.048981,
+     30.616476
+    ]
+   ],
+   "capacity": 9,
+   "pileIds": [
+    "PL00022",
+    "PL00023",
+    "PL00024",
+    "PL00025",
+    "PL00026",
+    "PL00027",
+    "PL00028"
+   ],
+   "createdAt": "2026-06-10 10:54:00",
+   "updatedAt": "2026-10-30 10:52:01",
+   "updatedBy": "AC0001"
+  }
+ ],
+ "piles": [
+  {
+   "pileId": "PL00001",
+   "stationId": "ST0001",
+   "no": 1,
+   "location": [
+    104.095645,
+    30.57878
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000036",
+   "lastHeartbeatAt": "2026-12-01 11:59:17",
+   "installedAt": "2026-06-18 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00002",
+   "stationId": "ST0001",
+   "no": 2,
+   "location": [
+    104.095696,
+    30.578786
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000046",
+   "lastHeartbeatAt": "2026-12-01 11:59:36",
+   "installedAt": "2026-06-18 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00003",
+   "stationId": "ST0001",
+   "no": 3,
+   "location": [
+    104.095747,
+    30.578791
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000566",
+   "lastHeartbeatAt": "2026-12-01 11:59:17",
+   "installedAt": "2026-06-19 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00004",
+   "stationId": "ST0001",
+   "no": 4,
+   "location": [
+    104.095798,
+    30.578797
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000714",
+   "lastHeartbeatAt": "2026-12-01 11:59:33",
+   "installedAt": "2026-06-16 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00005",
+   "stationId": "ST0001",
+   "no": 5,
+   "location": [
+    104.09585,
+    30.578802
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001060",
+   "lastHeartbeatAt": "2026-12-01 11:59:20",
+   "installedAt": "2026-06-24 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00006",
+   "stationId": "ST0001",
+   "no": 6,
+   "location": [
+    104.095901,
+    30.578808
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001058",
+   "lastHeartbeatAt": "2026-12-01 11:59:40",
+   "installedAt": "2026-06-23 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00007",
+   "stationId": "ST0001",
+   "no": 7,
+   "location": [
+    104.095952,
+    30.578813
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001057",
+   "lastHeartbeatAt": "2026-12-01 11:59:15",
+   "installedAt": "2026-06-16 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00008",
+   "stationId": "ST0001",
+   "no": 8,
+   "location": [
+    104.096003,
+    30.578819
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001056",
+   "lastHeartbeatAt": "2026-12-01 11:59:57",
+   "installedAt": "2026-06-23 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00009",
+   "stationId": "ST0001",
+   "no": 9,
+   "location": [
+    104.096055,
+    30.578824
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001055",
+   "lastHeartbeatAt": "2026-12-01 11:59:29",
+   "installedAt": "2026-06-28 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00010",
+   "stationId": "ST0001",
+   "no": 10,
+   "location": [
+    104.096106,
+    30.57883
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001054",
+   "lastHeartbeatAt": "2026-12-01 11:59:17",
+   "installedAt": "2026-06-26 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00011",
+   "stationId": "ST0001",
+   "no": 11,
+   "location": [
+    104.096157,
+    30.578835
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH001051",
+   "lastHeartbeatAt": "2026-12-01 11:59:49",
+   "installedAt": "2026-06-20 11:17:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00012",
+   "stationId": "ST0003",
+   "no": 1,
+   "location": [
+    104.038565,
+    30.619598
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000426",
+   "lastHeartbeatAt": "2026-12-01 11:59:15",
+   "installedAt": "2026-06-30 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00013",
+   "stationId": "ST0003",
+   "no": 2,
+   "location": [
+    104.038512,
+    30.619618
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000452",
+   "lastHeartbeatAt": "2026-12-01 11:59:49",
+   "installedAt": "2026-06-27 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00014",
+   "stationId": "ST0003",
+   "no": 3,
+   "location": [
+    104.038459,
+    30.619637
+   ],
+   "status": "离线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-11-30 17:47:00",
+   "installedAt": "2026-06-24 12:26:00",
+   "faultNote": "心跳中断，疑似供电故障，已通知桩运维方"
+  },
+  {
+   "pileId": "PL00015",
+   "stationId": "ST0003",
+   "no": 4,
+   "location": [
+    104.038406,
+    30.619657
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000579",
+   "lastHeartbeatAt": "2026-12-01 11:59:11",
+   "installedAt": "2026-06-18 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00016",
+   "stationId": "ST0003",
+   "no": 5,
+   "location": [
+    104.038352,
+    30.619677
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000657",
+   "lastHeartbeatAt": "2026-12-01 11:59:18",
+   "installedAt": "2026-06-26 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00017",
+   "stationId": "ST0003",
+   "no": 6,
+   "location": [
+    104.038299,
+    30.619696
+   ],
+   "status": "在线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-12-01 11:59:49",
+   "installedAt": "2026-06-22 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00018",
+   "stationId": "ST0003",
+   "no": 7,
+   "location": [
+    104.038246,
+    30.619716
+   ],
+   "status": "在线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-12-01 11:59:28",
+   "installedAt": "2026-06-15 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00019",
+   "stationId": "ST0003",
+   "no": 8,
+   "location": [
+    104.038193,
+    30.619735
+   ],
+   "status": "在线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-12-01 11:59:18",
+   "installedAt": "2026-06-30 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00020",
+   "stationId": "ST0003",
+   "no": 9,
+   "location": [
+    104.03814,
+    30.619755
+   ],
+   "status": "在线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-12-01 11:59:15",
+   "installedAt": "2026-06-30 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00021",
+   "stationId": "ST0003",
+   "no": 10,
+   "location": [
+    104.038087,
+    30.619774
+   ],
+   "status": "在线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-12-01 11:59:50",
+   "installedAt": "2026-06-29 12:26:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00022",
+   "stationId": "ST0004",
+   "no": 1,
+   "location": [
+    104.048891,
+    30.616459
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000275",
+   "lastHeartbeatAt": "2026-12-01 11:59:16",
+   "installedAt": "2026-06-29 12:54:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00023",
+   "stationId": "ST0004",
+   "no": 2,
+   "location": [
+    104.048825,
+    30.6165
+   ],
+   "status": "离线",
+   "occupiedVehicleId": null,
+   "lastHeartbeatAt": "2026-11-29 20:50:00",
+   "installedAt": "2026-06-27 12:54:00",
+   "faultNote": "心跳中断，疑似供电故障，已通知桩运维方"
+  },
+  {
+   "pileId": "PL00024",
+   "stationId": "ST0004",
+   "no": 3,
+   "location": [
+    104.048759,
+    30.616541
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000589",
+   "lastHeartbeatAt": "2026-12-01 11:59:16",
+   "installedAt": "2026-06-30 12:54:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00025",
+   "stationId": "ST0004",
+   "no": 4,
+   "location": [
+    104.048693,
+    30.616583
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000832",
+   "lastHeartbeatAt": "2026-12-01 11:59:49",
+   "installedAt": "2026-06-30 12:54:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00026",
+   "stationId": "ST0004",
+   "no": 5,
+   "location": [
+    104.048627,
+    30.616624
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000868",
+   "lastHeartbeatAt": "2026-12-01 11:59:15",
+   "installedAt": "2026-06-27 12:54:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00027",
+   "stationId": "ST0004",
+   "no": 6,
+   "location": [
+    104.048561,
+    30.616665
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000943",
+   "lastHeartbeatAt": "2026-12-01 11:59:29",
+   "installedAt": "2026-06-22 12:54:00",
+   "faultNote": null
+  },
+  {
+   "pileId": "PL00028",
+   "stationId": "ST0004",
+   "no": 7,
+   "location": [
+    104.048495,
+    30.616706
+   ],
+   "status": "在线",
+   "occupiedVehicleId": "VH000953",
+   "lastHeartbeatAt": "2026-12-01 11:59:18",
+   "installedAt": "2026-06-28 12:54:00",
+   "faultNote": null
+  }
+ ],
+ "vehicles": [
+  {
+   "vehicleId": "VH000004",
+   "plateNo": "QH464022",
+   "pileTagType": "RFID",
+   "pileTag": "E28011C79479F55A38EC7779",
+   "stationId": "ST0012",
+   "pileId": "PL00083"
+  },
+  {
+   "vehicleId": "VH000036",
+   "plateNo": "QH139723",
+   "pileTagType": "RFID",
+   "pileTag": "E280112D64F5B07F38F7F77B",
+   "stationId": "ST0001",
+   "pileId": "PL00001"
+  },
+  {
+   "vehicleId": "VH000046",
+   "plateNo": "QH633120",
+   "pileTagType": "RFID",
+   "pileTag": "E28011252EC8D3945211070A",
+   "stationId": "ST0001",
+   "pileId": "PL00002"
+  },
+  {
+   "vehicleId": "VH000275",
+   "plateNo": "QH127956",
+   "pileTagType": "RFID",
+   "pileTag": "E280117AA03054F879B1071E",
+   "stationId": "ST0004",
+   "pileId": "PL00022"
+  },
+  {
+   "vehicleId": "VH000426",
+   "plateNo": "QH905117",
+   "pileTagType": "RFID",
+   "pileTag": "E28011E75AA2285F2A424452",
+   "stationId": "ST0003",
+   "pileId": "PL00012"
+  },
+  {
+   "vehicleId": "VH000452",
+   "plateNo": "QH827847",
+   "pileTagType": "RFID",
+   "pileTag": "E28011E7E608E33343D1B507",
+   "stationId": "ST0003",
+   "pileId": "PL00013"
+  },
+  {
+   "vehicleId": "VH000566",
+   "plateNo": "MM399436",
+   "pileTagType": "RFID",
+   "pileTag": "E28011860FD23007B10B0568",
+   "stationId": "ST0001",
+   "pileId": "PL00003"
+  },
+  {
+   "vehicleId": "VH000579",
+   "plateNo": "MM253758",
+   "pileTagType": "RFID",
+   "pileTag": "E28011885C4B8B452BCA106A",
+   "stationId": "ST0003",
+   "pileId": "PL00015"
+  },
+  {
+   "vehicleId": "VH000589",
+   "plateNo": "MM398304",
+   "pileTagType": "RFID",
+   "pileTag": "E280114FA58EE55A8B7BABFD",
+   "stationId": "ST0004",
+   "pileId": "PL00024"
+  },
+  {
+   "vehicleId": "VH000657",
+   "plateNo": "MM145636",
+   "pileTagType": "RFID",
+   "pileTag": "E280119239ECAD48C1C2A270",
+   "stationId": "ST0003",
+   "pileId": "PL00016"
+  },
+  {
+   "vehicleId": "VH000707",
+   "plateNo": "CL987739",
+   "pileTagType": "RFID",
+   "pileTag": "E28011F894655FA2A56B8D34",
+   "stationId": "ST0051",
+   "pileId": null
+  },
+  {
+   "vehicleId": "VH000714",
+   "plateNo": "CL684317",
+   "pileTagType": "RFID",
+   "pileTag": "E28011AFE3E47C094C44C171",
+   "stationId": "ST0001",
+   "pileId": "PL00004"
+  },
+  {
+   "vehicleId": "VH000832",
+   "plateNo": "CL465634",
+   "pileTagType": "RFID",
+   "pileTag": "E28011AE04856098902A6349",
+   "stationId": "ST0004",
+   "pileId": "PL00025"
+  },
+  {
+   "vehicleId": "VH000868",
+   "plateNo": "CL114543",
+   "pileTagType": "RFID",
+   "pileTag": "E280111E894F0103D898F17A",
+   "stationId": "ST0004",
+   "pileId": "PL00026"
+  },
+  {
+   "vehicleId": "VH000943",
+   "plateNo": "CL810477",
+   "pileTagType": "RFID",
+   "pileTag": "E28011E256FCFE6AACF6F820",
+   "stationId": "ST0004",
+   "pileId": "PL00027"
+  },
+  {
+   "vehicleId": "VH000953",
+   "plateNo": "CL198593",
+   "pileTagType": "RFID",
+   "pileTag": "E2801122A81D9B20477630C9",
+   "stationId": "ST0004",
+   "pileId": "PL00028"
+  },
+  {
+   "vehicleId": "VH001051",
+   "plateNo": "CL839233",
+   "pileTagType": "RFID",
+   "pileTag": "E28011E0C93AF5FE1D1D7B2D",
+   "stationId": "ST0001",
+   "pileId": "PL00011"
+  },
+  {
+   "vehicleId": "VH001054",
+   "plateNo": "CL832922",
+   "pileTagType": "RFID",
+   "pileTag": "E280115C0F7C2678DFF04D91",
+   "stationId": "ST0001",
+   "pileId": "PL00010"
+  },
+  {
+   "vehicleId": "VH001055",
+   "plateNo": "CL113193",
+   "pileTagType": "RFID",
+   "pileTag": "E280118536A676016EC08767",
+   "stationId": "ST0001",
+   "pileId": "PL00009"
+  },
+  {
+   "vehicleId": "VH001056",
+   "plateNo": "CL137302",
+   "pileTagType": "RFID",
+   "pileTag": "E28011F5B6D01145C33B5D53",
+   "stationId": "ST0001",
+   "pileId": "PL00008"
+  },
+  {
+   "vehicleId": "VH001057",
+   "plateNo": "CL836158",
+   "pileTagType": "RFID",
+   "pileTag": "E2801190D5F8B10A4EA74C6C",
+   "stationId": "ST0001",
+   "pileId": "PL00007"
+  },
+  {
+   "vehicleId": "VH001058",
+   "plateNo": "CL388429",
+   "pileTagType": "RFID",
+   "pileTag": "E28011C22D2DA921891F5524",
+   "stationId": "ST0001",
+   "pileId": "PL00006"
+  },
+  {
+   "vehicleId": "VH001060",
+   "plateNo": "CL796286",
+   "pileTagType": "RFID",
+   "pileTag": "E28011E9E7AE21DCC8788BB3",
+   "stationId": "ST0001",
+   "pileId": "PL00005"
+  }
+ ]
+}

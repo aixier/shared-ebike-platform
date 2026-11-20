@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>组件库 · 晨光橙</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+  .lib-top{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 24px;height:52px}
+  .lib-top b{color:var(--orange-700)}
+  .lib-top nav{display:flex;gap:4px}
+  .lib-top nav button{height:52px;padding:0 14px;border:0;background:none;border-bottom:2px solid transparent;font-size:14px;color:var(--ink-2)}
+  .lib-top nav button:hover{color:var(--orange-700)}
+  .lib-top nav button[aria-selected="true"]{color:var(--orange-700);border-bottom-color:var(--orange-500);font-weight:600}
+  .lib-wrap{max-width:1200px;margin:0 auto;padding:24px}
+  .lib-grid{display:grid;grid-template-columns:380px 1fr;gap:32px;align-items:start}
+  @media(max-width:900px){.lib-grid{grid-template-columns:1fr}}
+  .lib-phone .m-app{height:720px;border-radius:32px;box-shadow:0 0 0 8px #1c1410,var(--sh-2);position:sticky;top:76px}
+  .lib-sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;margin-bottom:16px}
+  .lib-sec h2{font-size:16px;margin-bottom:4px}
+  .lib-sec .use{font-size:12px;color:var(--ink-3);margin-bottom:12px}
+  .lib-sec code,.lib-code{font-family:var(--font-mono);font-size:12px;background:var(--orange-50);border-radius:4px;padding:1px 5px}
+  pre.lib-code{display:block;padding:10px 12px;overflow-x:auto;line-height:1.6;margin-top:10px;white-space:pre}
+  .lib-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .tok{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .tok div{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;font-size:11px}
+  .tok i{display:block;height:36px}
+  .tok span{display:block;padding:4px 6px;color:var(--ink-2)}
+  .lib-pane[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="lib-top">
+  <b>晨光橙 组件库</b>
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-pane="mobile">小程序</button>
+    <button role="tab" aria-selected="false" data-pane="admin">管理端</button>
+    <button role="tab" aria-selected="false" data-pane="common">令牌与格式化</button>
+  </nav>
+  <span style="margin-left:auto;font-size:12px;color:var(--ink-3)">开发者参考页，页面内数据为随手编的样例</span>
+</div>
+
+<!-- ============ 小程序 ============ -->
+<div class="lib-wrap lib-pane" id="pane-mobile">
+  <div class="lib-grid">
+    <div class="lib-phone">
+      <div class="m-app" id="phone">
+        <div class="m-status"><span>9:41</span><span class="m-sig">●●●</span></div>
+        <div class="m-nav">
+          <span class="m-nav-left">扫码用车</span>
+          <div class="m-capsule" id="cap"><button type="button" aria-label="更多">···</button><i></i><button type="button" aria-label="关闭">◉</button></div>
+        </div>
+        <div class="m-viewport"><div class="m-page">
+          <div class="m-body" id="mbody">
+            <div class="m-bike"><div class="ic">🛵</div><div><b>云行 · 电单车</b><span class="num">编号 A1234 · 电量 86%</span></div></div>
+            <div class="m-card"><div class="m-big num">¥1.5<small> 起步 · 之后 ¥0.5/分钟</small></div><p class="m-hint">月卡与优惠券结账时自动使用</p></div>
+            <div class="m-map">附近站点地图</div>
+            <div class="m-notice"><span class="m-ic">ⓘ</span><span>费用将稍后收取</span></div>
+          </div>
+          <div class="m-bottom">
+            <button type="button" class="m-btn m-btn-primary m-unlock" id="unlock"><span class="fill"></span><span class="lab">开锁</span></button>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div>
+      <section class="lib-sec"><h2>按钮四态</h2><p class="use">类 <code>m-btn m-btn-primary | secondary | ghost | danger</code>；每屏最多一个主按钮；hover、active、focus-visible、disabled 都有样式</p>
+        <div style="display:grid;gap:10px;max-width:320px">
+          <button class="m-btn m-btn-primary">主按钮</button>
+          <button class="m-btn m-btn-secondary">次按钮</button>
+          <button class="m-btn m-btn-ghost">文字按钮</button>
+          <button class="m-btn m-btn-danger">危险按钮</button>
+          <button class="m-btn m-btn-primary" id="disBtn" aria-disabled="true" data-why="您有一笔 ¥3.5 的欠费" data-next="补付后即可骑行">开锁（置灰）</button>
+          <p class="m-why">您有一笔 ¥3.5 的欠费，<button type="button">一键补付</button></p>
+        </div>
+        <pre class="lib-code">&lt;button class="m-btn m-btn-primary" aria-disabled="true"
+  data-why="原因" data-next="下一步"&gt;开锁&lt;/button&gt;
+// 置灰统一用 aria-disabled，点击时 ui.js 自动 toast 原因与下一步
+ui.setDisabled(btn, '原因', '下一步');  ui.setEnabled(btn);</pre></section>
+
+      <section class="lib-sec"><h2>开锁充能、成功回弹</h2><p class="use"><code>ui.unlockButton(btn, run)</code>：点左侧手机里的开锁按钮；5 秒提示较慢，10 秒转失败；成功变绿回弹并震动</p>
+        <div class="lib-row"><button class="m-btn m-btn-secondary is-sm" id="unlockOk">模拟开锁成功</button><button class="m-btn m-btn-secondary is-sm" id="unlockFail">模拟开锁失败</button></div>
+        <pre class="lib-code">await ui.unlockButton(btn, () =&gt; api.unlock(bikeNo));   // reject 时自行展示失败卡</pre></section>
+
+      <section class="lib-sec"><h2>状态标签与提示行</h2><p class="use"><code>chip ok | warn | err | brand | mute</code>；提示行 <code>m-notice</code>（默认琥珀）<code>is-info | is-err | is-ok</code></p>
+        <div class="lib-row" style="margin-bottom:12px"><span class="chip ok">已开锁</span><span class="chip brand">月卡抵扣</span><span class="chip warn">稍后扣费</span><span class="chip err">暂停可租</span><span class="chip mute">已结束</span></div>
+        <div style="display:grid;gap:8px;max-width:340px">
+          <div class="m-notice"><span class="m-ic">ⓘ</span><span>最近站点在前方 120 米，站外还车会收取调度费</span></div>
+          <div class="m-notice is-info"><span class="m-ic">ⓘ</span><span>月卡剩余 12 天，结账时自动抵扣</span></div>
+          <div class="m-notice is-err"><span class="m-ic">!</span><span>支付没有成功，没有扣款。<button class="m-link" type="button">重新支付</button></span></div>
+        </div></section>
+
+      <section class="lib-sec"><h2>失败卡</h2><p class="use">固定结构：一句原因 + 是否收费 + 一个按钮。<code>ui.shake(el)</code> 轻抖一次</p>
+        <div class="m-fail" id="failCard" style="max-width:340px"><h4>这辆车暂时打不开</h4><p>电量不足，没有收费。附近有 3 辆可用。</p><div class="m-fail-actions"><button class="m-btn m-btn-primary">换一辆</button></div></div>
+        <div class="lib-row" style="margin-top:10px"><button class="m-btn m-btn-secondary is-sm" id="shakeBtn">重播抖动</button></div></section>
+
+      <section class="lib-sec"><h2>底部抽屉、居中对话框、Toast</h2><p class="use"><code>ui.bottomSheet</code> 点遮罩、点 ✕、按 Esc 关闭，焦点锁在抽屉内，关闭后回到触发按钮；<code>ui.mDialog</code> 用于授权；<code>ui.toast</code></p>
+        <div class="lib-row">
+          <button class="m-btn m-btn-secondary is-sm" id="sheetBtn">支付半屏</button>
+          <button class="m-btn m-btn-secondary is-sm" id="dlgBtn">授权弹窗</button>
+          <button class="m-btn m-btn-secondary is-sm" id="toastBtn">Toast</button>
+          <button class="m-btn m-btn-secondary is-sm" id="toastErr">带下一步的 Toast</button>
+        </div>
+        <pre class="lib-code">ui.bottomSheet({ title:'确认支付', body:'&lt;div&gt;…&lt;/div&gt;', footer:[{label:'确认支付', kind:'primary', onClick(){…}}] });
+ui.mDialog({ title:'申请使用您的位置', text:'用于找到附近的车和站点', actions:[{label:'不允许',kind:'ghost'},{label:'允许',kind:'primary'}] });
+ui.toast('已领取', {type:'ok'});  ui.toast('暂不能还车', {hint:'请先把车推到站点内'});</pre></section>
+
+      <section class="lib-sec"><h2>账单卡</h2><p class="use"><code>m-bill is-slide</code> 从底部上滑；实付用 <code>ui.countTo(node, 4.0)</code> 滚动到位</p>
+        <div class="m-bill is-slide" id="bill" style="max-width:340px">
+          <div class="m-bill-head"><b>本次骑行</b><span class="chip ok">已自动扣款</span></div>
+          <div class="m-row"><span class="m-k">骑行 18 分钟 · 3.2 公里</span><span class="num">¥9.0</span></div>
+          <div class="m-row"><span class="m-k">月卡抵扣</span><span class="num minus">−¥3.0</span></div>
+          <div class="m-row"><span class="m-k">优惠券</span><span class="num minus">−¥2.0</span></div>
+          <div class="m-bill-total"><span>实付</span><b class="num" id="pay">¥4.0</b></div></div>
+        <div class="lib-row" style="margin-top:10px"><button class="m-btn m-btn-secondary is-sm" id="billBtn">重播账单</button></div></section>
+
+      <section class="lib-sec"><h2>列表项</h2><p class="use"><code>m-list &gt; a.m-cell | button.m-cell</code>，最小高 56px，可点项有 hover/active/focus</p>
+        <div class="m-list" style="max-width:340px">
+          <button class="m-cell has-arrow"><span class="ic">🧾</span><span class="main"><b>11月16日 18:20</b><span>骑行 18 分钟 · 3.2 公里</span></span><span class="end">¥4.0<small>已完成</small></span></button>
+          <button class="m-cell has-arrow"><span class="ic">🎫</span><span class="main"><b>骑行月卡</b><span>有效期至 12月15日</span></span><span class="end"><span class="chip brand">使用中</span></span></button>
+          <div class="m-cell" aria-disabled="true"><span class="ic">🔒</span><span class="main"><b>注销账号</b><span>骑行中不能注销</span></span></div>
+        </div></section>
+
+      <section class="lib-sec"><h2>表单项</h2><p class="use"><code>m-field</code> 包 label + input；校验用 <code>ui.validate(form, rules)</code>，错误显示在字段下方</p>
+        <form id="mform" class="m-fields" style="max-width:340px" novalidate>
+          <div class="m-field"><label for="mf1">真实姓名</label><input id="mf1" name="name" placeholder="与身份证一致" autocomplete="off"></div>
+          <div class="m-field"><label for="mf2">手机号</label><input id="mf2" name="phone" inputmode="numeric" placeholder="11 位手机号"></div>
+          <label class="m-check"><input type="checkbox" name="agree"><span>我已阅读并同意《用户服务协议》</span></label>
+          <button type="submit" class="m-btn m-btn-primary">提交</button>
+        </form>
+        <div class="m-steps" style="max-width:340px;margin-top:16px"><i class="is-on"></i><i class="is-on"></i><i></i><i></i></div>
+        <div class="m-seg" style="max-width:340px;margin-top:12px" role="tablist"><button aria-selected="true">全部</button><button aria-selected="false">已完成</button><button aria-selected="false">欠费</button></div></section>
+
+      <section class="lib-sec"><h2>骨架屏、空状态、加载与重试</h2><p class="use"><code>ui.skeleton('card',3)</code> · <code>ui.empty({...})</code> · <code>ui.loading()</code> · <code>ui.retry({onRetry})</code></p>
+        <div id="statebox" style="max-width:340px;background:var(--bg);border-radius:var(--r-lg);padding:8px"></div>
+        <div class="lib-row" style="margin-top:10px">
+          <button class="m-btn m-btn-secondary is-sm" data-st="skel">骨架屏</button>
+          <button class="m-btn m-btn-secondary is-sm" data-st="empty">空状态</button>
+          <button class="m-btn m-btn-secondary is-sm" data-st="load">加载中</button>
+          <button class="m-btn m-btn-secondary is-sm" data-st="retry">失败重试</button></div></section>
+
+      <section class="lib-sec"><h2>页面骨架与胶囊</h2><p class="use">左侧手机即骨架：<code>m-app &gt; m-status + m-nav + m-viewport &gt; m-page &gt; m-body + m-bottom</code>。支付宝胶囊加 <code>is-alipay</code>。</p>
+        <div class="lib-row"><button class="m-btn m-btn-secondary is-sm" id="capWx">微信外观</button><button class="m-btn m-btn-secondary is-sm" id="capAli">支付宝外观</button></div></section>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 管理端 ============ -->
+<div class="lib-wrap lib-pane" id="pane-admin" hidden>
+  <section class="lib-sec"><h2>页面框架</h2><p class="use"><code>a-shell &gt; a-side（a-brand、a-menu）+ a-top + a-main（a-crumb、a-head、内容）</code>，左侧菜单 168px。以下为框架样式的小型缩略。</p>
+    <div class="a-panel" style="overflow:hidden"><div class="a-shell" style="height:230px;min-height:0">
+      <aside class="a-side"><div class="a-brand"><i></i><span>监管平台</span></div>
+        <nav class="a-menu"><div class="a-menu-group">监管</div><a href="#" class="is-on"><span class="t">价格与规则</span></a><a href="#"><span class="t">站点与围栏</span></a><a href="#"><span class="t">待办</span><em class="a-badge" style="font-style:normal">3</em></a></nav></aside>
+      <header class="a-top"><span class="a-grow"></span><button class="a-todo">待办<b>3</b></button><button class="a-user"><span class="av">周</span>周主管 · 主管部门</button></header>
+      <main class="a-main"><div class="a-crumb"><a href="#">价格与规则</a><span class="sep">/</span><span class="cur">骑行单价</span></div>
+        <div class="a-head"><div><h1>价格与规则</h1><div class="sub">改动按生效时间执行，并留历史</div></div><div class="a-actions"><button class="a-btn a-btn-primary">新增规则</button></div></div></main>
+    </div></div></section>
+
+  <section class="lib-sec"><h2>按钮、标签、提示条、统计卡片</h2><p class="use"><code>a-btn a-btn-primary | default | text | danger</code>，<code>is-sm</code> 小号；置灰同样用 aria-disabled + data-why / data-next</p>
+    <div class="lib-row" style="margin-bottom:12px">
+      <button class="a-btn a-btn-primary">新增规则</button><button class="a-btn a-btn-default">导出</button><button class="a-btn a-btn-text">查看历史</button><button class="a-btn a-btn-danger">强制结束</button>
+      <button class="a-btn a-btn-primary" aria-disabled="true" data-why="该规则已有待生效版本" data-next="先撤销待生效版本，再新增">新增版本（置灰）</button>
+      <span class="chip ok">生效中</span><span class="chip warn">待生效</span><span class="chip err">已停用</span><span class="chip mute">已过期</span></div>
+    <div style="display:grid;gap:8px;margin-bottom:12px"><div class="a-alert"><span class="grow">有 2 个品牌的联调未通过，暂不能开放租用。</span><button class="a-link">去处理</button></div><div class="a-alert is-ok"><span class="grow">规则已保存，2026-12-01 00:00 起生效。</span></div><div class="a-alert is-err"><span class="grow">保存失败，没有任何改动生效。请检查网络后重试。</span></div></div>
+    <div class="a-stats"><div class="a-stat"><div class="k">今日开锁成功率</div><div class="v">98.6<small>%</small></div><div class="d up">较昨日 +0.4%</div></div>
+      <div class="a-stat"><div class="k">在线车辆</div><div class="v">1,284<small>辆</small></div><div class="d">共 1,350 辆</div></div>
+      <button class="a-stat is-on" type="button"><div class="k">待处理工单（可点）</div><div class="v">12</div><div class="d down">2 条超时</div></button></div></section>
+
+  <section class="lib-sec"><h2>Tab、筛选条、表格（排序、选择、分页、远程加载）</h2><p class="use"><code>ui.table(container, {columns, rows | load, selectable, bulkActions, onRowClick})</code>；行高 40px，数字右对齐等宽，点行打开详情抽屉</p>
+    <div id="tabs"></div>
+    <div class="a-filter"><div class="f"><label for="q">关键字</label><input id="q" class="a-input a-search" placeholder="订单号、车辆编号"></div>
+      <div class="f"><label for="st">状态</label><select id="st" class="a-select"><option value="">全部</option><option>已完成</option><option>骑行中</option><option>欠费</option></select></div>
+      <span class="grow"></span><button class="a-btn a-btn-default" id="fReset">重置</button><button class="a-btn a-btn-primary" id="fGo">查询</button></div>
+    <div id="tbl"></div>
+    <div class="lib-row" style="margin-top:10px"><button class="a-btn a-btn-default is-sm" id="tblErr">模拟加载失败</button><button class="a-btn a-btn-default is-sm" id="tblEmpty">模拟空结果</button></div>
+    <pre class="lib-code">const t = ui.table(box, { columns:[{key:'no',title:'订单号'},{key:'fee',title:'实付',align:'right',sortable:true,render:r=&gt;ui.money(r.fee)}],
+  load: ({page,pageSize,sort}) =&gt; api.orders.list({page,pageSize,sort,...filters}), selectable:true, onRowClick: r =&gt; openDetail(r) });
+// 筛选条改变后 t.reload()</pre></section>
+
+  <section class="lib-sec"><h2>抽屉、二次确认（必填事由）、弹窗</h2><p class="use">Esc、点遮罩、点 ✕ 关闭；焦点锁在浮层内，关闭后回到触发按钮。危险操作用 <code>ui.confirm</code>，未填事由点确认会提示并抖动</p>
+    <div class="lib-row"><button class="a-btn a-btn-default" id="drBtn">打开详情抽屉</button><button class="a-btn a-btn-danger" id="cfBtn">强制结束订单</button><button class="a-btn a-btn-default" id="cfFail">确认后接口失败</button><button class="a-btn a-btn-default" id="mdBtn">信息弹窗</button><button class="a-btn a-btn-default" id="tsBtn">Toast</button></div>
+    <pre class="lib-code">const r = await ui.confirm({ title:'强制结束订单', message:'将立即结束并锁车', impact:'订单 ORD-… 用户 138****0001', danger:true,
+  confirmText:'确认强制结束', reasons:['用户失联','车辆故障'], onConfirm: reason =&gt; api.orders.forceEnd(id, reason) });
+if (r) ui.toast('已强制结束', {type:'ok'});   // r.reason 即事由，取消则为 null</pre></section>
+
+  <section class="lib-sec"><h2>表单与校验</h2><p class="use"><code>a-form &gt; a-item &gt; label.req + 控件 + .tip</code>；提交走 <code>ui.validate(form, rules)</code>，错误显示在字段下方并聚焦第一项</p>
+    <form id="aform" class="a-form is-cols" style="max-width:640px" novalidate>
+      <div class="a-item"><label class="req" for="af1">规则名称</label><input id="af1" name="name" class="a-input" placeholder="例如：工作日骑行单价"><span class="tip">2–20 个字</span></div>
+      <div class="a-item"><label class="req" for="af2">单价</label><div class="a-input-group"><input id="af2" name="price" class="a-input" placeholder="0.5"><span class="unit">元 / 分钟</span></div></div>
+      <div class="a-item"><label class="req" for="af3">生效时间</label><input id="af3" name="at" type="datetime-local" class="a-input"></div>
+      <div class="a-item"><label for="af4">类型</label><select id="af4" name="kind" class="a-select"><option>骑行单价</option><option>调度费</option></select></div>
+      <div class="a-item" style="grid-column:1/-1"><label for="af5">备注</label><textarea id="af5" name="note" class="a-textarea"></textarea></div>
+      <div class="a-item"><label>启用</label><div class="a-radio"><label><input type="radio" name="on" value="1" checked>立即启用</label><label><input type="radio" name="on" value="0">暂不启用</label></div></div>
+      <div class="a-item"><label>自动续期</label><button type="button" class="a-switch" role="switch" aria-checked="false" aria-label="自动续期"></button></div>
+      <div style="grid-column:1/-1" class="a-actions"><button class="a-btn a-btn-primary" type="submit">保存</button><button class="a-btn a-btn-default" type="reset">重置</button></div>
+    </form></section>
+
+  <section class="lib-sec"><h2>空状态、骨架屏、加载失败</h2>
+    <div class="a-panel" id="aStateBox" style="margin-bottom:10px"></div>
+    <div class="lib-row"><button class="a-btn a-btn-default is-sm" data-ast="skel">骨架屏</button><button class="a-btn a-btn-default is-sm" data-ast="empty">空状态</button><button class="a-btn a-btn-default is-sm" data-ast="retry">失败重试</button></div></section>
+
+  <section class="lib-sec"><h2>时间线与详情列表</h2><p class="use">抽屉里常用：<code>a-dl</code> 键值、<code>a-timeline</code> 过程。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:720px"><dl class="a-dl"><dt>订单号</dt><dd class="mono">ORD-20261117-0042</dd><dt>车辆</dt><dd>A1234 · 云行</dd><dt>实付</dt><dd class="num">¥4.0</dd></dl>
+      <ul class="a-timeline"><li><div>扫码开锁</div><div class="t">2026-11-17 08:02</div></li><li><div>站点内还车</div><div class="t">2026-11-17 08:20</div></li><li><div>自动扣款成功</div><div class="t">2026-11-17 08:20</div></li></ul></div></section>
+</div>
+
+<!-- ============ 令牌与格式化 ============ -->
+<div class="lib-wrap lib-pane" id="pane-common" hidden>
+  <section class="lib-sec"><h2>色彩令牌</h2><p class="use">全部定义在 tokens.css 的 :root，用 <code>var(--名称)</code> 引用，不要在页面里写死色值</p>
+    <div class="tok" id="tok"></div></section>
+  <section class="lib-sec"><h2>动效与形状</h2><p class="use">时长 <code>--d-fast 120ms</code> / <code>--d-base 220ms</code> / <code>--d-slow 360ms</code>；曲线 <code>--ease</code>；圆角 <code>--r-sm 8</code> <code>--r-md 12</code> <code>--r-lg 16</code> <code>--r-btn 14</code>；阴影 <code>--sh-1</code> 卡片、<code>--sh-2</code> 浮层与账单；间距 <code>--s-1…--s-6</code>。只用 transform 与 opacity 做动效；系统“减少动态效果”下全部降为瞬时。</p></section>
+  <section class="lib-sec"><h2>格式化（实时输出）</h2><p class="use">金额 ¥ 保留一位小数；时间中文友好；数字用等宽</p>
+    <table class="a-table" id="fmtTbl" style="border:1px solid var(--line)"><thead><tr><th>调用</th><th>输出</th></tr></thead><tbody></tbody></table></section>
+  <section class="lib-sec"><h2>哈希路由</h2><p class="use">页面函数接收 ctx 返回元素；小程序自动前进左滑、返回右滑，管理端淡入</p>
+    <pre class="lib-code">const r = ui.router({ outlet:'#view', routes:{ '/':home, '/order/:id':order } });
+r.go('/order/ORD-1');  r.back();</pre></section>
+</div>
+
+<script type="module">
+import * as ui from './ui.js';
+const $ = ui.$, $$ = ui.$$;
+
+/* 标签页切换：管理端组件需要管理端 body 类，toast 等据此取样式 */
+function showPane(k){
+  $$('.lib-pane').forEach(p => p.hidden = p.id !== 'pane-' + k);
+  $$('.lib-top nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.pane === k));
+  document.body.classList.toggle('a-body', k === 'admin');
+  location.hash = k;
+}
+$$('.lib-top nav button').forEach(b => b.addEventListener('click', () => showPane(b.dataset.pane)));
+showPane(['mobile','admin','common'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'mobile');
+
+/* ---------- 小程序 ---------- */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+$('#unlock').addEventListener('click', e => unlockDemo(true));
+$('#unlockOk').addEventListener('click', () => unlockDemo(true));
+$('#unlockFail').addEventListener('click', () => unlockDemo(false));
+async function unlockDemo(ok){
+  const b = $('#unlock');
+  if (b.getAttribute('aria-busy')) return;
+  try { await ui.unlockButton(b, async () => { await wait(1800); if (!ok) throw new Error('电量不足'); }); ui.toast('已开锁，开始计时', {type:'ok'}); setTimeout(() => { b.classList.remove('is-done','is-pop'); $('.lab', b).textContent = '开锁'; }, 1400); }
+  catch (e) { ui.toast('这辆车暂时打不开：' + e.message + '，没有收费', {hint:'点“换一辆”试试附近的车'}); ui.shake($('#failCard')); }
+}
+$('#shakeBtn').addEventListener('click', () => ui.shake($('#failCard')));
+$('#sheetBtn').addEventListener('click', () => ui.bottomSheet({ title:'确认支付', body:`<div class="m-row"><span class="m-k">骑行费用</span><span class="num">¥9.0</span></div><div class="m-row"><span class="m-k">月卡抵扣</span><span class="num minus">−¥5.0</span></div><div class="m-bill-total"><span>实付</span><b class="num">¥4.0</b></div>`, footer:[{label:'确认支付', kind:'primary', onClick(){ ui.toast('支付成功', {type:'ok'}); }}, {label:'稍后再付', kind:'ghost'}] }));
+$('#dlgBtn').addEventListener('click', () => ui.mDialog({ title:'申请使用您的位置', text:'用于找到附近的车和还车站点，不会用于其他用途', actions:[{label:'不允许', kind:'secondary'}, {label:'允许', kind:'primary', onClick(){ ui.toast('已授权位置', {type:'ok'}); }}] }));
+$('#toastBtn').addEventListener('click', () => ui.toast('已领取 1 张优惠券', {type:'ok'}));
+$('#toastErr').addEventListener('click', () => ui.toast('现在还不能还车', {hint:'请先把车推到站点范围内'}));
+$('#disBtn').addEventListener('click', () => {});
+$('#billBtn').addEventListener('click', () => { const c = $('#bill'); c.classList.remove('is-slide'); void c.offsetWidth; c.classList.add('is-slide'); ui.countTo($('#pay'), 4.0); });
+$('#mform').addEventListener('submit', e => { e.preventDefault(); const r = ui.validate(e.target, { name:{label:'姓名', required:true, min:2}, phone:{label:'手机号', required:true, pattern:/^1\d{10}$/, message:'请输入 11 位手机号'}, agree:{label:'用户服务协议', required:true} }); if (r.ok) ui.toast('已提交', {type:'ok'}); });
+$$('.m-seg button').forEach(b => b.addEventListener('click', () => { $$('.m-seg button').forEach(x => x.setAttribute('aria-selected', x === b)); }));
+const sb = $('#statebox');
+const states = {
+  skel: () => sb.innerHTML = ui.skeleton('card', 3),
+  empty: () => { sb.innerHTML = ''; sb.append(ui.empty({ icon:'🧾', title:'还没有骑行记录', text:'扫码骑一次，这里就会有记录', action:'去扫码', onAction: () => ui.toast('打开扫码') })); },
+  load: () => { sb.innerHTML = ''; sb.append(ui.loading('正在加载订单…')); },
+  retry: () => { sb.innerHTML = ''; sb.append(ui.retry({ text:'订单加载失败，没有任何扣费', onRetry: () => { states.load(); setTimeout(states.skel, 800); } })); },
+};
+$$('[data-st]').forEach(b => b.addEventListener('click', () => states[b.dataset.st]()));
+states.skel();
+$('#capWx').addEventListener('click', () => $('#cap').classList.remove('is-alipay'));
+$('#capAli').addEventListener('click', () => $('#cap').classList.add('is-alipay'));
+
+/* ---------- 管理端 ---------- */
+const states_ = ['已完成','骑行中','欠费'];
+const data = Array.from({length:137}, (_, i) => ({ id:'ORD-20261117-' + String(i+1).padStart(4,'0'), bike:'A' + (1000 + (i*37)%900), fee:+(((i*7)%90)/10+1.5).toFixed(1), mins:5 + (i*13)%60, at:new Date(Date.now() - i*37*60000), state:states_[i%7===0?2:i%11===0?1:0] }));
+let tab = 'all', failNext = false, emptyNext = false;
+const chipOf = s => `<span class="chip ${s==='已完成'?'ok':s==='欠费'?'err':'warn'}">${s}</span>`;
+function filtered(){ const q = $('#q').value.trim(), s = $('#st').value; return data.filter(r => (!q || r.id.includes(q) || r.bike.includes(q)) && (!s || r.state === s) && (tab === 'all' || r.state === (tab === 'debt' ? '欠费' : '骑行中'))); }
+ui.tabs($('#tabs'), [{key:'all', label:'全部', count:data.length}, {key:'debt', label:'欠费', count:data.filter(r=>r.state==='欠费').length}, {key:'ride', label:'骑行中', count:data.filter(r=>r.state==='骑行中').length}], 'all', k => { tab = k; t.goto(1); });
+const t = ui.table($('#tbl'), {
+  columns: [
+    { key:'id', title:'订单号', render:r => `<span class="mono">${r.id}</span>` },
+    { key:'bike', title:'车辆', sortable:true },
+    { key:'mins', title:'时长', align:'right', sortable:true, render:r => ui.duration(r.mins*60) },
+    { key:'fee', title:'实付', align:'right', sortable:true, render:r => ui.money(r.fee) },
+    { key:'at', title:'开锁时间', sortable:true, sortValue:r => +r.at, render:r => ui.datetime(r.at) },
+    { key:'state', title:'状态', render:r => chipOf(r.state) },
+  ],
+  pageSize: 10, selectable: true,
+  bulkActions: [{ label:'导出所选', onClick: rows => ui.toast(`已导出 ${rows.length} 条`, {type:'ok'}) }],
+  load: async ({page, pageSize, sort}) => {
+    await wait(300 + Math.random()*250);
+    if (failNext) { failNext = false; throw new Error('x'); }
+    let rows = emptyNext ? [] : filtered(); emptyNext = false;
+    if (sort) { const c = sort.key; rows = [...rows].sort((a,b) => (a[c] > b[c] ? 1 : -1) * (sort.dir === 'asc' ? 1 : -1)); }
+    return { rows: rows.slice((page-1)*pageSize, page*pageSize), total: rows.length };
+  },
+  onRowClick: r => openDetail(r),
+  empty: { title:'没有符合条件的订单', text:'换个筛选条件试试，或重置筛选' },
+});
+$('#fGo').addEventListener('click', () => t.goto(1));
+$('#fReset').addEventListener('click', () => { $('#q').value = ''; $('#st').value = ''; t.goto(1); });
+$('#q').addEventListener('keydown', e => e.key === 'Enter' && t.goto(1));
+$('#tblErr').addEventListener('click', () => { failNext = true; t.reload(); });
+$('#tblEmpty').addEventListener('click', () => { emptyNext = true; t.reload(); });
+
+function openDetail(r){
+  ui.drawer({ title:'订单 ' + r.id, sub:ui.time(r.at), wide:false,
+    body:`<dl class="a-dl"><dt>车辆</dt><dd>${r.bike}</dd><dt>骑行时长</dt><dd>${ui.duration(r.mins*60)}</dd><dt>实付</dt><dd class="num">${ui.money(r.fee)}</dd><dt>状态</dt><dd>${chipOf(r.state)}</dd></dl>
+    <div><div class="a-sec-title">过程</div><ul class="a-timeline"><li><div>扫码开锁</div><div class="t">${ui.datetime(r.at)}</div></li><li><div>还车并自动扣款</div><div class="t">${ui.datetime(new Date(+r.at + r.mins*60000))}</div></li></ul></div>`,
+    footer:[{ label:'关闭', kind:'default' }, { label:'强制结束', kind:'danger', onClick: () => forceEnd(r), keepOpen:true }] });
+}
+async function forceEnd(r){
+  const res = await ui.confirm({ title:'强制结束订单', message:'订单将立即结束并锁车，费用按已骑行时长结算。', impact:`订单 ${r.id}，车辆 ${r.bike}`, danger:true, confirmText:'确认强制结束', reasons:['用户失联','车辆故障','用户申请'] });
+  if (res) ui.toast('订单已强制结束', {type:'ok', hint:'事由已写入操作留痕：' + res.reason});
+}
+$('#drBtn').addEventListener('click', () => openDetail(data[3]));
+$('#cfBtn').addEventListener('click', () => forceEnd(data[5]));
+$('#cfFail').addEventListener('click', () => ui.confirm({ title:'押金抵扣欠费', message:'将从用户押金中扣除欠费。', impact:'用户 138****0001，扣除 ¥3.5', danger:true, confirmText:'确认抵扣', onConfirm: async () => { await wait(700); throw new Error('扣款通道暂时不可用，押金未动，请稍后重试'); } }));
+$('#mdBtn').addEventListener('click', () => ui.modal({ title:'联调环境已重置', body:'<p>测试车辆与测试用户已恢复到初始状态，之前的联调记录仍保留在“联调记录”里。</p>' }));
+$('#tsBtn').addEventListener('click', () => { ui.toast('规则已保存', {type:'ok', hint:'2026-12-01 00:00 起生效'}); });
+$('#aform').addEventListener('submit', e => { e.preventDefault(); const r = ui.validate(e.target, { name:{label:'规则名称', required:true, min:2, max:20}, price:{label:'单价', required:true, type:'number', gt:0, maxValue:10, message:''}, at:{label:'生效时间', required:true, custom:v => v && new Date(v) < new Date() && '生效时间不能早于现在'} }); if (r.ok) ui.toast('规则已保存', {type:'ok'}); });
+$('.a-switch').addEventListener('click', e => e.currentTarget.setAttribute('aria-checked', e.currentTarget.getAttribute('aria-checked') !== 'true'));
+const ab = $('#aStateBox');
+const ast = {
+  skel: () => { ab.innerHTML = `<div class="a-table-scroll"><table class="a-table"><tbody>${ui.skeleton('rows', 4, 5)}</tbody></table></div>`; },
+  empty: () => { ab.innerHTML = ''; ab.append(ui.empty({ icon:'📭', title:'还没有联调记录', text:'完成第一次联调后，这里会显示每次测试的结果', action:'开始联调', onAction: () => ui.toast('已打开联调向导') })); },
+  retry: () => { ab.innerHTML = ''; ab.append(ui.retry({ text:'数据没有加载出来，请检查网络后重试', onRetry: () => { ast.skel(); setTimeout(ast.empty, 700); } })); },
+};
+$$('[data-ast]').forEach(b => b.addEventListener('click', () => ast[b.dataset.ast]()));
+ast.skel();
+
+/* ---------- 令牌与格式化 ---------- */
+const toks = ['orange-50','orange-100','orange-200','orange-500','orange-600','orange-700','bg','surface','line','ink','ink-2','ink-3','ok','ok-bg','warn','warn-bg','err','err-bg'];
+$('#tok').innerHTML = toks.map(n => `<div><i style="background:var(--${n})"></i><span>--${n}</span></div>`).join('');
+const now = new Date();
+const rows = [
+  ['ui.money(9)', ui.money(9)], ['ui.money(-3)', ui.money(-3)], ['ui.money(12345.65)', ui.money(12345.65)], ['ui.moneyCents(350)', ui.moneyCents(350)],
+  ['ui.duration(1080)', ui.duration(1080)], ['ui.duration(3900)', ui.duration(3900)], ['ui.clock(205)', ui.clock(205)],
+  ['ui.time(今天 14:30)', ui.time(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 30))],
+  ['ui.time(昨天)', ui.time(new Date(now - 864e5))], ['ui.time(3 天前)', ui.time(new Date(now - 3*864e5))],
+  ['ui.datetime(now)', ui.datetime(now)], ['ui.ago(5 分钟前)', ui.ago(new Date(now - 5*60000))], ['ui.percent(0.986)', ui.percent(0.986)], ['ui.km(3.2)', ui.km(3.2)],
+];
+$('#fmtTbl tbody').innerHTML = rows.map(r => `<tr><td class="mono">${ui.esc(r[0])}</td><td class="num">${ui.esc(r[1])}</td></tr>`).join('');
+
+ui.initDebug({ actions:[{ label:'清除本页本地存储', onClick(){ localStorage.clear(); ui.toast('已清除'); } }] });
+</script>
+</body>
+</html>

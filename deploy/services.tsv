@@ -1,0 +1,18 @@
+# 模块	端口	同步调用的被调方（逗号分隔，- 表示无）
+# 来源：contracts/README.md 第 4 节、架构设计第 3.2 节、各服务 README 的"同步调用"。
+# 改调用关系先改契约与对方 README，再改这里；gen-env.sh 据此生成 <被调方大写>_URL 与被调方的 ALLOWED_CALLERS。
+acct	18301	-
+ride	18302	opgw
+opgw	18303	ride,fleet
+onboard	18304	fleet
+fleet	18305	-
+site	18306	-
+rule	18307	-
+bill	18308	pay,deposit
+pay	18309	acct
+deposit	18310	pay
+settle	18311	-
+cs	18312	ride,bill,acct,deposit
+ops	18313	fleet,ride,pay
+enforce	18314	-
+iam	18315	-

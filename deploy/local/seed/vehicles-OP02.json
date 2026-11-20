@@ -1,0 +1,25 @@
+{
+ "rows": [
+  {
+   "brandId": "BR03",
+   "plateNo": "CL000001",
+   "model": "驰路 C2",
+   "pileTag": "E20000000000000000000065",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR03",
+   "plateNo": "CL000002",
+   "model": "驰路 C2",
+   "pileTag": "E20000000000000000000066",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR03",
+   "plateNo": "CL000003",
+   "model": "驰路 C2",
+   "pileTag": "E20000000000000000000067",
+   "pileTagType": "RFID"
+  }
+ ]
+}

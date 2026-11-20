@@ -1,0 +1,67 @@
+{
+ "rows": [
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000001",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000001",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000002",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000002",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000003",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000003",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000004",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000004",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000005",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000005",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR01",
+   "plateNo": "QH000006",
+   "model": "青禾 E3",
+   "pileTag": "E20000000000000000000006",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR02",
+   "plateNo": "MM000001",
+   "model": "木棉 M1",
+   "pileTag": "E20000000000000000000007",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR02",
+   "plateNo": "MM000002",
+   "model": "木棉 M1",
+   "pileTag": "E20000000000000000000008",
+   "pileTagType": "RFID"
+  },
+  {
+   "brandId": "BR02",
+   "plateNo": "MM000003",
+   "model": "木棉 M1",
+   "pileTag": "E20000000000000000000009",
+   "pileTagType": "RFID"
+  }
+ ]
+}

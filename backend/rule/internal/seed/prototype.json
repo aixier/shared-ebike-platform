@@ -1,0 +1,435 @@
+{
+ "source": "原型/mockdata/pricing.json（金额元→分；时间为北京时间，锚点 2026-12-01）",
+ "anchor": "2026-12-01",
+ "versions": [
+  {
+   "versionId": "PR0001",
+   "name": "2026年7月计价规则",
+   "effectiveAt": "2026-07-01 00:00:00",
+   "createdAt": "2026-06-22 15:12:40",
+   "createdBy": {
+    "kind": "人",
+    "id": "AC0001",
+    "name": "周＊＊"
+   },
+   "note": "首版计价规则：起步 3 分钟 1.5 元，之后每分钟 0.4 元。",
+   "ride": {
+    "vehicleType": "电单车",
+    "startFee": 150,
+    "startMinutes": 3,
+    "perMinute": 40,
+    "billingUnit": "按分钟计，不足 1 分钟按 1 分钟"
+   },
+   "dispatchFee": 300,
+   "monthCard": {
+    "price": 2000,
+    "days": 30,
+    "perOrderCap": 300,
+    "appliesTo": "骑行费（不含调度费）",
+    "allocation": "按骑行单数"
+   },
+   "coupons": [
+    {
+     "templateId": "CPT01",
+     "name": "新用户骑行券",
+     "amount": 200,
+     "audience": "新注册并完成实名的用户",
+     "validDays": 7,
+     "issue": "注册后自动发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT02",
+     "name": "周末骑行券",
+     "amount": 200,
+     "audience": "全部实名用户",
+     "validDays": 3,
+     "issue": "用户在券中心领取（每周五 17:00 开放）",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT04",
+     "name": "开锁失败关怀券",
+     "amount": 100,
+     "audience": "当日遇到开锁失败的用户",
+     "validDays": 7,
+     "issue": "开锁失败后自动发放",
+     "perUser": 1
+    }
+   ],
+   "deposit": {
+    "amount": 9900
+   },
+   "creditFree": {
+    "threshold": 550,
+    "providers": [
+     "微信支付分",
+     "芝麻信用"
+    ]
+   },
+   "serviceFee": {
+    "basis": "订单应收",
+    "ratios": {
+     "BR01": 0.62,
+     "BR02": 0.58,
+     "BR03": 0.6,
+     "BR04": 0.55,
+     "BR05": 0.6
+    }
+   },
+   "riskLimits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 6000
+    },
+    "tight": {
+     "maxMinutes": 45,
+     "maxAmount": 2000
+    },
+    "hourlyDegradedOrders": 300,
+    "degradeDurationAlertMinutes": 30
+   }
+  },
+  {
+   "versionId": "PR0002",
+   "name": "2026年10月调价",
+   "effectiveAt": "2026-10-15 00:00:00",
+   "createdAt": "2026-10-08 10:26:05",
+   "createdBy": {
+    "kind": "人",
+    "id": "AC0001",
+    "name": "周＊＊"
+   },
+   "note": "分钟价调为 0.5 元，调度费 5 元，押金 199 元，月卡 25 元；木棉服务费比例调为 60%；新增绿色出行券。",
+   "ride": {
+    "vehicleType": "电单车",
+    "startFee": 150,
+    "startMinutes": 3,
+    "perMinute": 50,
+    "billingUnit": "按分钟计，不足 1 分钟按 1 分钟"
+   },
+   "dispatchFee": 500,
+   "monthCard": {
+    "price": 2500,
+    "days": 30,
+    "perOrderCap": 300,
+    "appliesTo": "骑行费（不含调度费）",
+    "allocation": "按骑行单数"
+   },
+   "coupons": [
+    {
+     "templateId": "CPT01",
+     "name": "新用户骑行券",
+     "amount": 200,
+     "audience": "新注册并完成实名的用户",
+     "validDays": 7,
+     "issue": "注册后自动发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT02",
+     "name": "周末骑行券",
+     "amount": 200,
+     "audience": "全部实名用户",
+     "validDays": 3,
+     "issue": "用户在券中心领取（每周五 17:00 开放）",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT03",
+     "name": "绿色出行券",
+     "amount": 300,
+     "audience": "2026-10-15 前已实名的用户",
+     "validDays": 14,
+     "issue": "系统一次性发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT04",
+     "name": "开锁失败关怀券",
+     "amount": 100,
+     "audience": "当日遇到开锁失败的用户",
+     "validDays": 7,
+     "issue": "开锁失败后自动发放",
+     "perUser": 1
+    }
+   ],
+   "deposit": {
+    "amount": 19900
+   },
+   "creditFree": {
+    "threshold": 550,
+    "providers": [
+     "微信支付分",
+     "芝麻信用"
+    ]
+   },
+   "serviceFee": {
+    "basis": "订单应收",
+    "ratios": {
+     "BR01": 0.62,
+     "BR02": 0.6,
+     "BR03": 0.6,
+     "BR04": 0.55,
+     "BR05": 0.6
+    }
+   },
+   "riskLimits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 6000
+    },
+    "tight": {
+     "maxMinutes": 45,
+     "maxAmount": 2000
+    },
+    "hourlyDegradedOrders": 300,
+    "degradeDurationAlertMinutes": 30
+   }
+  },
+  {
+   "versionId": "PR0003",
+   "name": "2026年12月限额与比例调整",
+   "effectiveAt": "2026-12-01 00:00:00",
+   "createdAt": "2026-11-24 16:40:18",
+   "createdBy": {
+    "kind": "人",
+    "id": "AC0002",
+    "name": "叶＊"
+   },
+   "note": "收紧先骑后验与押金状态未知用户的降级额度，每小时降级单上限调为 200 单；驰路服务费比例调为 61%。",
+   "ride": {
+    "vehicleType": "电单车",
+    "startFee": 150,
+    "startMinutes": 3,
+    "perMinute": 50,
+    "billingUnit": "按分钟计，不足 1 分钟按 1 分钟"
+   },
+   "dispatchFee": 500,
+   "monthCard": {
+    "price": 2500,
+    "days": 30,
+    "perOrderCap": 300,
+    "appliesTo": "骑行费（不含调度费）",
+    "allocation": "按骑行单数"
+   },
+   "coupons": [
+    {
+     "templateId": "CPT01",
+     "name": "新用户骑行券",
+     "amount": 200,
+     "audience": "新注册并完成实名的用户",
+     "validDays": 7,
+     "issue": "注册后自动发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT02",
+     "name": "周末骑行券",
+     "amount": 200,
+     "audience": "全部实名用户",
+     "validDays": 3,
+     "issue": "用户在券中心领取（每周五 17:00 开放）",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT03",
+     "name": "绿色出行券",
+     "amount": 300,
+     "audience": "2026-10-15 前已实名的用户",
+     "validDays": 14,
+     "issue": "系统一次性发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT04",
+     "name": "开锁失败关怀券",
+     "amount": 100,
+     "audience": "当日遇到开锁失败的用户",
+     "validDays": 7,
+     "issue": "开锁失败后自动发放",
+     "perUser": 1
+    }
+   ],
+   "deposit": {
+    "amount": 19900
+   },
+   "creditFree": {
+    "threshold": 550,
+    "providers": [
+     "微信支付分",
+     "芝麻信用"
+    ]
+   },
+   "serviceFee": {
+    "basis": "订单应收",
+    "ratios": {
+     "BR01": 0.62,
+     "BR02": 0.6,
+     "BR03": 0.61,
+     "BR04": 0.55,
+     "BR05": 0.6
+    }
+   },
+   "riskLimits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 6000
+    },
+    "tight": {
+     "maxMinutes": 30,
+     "maxAmount": 1500
+    },
+    "hourlyDegradedOrders": 200,
+    "degradeDurationAlertMinutes": 30
+   }
+  },
+  {
+   "versionId": "PR0004",
+   "name": "2027年1月免押门槛调整",
+   "effectiveAt": "2027-01-01 00:00:00",
+   "createdAt": "2026-11-28 09:52:31",
+   "createdBy": {
+    "kind": "人",
+    "id": "AC0001",
+    "name": "周＊＊"
+   },
+   "note": "信用免押门槛由 550 分调为 600 分；新增元旦骑行券。",
+   "ride": {
+    "vehicleType": "电单车",
+    "startFee": 150,
+    "startMinutes": 3,
+    "perMinute": 50,
+    "billingUnit": "按分钟计，不足 1 分钟按 1 分钟"
+   },
+   "dispatchFee": 500,
+   "monthCard": {
+    "price": 2500,
+    "days": 30,
+    "perOrderCap": 300,
+    "appliesTo": "骑行费（不含调度费）",
+    "allocation": "按骑行单数"
+   },
+   "coupons": [
+    {
+     "templateId": "CPT01",
+     "name": "新用户骑行券",
+     "amount": 200,
+     "audience": "新注册并完成实名的用户",
+     "validDays": 7,
+     "issue": "注册后自动发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT02",
+     "name": "周末骑行券",
+     "amount": 200,
+     "audience": "全部实名用户",
+     "validDays": 3,
+     "issue": "用户在券中心领取（每周五 17:00 开放）",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT03",
+     "name": "绿色出行券",
+     "amount": 300,
+     "audience": "2026-10-15 前已实名的用户",
+     "validDays": 14,
+     "issue": "系统一次性发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT04",
+     "name": "开锁失败关怀券",
+     "amount": 100,
+     "audience": "当日遇到开锁失败的用户",
+     "validDays": 7,
+     "issue": "开锁失败后自动发放",
+     "perUser": 1
+    },
+    {
+     "templateId": "CPT05",
+     "name": "元旦骑行券",
+     "amount": 200,
+     "audience": "全部实名用户",
+     "validDays": 3,
+     "issue": "2027-01-01 00:00 自动发放",
+     "perUser": 1
+    }
+   ],
+   "deposit": {
+    "amount": 19900
+   },
+   "creditFree": {
+    "threshold": 600,
+    "providers": [
+     "微信支付分",
+     "芝麻信用"
+    ]
+   },
+   "serviceFee": {
+    "basis": "订单应收",
+    "ratios": {
+     "BR01": 0.62,
+     "BR02": 0.6,
+     "BR03": 0.61,
+     "BR04": 0.55,
+     "BR05": 0.6
+    }
+   },
+   "riskLimits": {
+    "perUserOpenDegradedOrders": 1,
+    "normal": {
+     "maxMinutes": 120,
+     "maxAmount": 6000
+    },
+    "tight": {
+     "maxMinutes": 30,
+     "maxAmount": 1500
+    },
+    "hourlyDegradedOrders": 200,
+    "degradeDurationAlertMinutes": 30
+   }
+  }
+ ],
+ "platformParams": {
+  "updatedAt": "2026-10-10 11:20:00",
+  "updatedBy": {
+   "kind": "人",
+   "id": "AC0404",
+   "name": "郝＊"
+  },
+  "items": {
+   "payWindowHours": 24,
+   "csRefundLimit": 2000,
+   "backfillWindowHours": 72,
+   "unlockReportTimeoutSec": 30,
+   "nearbyRadiusM": 500,
+   "arrearsFreezeDays": 30,
+   "depositRefundWorkdays": 3,
+   "billPushTargetSec": 10,
+   "pauseThreshold": {
+    "unlockSuccessRate": 0.9,
+    "availability": 0.8,
+    "sustainMinutes": 120
+   },
+   "acceptance": {
+    "realVehicles": 20,
+    "realOrders": 60,
+    "targetDays": 21
+   },
+   "availabilityTarget": 0.995,
+   "unlockP90TargetSec": 5,
+   "retentionYears": {
+    "orders": 5,
+    "payments": 10,
+    "audit": 5,
+    "evidence": 5
+   },
+   "trackRetentionDays": 180
+  }
+ }
+}

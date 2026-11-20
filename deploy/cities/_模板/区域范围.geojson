@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "kind": "运营区域", "name": "<名称>", "crs": "GCJ-02" },
+      "geometry": { "type": "Polygon", "coordinates": [[[0, 0], [0, 0], [0, 0], [0, 0]]] }
+    }
+  ]
+}

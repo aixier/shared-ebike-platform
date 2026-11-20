@@ -1,0 +1,360 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · 运营商接入规范（M-01～M-04）
+  version: 1.0.0
+  description: |
+    运营商只实现 3 项交互加 1 份车辆清单即可接入。运营商自行接入、车联网服务商代接、政府自有车队用同一份规范。
+
+    | 编号 | 方向 | 交互 | 路径 |
+    |---|---|---|---|
+    | M-01 | 平台请求运营商 | 开锁 | `POST {运营商地址}/v1/unlock` |
+    | M-02 | 平台请求运营商 | 结束骑行 | `POST {运营商地址}/v1/end-ride` |
+    | M-03 | 运营商请求平台 | 骑行事件 | `POST /open/v1/ride-events` |
+    | M-04 | 运营商请求平台 | 车辆清单 | `POST /open/v1/vehicle-lists` |
+
+    ## 时限
+    - M-01、M-02：运营商 1 秒内同步答复"已受理"或"拒绝加原因"；平台 3 秒超时。开锁与锁车的结果走 M-03 报告。
+    - 开锁结果须在开锁请求后 30 秒内报告；超时平台按开锁失败处理、不计费。超时后才报告开锁成功的，平台立即发 M-02 结束，订单 0 元。
+    - M-03 未收到平台"已收到"答复时，运营商须在 72 小时补报窗口内重试，eventId 不变。
+    - 用户手动锁车也要用 M-03 报告。
+
+    ## 重复与延迟
+    重复或延迟到达的请求不得重复执行。M-01、M-02 以请求头 `Idempotency-Key` 与订单号去重，同一订单重复开锁请求不得重复开锁，答复与首次一致。M-03 以 eventId 去重。降级期间不增加任何交互，只是 M-01 的 degraded 为 true。
+
+    ## 数据范围
+    报文里只有订单号、车号、开锁锁车时刻与位置、时长、里程，不含任何用户身份。
+
+    ## 签名
+    全程 HTTPS。每家一把独立密钥（服务商代接时一份凭证覆盖其名下多家），来源 IP 白名单，限流，凭证可随时停用。两个方向用同一算法、同一把密钥：
+    - 请求头：`X-App-Id`（应用标识）、`X-Timestamp`（Unix 秒）、`X-Nonce`（16～64 个字符的随机数）、`X-Signature`。
+    - 待签名串：`方法 + "\n" + 路径 + "\n" + X-App-Id + "\n" + X-Timestamp + "\n" + X-Nonce + "\n" + 请求体原文的 SHA-256（小写十六进制）`。路径不含域名与查询串；请求体按 UTF-8 原文取摘要。
+    - `X-Signature` = HMAC-SHA256(密钥, 待签名串)，小写十六进制。
+    - 接收方校验：应用标识已登记且未停用、时间戳与本地时间相差不超过 300 秒、随机数在时间窗内未出现过、签名一致。任一不满足即拒绝。
+
+    ## 签名测试向量
+    - 密钥：`test-secret-do-not-use-in-production`
+    - 方法与路径：`POST` `/open/v1/ride-events`
+    - `X-App-Id`：`APP-TEST-0001`；`X-Timestamp`：`1796097600`；`X-Nonce`：`8f3c2a1e5b7d4c90`
+    - 请求体原文（单行，无多余空白）：
+      `{"eventId":"EVT-TEST-0001","type":"开锁结果","orderId":"OD2026120100001","plateNo":"QH000004","occurredAt":"2026-12-01T12:00:00+08:00","unlock":{"result":"成功"}}`
+    - 请求体 SHA-256：`6896bff3b2e7339f8a33d310d41a3e55bea806506800839ea25936b87435e914`
+    - `X-Signature`：`e6bfa21f86aea8837b30b5c3576054fbabc3d9e373f05c140499af29c018a973`
+
+    ## 运营商侧错误码
+    平台对 M-03、M-04 的失败答复用统一错误结构（code、message）。HTTP 状态与 code：
+
+    | 状态 | code | 含义 | 运营商该怎么做 |
+    |---|---|---|---|
+    | 400 | INVALID | 报文缺字段或取值不对，message 写明 | 改报文后重发 |
+    | 400 | VEHICLE_LIST_INVALID | 车辆清单有错，errors 里逐行给出 | 改清单后整批重发 |
+    | 401 | SIGNATURE_INVALID | 签名不一致或应用标识未登记 | 核对密钥与待签名串 |
+    | 401 | TIMESTAMP_EXPIRED | 时间戳超出 300 秒 | 校时后用新时间戳重发 |
+    | 401 | NONCE_REPLAYED | 随机数重复 | 换随机数重发 |
+    | 403 | CREDENTIAL_DISABLED | 凭证已停用 | 联系平台公司 |
+    | 403 | IP_NOT_ALLOWED | 来源不在白名单 | 联系平台公司登记来源 |
+    | 403 | SCOPE_DENIED | 车号或品牌不属于这份凭证名下的运营商 | 核对数据 |
+    | 404 | NOT_FOUND | 订单号不存在 | 核对订单号，不要重试 |
+    | 429 | RATE_LIMITED | 超出限流 | 退避后重试 |
+    | 5xx | SERVER_BUSY | 平台暂时不可用 | 按补报窗口重试 |
+tags:
+  - name: 运营商实现
+    description: 平台请求运营商，运营商需实现
+  - name: 平台提供
+    description: 运营商请求平台
+paths:
+  /v1/unlock:
+    post:
+      operationId: operatorUnlock
+      summary: 开锁（M-01）
+      description: 平台建好订单后请求开锁。运营商只答复是否受理，开锁结果随后用 M-03 报告。同一订单号重复请求不得重复开锁。
+      tags: [运营商实现]
+      servers:
+        - url: 'https://{operatorHost}'
+          description: 运营商地址，接入时登记
+          variables:
+            operatorHost: { default: operator.example.com }
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-01, BR-02, BR-38, NFR-10, NFR-11]
+      x-errors: []
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UnlockRequest' }
+      responses:
+        '200':
+          description: 已受理或拒绝
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommandReply' }
+        '401':
+          description: 验签不通过
+  /v1/end-ride:
+    post:
+      operationId: operatorEndRide
+      summary: 结束骑行（M-02）
+      description: 平台请求运营商锁车并结束本次骑行。运营商只答复是否受理，锁车结果随后用 M-03 报告。
+      tags: [运营商实现]
+      servers:
+        - url: 'https://{operatorHost}'
+          description: 运营商地址，接入时登记
+          variables:
+            operatorHost: { default: operator.example.com }
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-02, BR-03, BR-09, R-13, BR-38, NFR-10, NFR-11]
+      x-errors: []
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EndRideRequest' }
+      responses:
+        '200':
+          description: 已受理或拒绝
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommandReply' }
+        '401':
+          description: 验签不通过
+  /open/v1/ride-events:
+    post:
+      operationId: reportRideEvent
+      summary: 骑行事件（M-03）
+      description: 报告开锁结果或锁车。同一 eventId 重复到达只生效一次，平台仍答复已收到并标 duplicate=true。
+      tags: [平台提供]
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-03, R-30, R-37, BR-38, NFR-10, NFR-11]
+      x-errors: [INVALID, NOT_FOUND, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RideEvent' }
+            examples:
+              开锁成功:
+                value: { eventId: EVT-TEST-0001, type: 开锁结果, orderId: OD2026120100001, plateNo: QH000004, occurredAt: '2026-12-01T12:00:00+08:00', unlock: { result: 成功 } }
+              开锁失败:
+                value: { eventId: EVT-TEST-0002, type: 开锁结果, orderId: OD2026120100002, plateNo: QH000015, occurredAt: '2026-12-01T12:01:03+08:00', unlock: { result: 失败, failReason: 电量不足 } }
+              锁车:
+                value: { eventId: EVT-TEST-0003, type: 锁车, orderId: OD2026120100001, plateNo: QH000004, occurredAt: '2026-12-01T12:18:20+08:00', lock: { location: [104.0657, 30.6595], inStation: true, durationSec: 1100, distanceKm: 3.2 } }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideEventAck' }
+        '400': { $ref: '../openapi/_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: '../openapi/_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: '../openapi/_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: '../openapi/_common.yaml#/components/responses/NotFound' }
+        '429':
+          description: 超出限流
+          content:
+            application/json:
+              schema: { $ref: '../openapi/_common.yaml#/components/schemas/Error' }
+  /open/v1/vehicle-lists:
+    post:
+      operationId: submitVehicleList
+      summary: 车辆清单（M-04）
+      description: 提交或更新车辆清单，车辆有增加或变更时再次提交。整批校验，全对才入库；有错时逐行返回原因。政府码按这份清单发放。也可在管理端页面上传，效果相同。
+      tags: [平台提供]
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-04, R-01, R-37, BR-38, NFR-10]
+      x-errors: [INVALID, VEHICLE_LIST_INVALID, SCOPE_DENIED, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+        - { $ref: '../openapi/_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VehicleListSubmission' }
+      responses:
+        '200':
+          description: 已入库
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VehicleListResult' }
+        '400':
+          description: 报文有误，或清单有错（VEHICLE_LIST_INVALID，errors 里逐行给出 row、field、message）
+          content:
+            application/json:
+              schema: { $ref: '../openapi/_common.yaml#/components/schemas/Error' }
+        '401': { $ref: '../openapi/_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: '../openapi/_common.yaml#/components/responses/Forbidden' }
+        '429':
+          description: 超出限流
+          content:
+            application/json:
+              schema: { $ref: '../openapi/_common.yaml#/components/schemas/Error' }
+components:
+  securitySchemes:
+    operatorSign: { $ref: '../openapi/_common.yaml#/components/securitySchemes/operatorSign' }
+  parameters:
+    AppId:
+      name: X-App-Id
+      in: header
+      required: true
+      description: 应用标识
+      schema: { type: string }
+    Timestamp:
+      name: X-Timestamp
+      in: header
+      required: true
+      description: 请求时刻，Unix 秒；与接收方时间相差超过 300 秒拒绝
+      schema: { type: string }
+    Nonce:
+      name: X-Nonce
+      in: header
+      required: true
+      description: 随机数，16～64 个字符；时间窗内重复拒绝
+      schema: { type: string, minLength: 16, maxLength: 64 }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键；同一请求重发时不变，重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+  schemas:
+    UnlockRequest:
+      type: object
+      required: [orderId, plateNo, degraded, requestAt]
+      properties:
+        orderId: { type: string, description: 平台订单号；之后的骑行事件都带它, example: OD2026120100001 }
+        plateNo: { type: string, description: 车号, example: QH000004 }
+        degraded: { type: boolean, description: 降级标记；为 true 时照常开锁，不增加任何交互 }
+        requestAt:
+          description: 平台发出请求的时刻
+          allOf:
+            - { $ref: '../openapi/_common.yaml#/components/schemas/Time' }
+    EndRideRequest:
+      type: object
+      required: [orderId, plateNo, cause, requestAt]
+      properties:
+        orderId: { type: string, description: 平台订单号 }
+        plateNo: { type: string, description: 车号 }
+        cause:
+          type: string
+          description: 结束原因
+          enum: [用户点还车, 入桩未锁, 超时后才报开锁成功, 客服强制结束]
+        reason: { type: string, minLength: 4, description: 事由；cause=客服强制结束 时必有 }
+        requestAt:
+          description: 平台发出请求的时刻
+          allOf:
+            - { $ref: '../openapi/_common.yaml#/components/schemas/Time' }
+    CommandReply:
+      type: object
+      required: [result]
+      properties:
+        result: { type: string, description: 是否受理, enum: [已受理, 拒绝] }
+        rejectReason:
+          type: string
+          description: result=拒绝 时必填
+          enum: [电量不足, 车辆故障, 车辆被占用, 订单不存在, 其他]
+        message: { type: string, description: 补充说明 }
+    RideEvent:
+      type: object
+      description: 骑行事件。不含任何用户身份
+      required: [eventId, type, orderId, plateNo, occurredAt]
+      properties:
+        eventId: { type: string, maxLength: 64, description: 运营商侧事件号，同一事件重试时不变，用于去重 }
+        type: { type: string, description: 事件类型, enum: [开锁结果, 锁车] }
+        orderId: { type: string, description: 平台订单号（开锁请求里给出的） }
+        plateNo: { type: string, description: 车号 }
+        occurredAt:
+          description: 开锁或锁车在车端发生的时刻
+          allOf:
+            - { $ref: '../openapi/_common.yaml#/components/schemas/Time' }
+        unlock:
+          type: object
+          description: type=开锁结果 时必填
+          required: [result]
+          properties:
+            result: { type: string, description: 开锁结果, enum: [成功, 失败] }
+            failReason: { type: string, description: 失败原因；result=失败 时必填, enum: [电量不足, 车辆故障, 车辆被占用, 车辆无响应] }
+            location:
+              description: 开锁位置
+              allOf:
+                - { $ref: '../openapi/_common.yaml#/components/schemas/Location' }
+        lock:
+          type: object
+          description: type=锁车 时必填。用户手动锁车也要报告
+          required: [location, inStation]
+          properties:
+            location:
+              description: 锁车位置
+              allOf:
+                - { $ref: '../openapi/_common.yaml#/components/schemas/Location' }
+            inStation: { type: boolean, description: 车端在点判定 }
+            durationSec: { type: integer, minimum: 0, description: 运营商记录的骑行时长（秒） }
+            distanceKm: { type: number, minimum: 0, description: 运营商记录的里程（公里） }
+    RideEventAck:
+      type: object
+      required: [received, eventId, receivedAt, duplicate]
+      properties:
+        received: { type: boolean, description: 恒为 true；收到本答复即可停止重试 }
+        eventId: { type: string, description: 原样返回的事件号 }
+        receivedAt:
+          description: 平台收到时刻
+          allOf:
+            - { $ref: '../openapi/_common.yaml#/components/schemas/Time' }
+        duplicate: { type: boolean, description: 是否重复到达（未再次生效） }
+    VehicleRow:
+      type: object
+      required: [brandId, plateNo, model, pileTag]
+      properties:
+        brandId: { type: string, description: 品牌编号, example: BR01 }
+        plateNo: { type: string, description: 车号, example: QH000004 }
+        model: { type: string, description: 车型 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+    VehicleListSubmission:
+      type: object
+      required: [rows]
+      properties:
+        rows:
+          type: array
+          minItems: 1
+          maxItems: 5000
+          description: 新增或更新的车辆；车号已存在时更新车型与车辆标识
+          items: { $ref: '#/components/schemas/VehicleRow' }
+    VehicleListResult:
+      type: object
+      required: [accepted, vehicles]
+      properties:
+        accepted: { type: integer, description: 入库行数 }
+        vehicles:
+          type: array
+          description: 入库车辆与发放的政府码
+          items:
+            type: object
+            required: [plateNo, vehicleId, govCode, codeStatus]
+            properties:
+              plateNo: { type: string, description: 车号 }
+              vehicleId: { type: string, description: 车辆编号 }
+              govCode: { type: string, description: 政府码 }
+              codeStatus: { type: string, description: 码状态, enum: [已启用, 待启用, 已失效] }

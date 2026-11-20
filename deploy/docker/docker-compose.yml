@@ -1,0 +1,24 @@
+# 只为方便起这一个服务（一个服务、一个卷）。在项目根目录或本目录执行：
+#   docker compose -f deploy/docker/docker-compose.yml up -d --build
+# 宿主端口只发布到 127.0.0.1，默认 28300（BIKE_HOST_PORT 可改）。
+name: bike-single
+services:
+  bike-single:
+    image: bike-single:local
+    container_name: bike-single
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    ports:
+      - "127.0.0.1:${BIKE_HOST_PORT:-28300}:18300"
+    volumes:
+      - bike-single-data:/data
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      # 演示开关；生产不得开 IAM_DEV_SEED_ADMIN
+      IAM_DEV_SEED_ADMIN: "${IAM_DEV_SEED_ADMIN:-1}"
+      # 其余可选（见 README 的环境变量表）：PAY_CHANNEL_MODE、PAY_MOCK_*、ACCT_EXTERNAL_MODE、ACCT_MOCK_*、CREDIT_MOCK_*、EVENT_RETENTION_DAYS
+volumes:
+  bike-single-data:
+    name: bike-single-data

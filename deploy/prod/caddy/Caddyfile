@@ -1,0 +1,197 @@
+# 生产入口网关（Caddy）模板。<...> 为占位。两台网关机各跑一份，前面用机房负载均衡或 VRRP 漂移地址。
+# 与本机配置的差别：HTTPS（自动证书或城市自备证书）、多实例负载均衡、主动健康检查、监听 0.0.0.0。
+{
+	admin 127.0.0.1:2019
+	email <运维邮箱>
+}
+
+(api_upstream) {
+	lb_policy round_robin
+	lb_try_duration 2s
+	fail_duration 10s
+	health_uri /healthz
+	health_interval 5s
+	health_timeout 2s
+}
+
+<城市域名> {
+	# 城市自备证书时：tls /etc/bike/tls/<城市域名>.crt /etc/bike/tls/<城市域名>.key
+	encode gzip
+
+	@internal path /internal /internal/* /api/*/internal /api/*/internal/*
+	handle @internal {
+		header Content-Type application/json
+		respond `{"code":"FORBIDDEN","message":"内部接口不对外开放"}` 403
+	}
+
+	# 运营商入口：只到 opgw；来源白名单与限流在 opgw 内按每家运营商做（NFR-10），网关只做第一道
+	handle /open/v1/* {
+		reverse_proxy <opgw-1>:18303 <opgw-2>:18303 {
+			import api_upstream
+		}
+	}
+	handle /device/v1/* {
+		reverse_proxy <site-1>:18306 {
+			import api_upstream
+		}
+	}
+	handle /sandbox/* {
+		reverse_proxy <onboard-1>:18304 {
+			import api_upstream
+		}
+	}
+
+	handle /api/ride/* {
+		reverse_proxy <ride-1>:18302 <ride-2>:18302 {
+			import api_upstream
+		}
+	}
+	handle /api/opgw/* {
+		reverse_proxy <opgw-1>:18303 <opgw-2>:18303 {
+			import api_upstream
+		}
+	}
+	handle /api/acct/* {
+		reverse_proxy <acct-1>:18301 {
+			import api_upstream
+		}
+	}
+	handle /api/onboard/* {
+		reverse_proxy <onboard-1>:18304 {
+			import api_upstream
+		}
+	}
+	handle /api/fleet/* {
+		reverse_proxy <fleet-1>:18305 {
+			import api_upstream
+		}
+	}
+	handle /api/site/* {
+		reverse_proxy <site-1>:18306 {
+			import api_upstream
+		}
+	}
+	handle /api/rule/* {
+		reverse_proxy <rule-1>:18307 {
+			import api_upstream
+		}
+	}
+	handle /api/bill/* {
+		reverse_proxy <bill-1>:18308 {
+			import api_upstream
+		}
+	}
+	handle /api/pay/* {
+		reverse_proxy <pay-1>:18309 {
+			import api_upstream
+		}
+	}
+	handle /api/deposit/* {
+		reverse_proxy <deposit-1>:18310 {
+			import api_upstream
+		}
+	}
+	handle /api/settle/* {
+		reverse_proxy <settle-1>:18311 {
+			import api_upstream
+		}
+	}
+	handle /api/cs/* {
+		reverse_proxy <cs-1>:18312 {
+			import api_upstream
+		}
+	}
+	handle /api/ops/* {
+		reverse_proxy <ops-1>:18313 {
+			import api_upstream
+		}
+	}
+	handle /api/enforce/* {
+		reverse_proxy <enforce-1>:18314 {
+			import api_upstream
+		}
+	}
+	handle /api/iam/* {
+		reverse_proxy <iam-1>:18315 {
+			import api_upstream
+		}
+	}
+	handle /api/* {
+		header Content-Type application/json
+		respond `{"code":"NOT_FOUND","message":"没有这个模块"}` 404
+	}
+
+	# 三个端的静态文件（前端构建物），目录 /opt/bike/web/{app,admin,enforce,shared}
+	handle {
+		root * /opt/bike/web
+		file_server
+	}
+
+	# 后端实例不可达时给统一的错误体，不暴露内部信息
+	handle_errors 502 503 504 {
+		header Content-Type application/json
+		respond `{"code":"SERVER_BUSY","message":"服务暂时不可用，请稍后再试"}` 503
+	}
+
+	log {
+		output file /var/log/caddy/bike-access.log {
+			roll_size 100MiB
+			roll_keep 30
+		}
+		format json
+	}
+}
+
+# 服务间调用的内网入口：只绑内网地址，机房防火墙只放行服务所在网段。
+# 多实例的被调方（ride、opgw）由这里负载均衡；各服务的 RIDE_URL、OPGW_URL 写 http://<内网网关地址>:18399。
+# 单实例的被调方可以直接写实例地址，也可以统一走这里。服务凭证由被调方自己校验，网关不看。
+http://<内网网关地址>:18399 {
+	bind <内网网关地址>
+	handle /internal/ride/* {
+		reverse_proxy <ride-1>:18302 <ride-2>:18302 {
+			import api_upstream
+		}
+	}
+	handle /internal/opgw/* {
+		reverse_proxy <opgw-1>:18303 <opgw-2>:18303 {
+			import api_upstream
+		}
+	}
+	# 其余被调方（被调关系见 deploy/services.tsv）
+	handle /internal/fleet/* {
+		reverse_proxy <fleet-1>:18305 {
+			import api_upstream
+		}
+	}
+	handle /internal/pay/* {
+		reverse_proxy <pay-1>:18309 {
+			import api_upstream
+		}
+	}
+	handle /internal/deposit/* {
+		reverse_proxy <deposit-1>:18310 {
+			import api_upstream
+		}
+	}
+	handle /internal/bill/* {
+		reverse_proxy <bill-1>:18308 {
+			import api_upstream
+		}
+	}
+	handle /internal/acct/* {
+		reverse_proxy <acct-1>:18301 {
+			import api_upstream
+		}
+	}
+	handle {
+		respond 404
+	}
+
+	log {
+		output file /var/log/caddy/bike-internal.log {
+			roll_size 100MiB
+			roll_keep 30
+		}
+		format json
+	}
+}

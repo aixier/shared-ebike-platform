@@ -1,0 +1,693 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · acct 用户账户
+  version: 1.0.0
+  description: |
+    骑行用户、登录授权、实名核验、账户状态、冻结记录、注销、通知。
+    本模块不返回押金与免押（deposit）、欠费金额与月卡券（bill）、骑行中订单（ride）；页面由前端分别调用后拼装。
+    姓名、手机号、证件号只在本模块保存，对外一律脱敏；完整手机号只在客服按用户编号读用户时返回。
+    用户令牌由本模块签发，各模块自行校验。时间 RFC 3339，金额单位分。
+    HTTP 状态：INVALID、REASON_REQUIRED 为 400；NOT_LOGGED_IN、ADMIN_NOT_LOGGED_IN、UNAUTHORIZED（内部接口服务凭证无效）为 401；FORBIDDEN、READONLY、ACCOUNT_DISABLED 为 403；NOT_FOUND 为 404；其余业务错误码为 409。
+    请求体必须是 UTF-8，否则 400 INVALID（"请求体不是 UTF-8 编码"）。管理端令牌 readonly 为真时可读；本服务没有管理端写接口。
+    留痕动作清单见 `events/acct.md`。
+servers:
+  - url: /
+tags:
+  - name: 用户端
+    description: 骑行用户
+  - name: 客服
+    description: 管理端客服
+  - name: 内部
+    description: 模块间命令与查询，不对公网开放
+paths:
+  /api/acct/me:
+    get:
+      operationId: getMe
+      summary: 当前用户
+      description: 只含身份、实名、账户状态、未读通知数。原型未登录时返回 null，这里未登录返回 401 NOT_LOGGED_IN。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.me
+      x-requirements: [R-03, R-14, NFR-11]
+      x-errors: [NOT_LOGGED_IN, ACCOUNT_CANCELLED]
+      responses:
+        '200':
+          description: 当前用户
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/acct/authorize:
+    post:
+      operationId: authorize
+      summary: 授权登录或注册
+      description: |
+        微信或支付宝授权手机号：手机号已注册即登录，未注册即注册，返回登录令牌。已注销账户的手机号按新用户注册。
+        授权服务故障时 AUTH_UNAVAILABLE；已登录用户的令牌不受影响（BR-29）。
+      tags: [用户端]
+      security: []
+      x-prototype: api.user.authorize
+      x-requirements: [R-03, BR-29, NFR-02]
+      x-errors: [AUTH_UNAVAILABLE, INVALID, CONFLICT]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorizeRequest' }
+      responses:
+        '200':
+          description: 已登录
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthorizeResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/acct/logout:
+    post:
+      operationId: logout
+      summary: 退出登录
+      description: 当前令牌作废。令牌已失效时也返回成功。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.logout
+      x-requirements: [R-03]
+      x-errors: []
+      responses:
+        '200':
+          description: 已退出
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Ok' }
+  /api/acct/real-name:
+    post:
+      operationId: verifyRealName
+      summary: 实名核验
+      description: |
+        姓名与证件号核验。未达法定驾驶年龄（16 周岁）返回 UNDER_AGE；已用过车的同时冻结账户。
+        实名服务不可用且平台处于降级时进入先骑后验：登记证件、状态记为"待核验"并给截止时间，返回 deferred=true。
+        已核验的再次调用返回 ALREADY_DONE。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.verifyRealName
+      x-requirements: [R-03, R-32, BR-34, R-14]
+      x-errors: [NOT_LOGGED_IN, INVALID, REALNAME_INVALID_ID, REALNAME_NAME_MISMATCH, UNDER_AGE, ALREADY_DONE, SERVER_BUSY, CONFLICT]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyRealNameRequest' }
+      responses:
+        '200':
+          description: 核验通过，或进入先骑后验
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerifyRealNameResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/acct/account:
+    get:
+      operationId: getAccount
+      summary: 账户页数据
+      description: 账户状态、冻结原因与解冻方法、自助解冻入口、注销前待处理事项。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.account.get
+      x-requirements: [R-14, R-48]
+      x-errors: [NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 账户页数据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountView' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/acct/account/cancel-check:
+    get:
+      operationId: checkCancel
+      summary: 注销前检查
+      description: 有欠费、待支付订单、骑行中订单、未退或退还中的押金时列出待处理项。依据是本模块订阅 ride、bill、deposit 事件得到的状态。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.account.cancelCheck
+      x-requirements: [R-48]
+      x-errors: [NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 能否注销与待处理项
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CancelCheck' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/acct/account/cancel:
+    post:
+      operationId: cancelAccount
+      summary: 注销账户
+      description: 有待处理项时 CANCEL_BLOCKED（附 blockers）。成功后当前令牌作废，已注销账户不能登录。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.account.cancel
+      x-requirements: [R-48]
+      x-errors: [NOT_LOGGED_IN, INVALID, CANCEL_BLOCKED, CONFLICT]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CancelAccountRequest' }
+      responses:
+        '200':
+          description: 已注销
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CancelResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/acct/notices:
+    get:
+      operationId: listNotices
+      summary: 我的通知
+      description: 账单、扣款失败、押金抵扣、退押、冻结解冻、降级超限提醒等，新到旧，不分页。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.notices
+      x-requirements: [R-09, BR-22]
+      x-errors: [NOT_LOGGED_IN]
+      parameters:
+        - name: unreadOnly
+          in: query
+          description: 只看未读
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: 通知列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Notice' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/acct/notices/read:
+    post:
+      operationId: markNoticesRead
+      summary: 通知标为已读
+      description: 不传 ids 为全部已读。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.markNoticesRead
+      x-requirements: [R-09]
+      x-errors: [NOT_LOGGED_IN, INVALID, CONFLICT]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MarkNoticesReadRequest' }
+      responses:
+        '200':
+          description: 本次标为已读的条数
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarkNoticesReadResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/acct/admin/frozen-accounts:
+    get:
+      operationId: listFrozenAccounts
+      summary: 冻结账户列表
+      description: 按冻结时间新到旧。kind 为"其他"的需要客服人工解冻；"欠费""核验"的条件满足后自动解冻。欠费金额由前端按 userId 调 bill。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.listFrozenAccounts
+      x-requirements: [R-14, NFR-11]
+      x-permissions: [account.unfreeze, user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID]
+      parameters:
+        - name: kind
+          in: query
+          schema: { $ref: '#/components/schemas/FreezeKind' }
+        - name: q
+          in: query
+          description: 用户编号、手机号或手机尾号（至少 4 位）
+          schema: { type: string }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 分页冻结账户与各类计数
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FrozenAccountPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/acct/admin/users/{userId}:
+    get:
+      operationId: getUserForCs
+      summary: 按用户编号读用户（客服）
+      description: 客服"用户全貌"页与查询结果拼装用（原型 api.admin.cs.user、api.admin.cs.search 返回里的用户部分）。含完整手机号与注销前待处理项；读取留痕。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-12, R-14, R-48, NFR-11]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 用户
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CsUser' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /internal/acct/users/lookup:
+    get:
+      operationId: internalLookupUsers
+      summary: 按手机号找用户
+      description: 调用方 cs。phone 与 phoneTail 二选一；只返回用户编号与脱敏信息，最多 20 个，含已注销账户。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-12, NFR-11]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - name: phone
+          in: query
+          description: 完整手机号，11 位
+          schema: { type: string, pattern: '^1[3-9]\d{9}$' }
+        - name: phoneTail
+          in: query
+          description: 手机尾号，至少 4 位数字
+          schema: { type: string, pattern: '^\d{4,10}$' }
+      responses:
+        '200':
+          description: 命中的用户
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [users]
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/UserBrief' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+  /internal/acct/users/{userId}:
+    get:
+      operationId: internalGetUser
+      summary: 读用户信息
+      description: 调用方 cs。脱敏的身份、实名状态与账户状态，不含完整手机号与证件号。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-12, R-14, NFR-11]
+      x-errors: [UNAUTHORIZED, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 用户
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /internal/acct/users/{userId}/unfreeze:
+    post:
+      operationId: internalUnfreezeUser
+      summary: 人工解冻
+      description: 调用方 cs（客服确认并写事由后）。账户未冻结时 CONFLICT。成功后通知用户、发布"账户已解冻"、记留痕"解冻账户"。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: api.admin.cs.unfreeze
+      x-requirements: [R-14, R-47]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, REASON_REQUIRED, CONFLICT]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/RequiredIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InternalUserCommand' }
+      responses:
+        '200':
+          description: 解冻后的用户
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/acct/users/{userId}/cancel:
+    post:
+      operationId: internalCancelUser
+      summary: 协助注销
+      description: 调用方 cs。规则与用户自助相同：有待处理项时 CANCEL_BLOCKED（附 blockers）；已注销的 ALREADY_DONE。成功后该用户的令牌作废、发布"账户已注销"、记留痕"注销账户"。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: api.admin.cs.assistCancel
+      x-requirements: [R-48, R-47]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, REASON_REQUIRED, CANCEL_BLOCKED, ALREADY_DONE, CONFLICT]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/RequiredIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InternalUserCommand' }
+      responses:
+        '200':
+          description: 已注销
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CancelResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /internal/acct/token-keys:
+    get:
+      operationId: internalGetUserTokenKeys
+      summary: 用户令牌验签公钥
+      description: 各模块取公钥后自行校验骑行用户令牌；轮换期间同时返回新旧公钥，按 kid 匹配。本模块不可用时各模块用已缓存的公钥继续校验（BR-29）。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-03, BR-29]
+      x-errors: [UNAUTHORIZED]
+      responses:
+        '200':
+          description: 公钥集合
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [keys]
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      required: [kid, alg, publicKey]
+                      properties:
+                        kid: { type: string, description: 密钥编号 }
+                        alg: { type: string, description: 签名算法, example: EdDSA }
+                        publicKey: { type: string, description: 公钥（PEM） }
+  /internal/acct/users/{userId}/payee-name-check:
+    post:
+      operationId: internalCheckPayeeName
+      summary: 核对收款户名是否为本人实名
+      description: pay 在用户提交人工转账收款账户时调用。只返回是否一致，实名姓名不出本模块。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-11, NFR-11]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND]
+      parameters:
+        - { name: userId, in: path, required: true, description: 用户编号, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: 用户填写的收款户名 }
+      responses:
+        '200':
+          description: 核对结果
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [match]
+                properties:
+                  match: { type: boolean, description: 户名与实名是否一致；未实名的用户返回 false }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    userAuth: { $ref: './_common.yaml#/components/securitySchemes/userAuth' }
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: 用户编号
+      schema: { type: string, example: U100004 }
+    RequiredIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键，命令必带；重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+  schemas:
+    Channel:
+      type: string
+      description: 注册入口，也是付款渠道
+      enum: [微信, 支付宝]
+    AccountStatus:
+      type: string
+      description: 账户状态
+      enum: [正常, 冻结, 已注销]
+    RealNameStatus:
+      type: string
+      description: 实名状态；待核验为先骑后验，须在 deadline 前补验
+      enum: [已核验, 待核验, 未通过, 未实名]
+    FreezeKind:
+      type: string
+      description: 冻结类别：欠费（结清后自动解冻）、核验（实名未通过或逾期未验）、其他（需人工解冻）
+      enum: [欠费, 核验, 其他]
+    RealName:
+      type: object
+      description: 实名核验
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/RealNameStatus' }
+        verifiedAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 核验完成时刻 }
+        idMasked: { type: string, nullable: true, description: 脱敏证件号 }
+        adult: { type: boolean, nullable: true, description: 是否达到法定驾驶年龄；未核验为 null }
+        method:
+          type: string
+          nullable: true
+          description: 核验方式
+          enum: [在线实名核验, 先骑后验（降级期间注册）, 先骑后验补验, '先骑后验（降级期间注册，恢复后补验通过）', null]
+        failReason: { type: string, nullable: true, description: 未通过原因 }
+        deadline: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 先骑后验的补验截止时刻 }
+    Freeze:
+      type: object
+      description: 当前冻结
+      required: [reason, at, unfreezeHow]
+      properties:
+        reason: { type: string, description: 冻结原因 }
+        at: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 冻结时刻 }
+        unfreezeHow: { type: string, description: 解冻方法，可直接展示 }
+    AccountHistoryItem:
+      type: object
+      description: 账户状态变更记录
+      required: [action, at, by]
+      properties:
+        action: { type: string, enum: [冻结, 自动解冻, 人工解冻, 注销] }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        reason: { type: string, nullable: true, description: 原因或事由 }
+        by: { type: string, description: 操作人：客服账号编号、系统账号 AC0900 或用户本人编号 }
+    Account:
+      type: object
+      required: [status, history]
+      properties:
+        status: { $ref: '#/components/schemas/AccountStatus' }
+        freeze:
+          nullable: true
+          description: 当前冻结；未冻结为 null
+          allOf: [{ $ref: '#/components/schemas/Freeze' }]
+        history:
+          type: array
+          items: { $ref: '#/components/schemas/AccountHistoryItem' }
+    User:
+      type: object
+      description: 用户（脱敏）。原型 UserView 中归本模块的部分
+      required: [userId, phoneMasked, channel, registeredAt, realName, account, unreadNotices]
+      properties:
+        userId: { type: string, description: 用户编号 }
+        name: { type: string, nullable: true, description: 脱敏姓名，如"张＊＊"；未实名为 null }
+        phoneMasked: { type: string, description: 脱敏手机号 }
+        channel: { $ref: '#/components/schemas/Channel' }
+        registeredAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        realName: { $ref: '#/components/schemas/RealName' }
+        account: { $ref: '#/components/schemas/Account' }
+        cancelledAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 注销时刻 }
+        unreadNotices: { type: integer, description: 未读通知数 }
+    UserBrief:
+      type: object
+      required: [userId, phoneMasked, accountStatus]
+      properties:
+        userId: { type: string, description: 用户编号 }
+        name: { type: string, nullable: true, description: 脱敏姓名 }
+        phoneMasked: { type: string, description: 脱敏手机号 }
+        channel: { $ref: '#/components/schemas/Channel' }
+        accountStatus: { $ref: '#/components/schemas/AccountStatus' }
+    CsUser:
+      description: 客服看到的用户
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [phone, cancelBlockers]
+          properties:
+            phone: { type: string, description: 完整手机号，只给有 user.view 权限的客服 }
+            lastActiveAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 最近活跃时刻 }
+            degradedSignupEventId: { type: string, nullable: true, description: 降级期间注册（先骑后验）时的降级事件编号 }
+            cancelBlockers:
+              type: array
+              description: 注销前待处理项
+              items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+    AuthorizeRequest:
+      type: object
+      required: [channel]
+      properties:
+        channel: { $ref: '#/components/schemas/Channel' }
+        authCode: { type: string, description: 微信或支付宝返回的手机号授权凭证，本模块凭它向授权方换手机号 }
+        phone: { type: string, pattern: '^1[3-9]\d{9}$', description: 手机号；只在联调环境可直接传，生产环境以 authCode 为准 }
+    AuthorizeResult:
+      type: object
+      required: [user, isNew, token, expiresAt]
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        isNew: { type: boolean, description: 是否本次新注册 }
+        token: { type: string, description: 用户登录令牌，放在 Authorization Bearer 里 }
+        expiresAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 令牌过期时刻 }
+    VerifyRealNameRequest:
+      type: object
+      required: [name, idNo]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 20, description: 证件上的中文姓名 }
+        idNo: { type: string, description: 居民身份证号，18 位，校验校验位与出生日期 }
+    VerifyRealNameResult:
+      type: object
+      required: [status, deferred]
+      properties:
+        status: { type: string, enum: [已核验, 待核验], description: 核验结果 }
+        deferred: { type: boolean, description: true 为先骑后验 }
+        user:
+          description: 核验通过时返回更新后的用户
+          allOf: [{ $ref: '#/components/schemas/User' }]
+        deadline: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 先骑后验时的补验截止时刻 }
+        limitMinutes: { type: integer, description: 先骑后验时单笔最长分钟（规则的紧档限额） }
+        limitAmount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 先骑后验时单笔最高金额（规则的紧档限额） }
+        text: { type: string, description: 先骑后验时开锁前须展示的说明 }
+    SelfServiceEntry:
+      type: object
+      description: 自助解冻入口
+      required: [label, action]
+      properties:
+        label: { type: string, description: 按钮文案，如"补付欠费""重新实名核验""联系客服解冻"；不含金额 }
+        action: { type: string, enum: [payArrears, verifyRealName, contactCS] }
+    AccountView:
+      type: object
+      required: [user, selfService, cancelBlockers]
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        freeze:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/Freeze' }]
+        selfService:
+          type: array
+          description: 冻结时的自助解冻入口；未冻结为空
+          items: { $ref: '#/components/schemas/SelfServiceEntry' }
+        cancelBlockers:
+          type: array
+          description: 注销前待处理项
+          items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+    CancelCheck:
+      type: object
+      required: [canCancel, blockers]
+      properties:
+        canCancel: { type: boolean }
+        blockers:
+          type: array
+          items: { $ref: './_common.yaml#/components/schemas/Blocker' }
+    CancelAccountRequest:
+      type: object
+      properties:
+        reason: { type: string, description: 注销原因，可不填 }
+    CancelResult:
+      type: object
+      required: [ok, cancelledAt]
+      properties:
+        ok: { type: boolean }
+        userId: { type: string, description: 用户编号 }
+        cancelledAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 注销时刻 }
+    Notice:
+      type: object
+      required: [noticeId, at, kind, title, text, read]
+      properties:
+        noticeId: { type: string, description: 通知编号 }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        kind: { type: string, enum: [账单, 欠费, 押金抵扣, 押金, 退款, 账户, 实名, 骑行, 订单], description: 通知类别 }
+        title: { type: string }
+        text: { type: string }
+        orderId: { type: string, nullable: true, description: 关联订单号 }
+        read: { type: boolean }
+    MarkNoticesReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          description: 要标为已读的通知编号；不传为全部
+          items: { type: string }
+    MarkNoticesReadResult:
+      type: object
+      required: [marked]
+      properties:
+        marked: { type: integer, description: 本次标为已读的条数 }
+    FrozenAccount:
+      type: object
+      required: [userId, phoneMasked, freeze, kind, autoUnfreeze, realNameStatus]
+      properties:
+        userId: { type: string, description: 用户编号 }
+        name: { type: string, nullable: true, description: 脱敏姓名 }
+        phoneMasked: { type: string, description: 脱敏手机号 }
+        channel: { $ref: '#/components/schemas/Channel' }
+        freeze: { $ref: '#/components/schemas/Freeze' }
+        kind: { $ref: '#/components/schemas/FreezeKind' }
+        autoUnfreeze: { type: boolean, description: 条件满足后是否自动解冻；kind 为"其他"时为 false }
+        realNameStatus: { $ref: '#/components/schemas/RealNameStatus' }
+        frozenDays: { type: integer, nullable: true, description: 已冻结天数 }
+    FrozenAccountPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows, counts]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/FrozenAccount' }
+            counts:
+              type: object
+              description: 全部冻结账户按类别的计数，不受筛选影响
+              required: [欠费, 核验, 其他]
+              properties:
+                欠费: { type: integer }
+                核验: { type: integer }
+                其他: { type: integer }
+    InternalUserCommand:
+      type: object
+      required: [reason, actor]
+      properties:
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+        ticketId: { type: string, nullable: true, description: 关联的客服工单号，记入留痕 }

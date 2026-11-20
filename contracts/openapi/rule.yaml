@@ -1,0 +1,446 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · rule 规则配置
+  version: 1.0.0
+  description: |
+    规则版本（骑行单价、调度费、月卡规则、优惠券模板、押金金额、免押门槛、服务费比例与基数口径、风控限额）与平台公司参数。
+    每次改动新增一个完整版本，不覆盖旧版本；版本一经生效不可修改；任一时刻恰好有一个生效版本。
+    本模块不算任何金额、不执行限额。金额一律整数分；服务费比例与指标门槛为小数；时间 RFC 3339。
+tags:
+  - name: 主管部门
+  - name: 运维
+  - name: 公共
+  - name: 内部
+paths:
+  /api/rule/pricing/versions:
+    get:
+      operationId: listPricingVersions
+      summary: 规则版本列表（主管部门）
+      description: 全部版本，按生效时间新到旧，不分页；status 由当前时刻与生效时间算出。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.list
+      x-requirements: [R-19, R-20, R-21, R-22, BR-15]
+      x-permissions: [pricing.view, pricing.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 规则版本
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PricingVersion' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: createPricingVersion
+      summary: 新增规则版本（主管部门）
+      description: 只传要改的项，其余沿用生效时刻的前一版本，生成一个完整的新版本。effectiveAt 缺省为立即生效，不得早于当前时刻。录入时校验取值范围与小数位，不合格返回 INVALID 并在 errors[] 逐项说明；serviceFee.ratios 引用的品牌须已由 fleet 登记（来自事件 fleet.brand.registered 建的品牌投影），不存在返回 INVALID。请求体须为 UTF-8，否则 INVALID（请求体不是 UTF-8 编码）。只读账号（readonly=true）返回 READONLY。改动只影响生效之后开锁的订单。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.create
+      x-requirements: [R-19, R-20, R-21, R-22, BR-14, BR-15]
+      x-permissions: [pricing.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PricingVersionCreate' }
+      responses:
+        '200':
+          description: 新版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/rule/pricing/current:
+    get:
+      operationId: getCurrentPricingVersion
+      summary: 现行规则版本
+      description: 当前生效的版本；登录即可查。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.current
+      x-requirements: [R-19, R-20, R-21, R-22]
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, NOT_FOUND, SERVER_BUSY]
+      responses:
+        '200':
+          description: 现行版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/rule/pricing/versions/{versionId}:
+    get:
+      operationId: getPricingVersion
+      summary: 规则版本详情（主管部门）
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.get
+      x-requirements: [R-19, R-20, R-21, R-22, BR-15]
+      x-permissions: [pricing.view, pricing.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/VersionId' }
+      responses:
+        '200':
+          description: 规则版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/rule/pricing/versions/{versionId}/revoke:
+    post:
+      operationId: revokePricingVersion
+      summary: 撤销待生效版本（主管部门）
+      description: 只能撤销尚未生效的版本，记录保留、状态变为已撤销；已生效、已失效或已撤销的版本返回 CONFLICT。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.revoke
+      x-requirements: [BR-15]
+      x-permissions: [pricing.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/VersionId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 撤销后的版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/rule/platform-params:
+    get:
+      operationId: getPlatformParams
+      summary: 平台公司参数
+      description: 平台公司参数的现值；登录即可查，主管部门页面只读展示。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.pricing.params
+      x-requirements: ['6.9']
+      x-permissions: [登录]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 平台参数
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformParams' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+    patch:
+      operationId: updatePlatformParams
+      summary: 修改平台公司参数（运维）
+      description: 平台公司运维修改参数（只读账号返回 READONLY）：只传要改的项，其余不变；立即生效，旧值留痕可查，并发布"平台参数变更"事件。取值超范围或小数位不对返回 INVALID 并在 errors[] 逐项说明。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: ['6.9']
+      x-permissions: [platformParams.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items, reason]
+              properties:
+                items: { allOf: [{ $ref: '#/components/schemas/PlatformParamItems' }], description: 要改的参数项（至少一项） }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 修改后的平台参数
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformParams' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /internal/rule/versions/{versionId}:
+    get:
+      operationId: getVersionInternal
+      summary: 按版本号取版本
+      description: 各模块按订单上记的规则版本号取完整版本内容（计价、服务费、限额都按开锁时刻的版本）。已撤销的版本也能取到。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [BR-14, BR-15]
+      x-errors: [UNAUTHORIZED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/VersionId' }
+      responses:
+        '200':
+          description: 规则版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /internal/rule/effective-version:
+    get:
+      operationId: getEffectiveVersionInternal
+      summary: 按时刻取有效版本
+      description: 返回指定时刻有效的那个版本（effectiveAt ≤ at < effectiveUntil，不含已撤销）；at 缺省为当前时刻。at 早于最早版本的生效时刻时返回 NOT_FOUND。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [BR-14, BR-15]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { name: at, in: query, description: 时刻，缺省为当前时刻, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+      responses:
+        '200':
+          description: 该时刻有效的规则版本
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingVersion' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+  parameters:
+    VersionId:
+      name: versionId
+      in: path
+      required: true
+      description: 规则版本号
+      schema: { type: string, pattern: '^PR\d{4}$', example: PR0003 }
+  schemas:
+    VersionStatus:
+      type: string
+      enum: [生效中, 待生效, 已失效, 已撤销]
+      description: 版本状态，按当前时刻与生效时间算出
+    RideRule:
+      type: object
+      description: 骑行单价
+      required: [startFee, startMinutes, perMinute]
+      properties:
+        vehicleType: { type: string, description: 适用车型, example: 电单车 }
+        startFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 起步价（0～2000 分，须为 10 分的整数倍）, example: 150 }
+        startMinutes: { type: integer, minimum: 0, maximum: 60, description: 起步价包含的分钟数, example: 3 }
+        perMinute: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 起步时长之后每分钟价（0～500 分，须为 10 分的整数倍）, example: 50 }
+        billingUnit: { type: string, description: 计费单位说明, example: 按分钟计，不足 1 分钟按 1 分钟 }
+    MonthCardRule:
+      type: object
+      description: 月卡规则
+      required: [price, days, perOrderCap, allocation]
+      properties:
+        price: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 月卡价格（0～50000 分）, example: 2500 }
+        days: { type: integer, minimum: 1, maximum: 365, description: 有效天数, example: 30 }
+        perOrderCap: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 每单抵扣上限（0～5000 分）, example: 300 }
+        appliesTo: { type: string, description: 抵扣范围说明, example: 骑行费（不含调度费） }
+        allocation: { type: string, description: 月卡收入分到各品牌的规则, example: 按骑行单数 }
+    CouponTemplate:
+      type: object
+      description: 优惠券模板
+      required: [templateId, name, amount, validDays]
+      properties:
+        templateId: { type: string, description: 券模板编号, example: CPT01 }
+        name: { type: string, description: 券名, example: 新用户体验券 }
+        amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 面额（0～5000 分）, example: 200 }
+        audience: { type: string, description: 发放对象 }
+        validDays: { type: integer, minimum: 1, maximum: 90, description: 有效天数 }
+        issue: { type: string, description: 发放方式，如"注册后自动发放""用户领券中心领取（每周五 17:00 开放）" }
+        perUser: { type: integer, minimum: 1, description: 每人限领张数 }
+    DepositRule:
+      type: object
+      description: 押金
+      required: [amount]
+      properties:
+        amount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 押金金额（0～100000 分）, example: 19900 }
+    CreditFreeRule:
+      type: object
+      description: 信用免押
+      required: [threshold]
+      properties:
+        threshold: { type: integer, minimum: 350, maximum: 950, description: 免押门槛（信用分）, example: 550 }
+        providers: { type: array, description: 信用分来源, items: { type: string, enum: [微信支付分, 芝麻信用] } }
+    ServiceFeeRule:
+      type: object
+      description: 服务费
+      required: [basis, ratios]
+      properties:
+        basis: { type: string, enum: [订单应收, 订单实收], description: 服务费基数口径 }
+        ratios:
+          type: object
+          description: 各品牌服务费比例，键为品牌编号，值为 0～1 的小数（最多 4 位小数）
+          additionalProperties: { type: number, minimum: 0, maximum: 1 }
+          example: { BR01: 0.62, BR02: 0.6 }
+    DegradeLimit:
+      type: object
+      description: 降级单单笔限额
+      required: [maxMinutes, maxAmount]
+      properties:
+        maxMinutes: { type: integer, minimum: 1, maximum: 1440, description: 单笔最长分钟 }
+        maxAmount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 单笔最高金额（0～100000 分） }
+    RiskLimits:
+      type: object
+      description: 风控限额
+      required: [perUserOpenDegradedOrders, normal, tight, hourlyDegradedOrders, degradeDurationAlertMinutes]
+      properties:
+        perUserOpenDegradedOrders: { type: integer, minimum: 1, maximum: 5, description: 每用户未结降级单数 }
+        normal: { allOf: [{ $ref: '#/components/schemas/DegradeLimit' }], description: 正常档（老用户） }
+        tight: { allOf: [{ $ref: '#/components/schemas/DegradeLimit' }], description: 紧档（押金状态未知的老用户、先骑后验新用户） }
+        hourlyDegradedOrders: { type: integer, minimum: 1, maximum: 100000, description: 每小时降级单总量 }
+        degradeDurationAlertMinutes: { type: integer, minimum: 1, maximum: 1440, description: 降级持续时长告警阈值（分钟） }
+    PricingVersion:
+      type: object
+      description: 规则版本，完整快照
+      required: [versionId, name, status, effectiveAt, createdAt, createdBy, ride, dispatchFee, monthCard, coupons, deposit, creditFree, serviceFee, riskLimits]
+      properties:
+        versionId: { type: string, description: 规则版本号, example: PR0003 }
+        name: { type: string, description: 版本名称 }
+        status: { $ref: '#/components/schemas/VersionStatus' }
+        effectiveAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 生效时刻 }
+        effectiveUntil: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 失效时刻 = 下一版本生效时刻；现行与待生效的最后一版为 null }
+        createdAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 录入时刻 }
+        createdBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 录入人 }
+        revokedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], nullable: true, description: 撤销时刻 }
+        revokedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], nullable: true, description: 撤销人 }
+        note: { type: string, nullable: true, description: 版本说明；未填时取录入事由 }
+        ride: { $ref: '#/components/schemas/RideRule' }
+        dispatchFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 站点外还车的调度费, example: 500 }
+        monthCard: { $ref: '#/components/schemas/MonthCardRule' }
+        coupons: { type: array, description: 优惠券模板, items: { $ref: '#/components/schemas/CouponTemplate' } }
+        deposit: { $ref: '#/components/schemas/DepositRule' }
+        creditFree: { $ref: '#/components/schemas/CreditFreeRule' }
+        serviceFee: { $ref: '#/components/schemas/ServiceFeeRule' }
+        riskLimits: { $ref: '#/components/schemas/RiskLimits' }
+    PricingVersionCreate:
+      type: object
+      description: 新增版本的请求；除 name、reason 外都可不传，不传的项沿用前一版本
+      required: [name, reason]
+      properties:
+        name: { type: string, minLength: 1, description: 版本名称 }
+        effectiveAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 生效时刻，缺省为立即；不得早于当前时刻 }
+        note: { type: string, description: 版本说明 }
+        ride:
+          type: object
+          description: 骑行单价（只传要改的字段）
+          properties:
+            startFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 起步价（0～2000 分，10 分的整数倍） }
+            startMinutes: { type: integer, minimum: 0, maximum: 60, description: 起步价包含的分钟数 }
+            perMinute: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 每分钟价（0～500 分，10 分的整数倍） }
+        dispatchFee: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 调度费（0～10000 分，10 分的整数倍） }
+        monthCard:
+          type: object
+          description: 月卡规则（只传要改的字段）
+          properties:
+            price: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 月卡价格（0～50000 分） }
+            days: { type: integer, minimum: 1, maximum: 365, description: 有效天数 }
+            perOrderCap: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 每单抵扣上限（0～5000 分） }
+            allocation: { type: string, description: 月卡收入分到各品牌的规则 }
+        coupons: { type: array, description: 完整的券模板数组（整体替换）, items: { $ref: '#/components/schemas/CouponTemplate' } }
+        deposit: { $ref: '#/components/schemas/DepositRule' }
+        creditFree:
+          type: object
+          description: 信用免押
+          properties:
+            threshold: { type: integer, minimum: 350, maximum: 950, description: 免押门槛（信用分） }
+        serviceFee:
+          type: object
+          description: 服务费；ratios 只传要改的品牌
+          properties:
+            basis: { type: string, enum: [订单应收, 订单实收], description: 服务费基数口径 }
+            ratios:
+              type: object
+              description: 品牌编号到比例（0～1，最多 4 位小数）；品牌未在 fleet 登记返回 INVALID
+              additionalProperties: { type: number, minimum: 0, maximum: 1 }
+        riskLimits:
+          type: object
+          description: 风控限额（只传要改的字段，normal、tight 也可只传其中一项）
+          properties:
+            perUserOpenDegradedOrders: { type: integer, minimum: 1, maximum: 5, description: 每用户未结降级单数 }
+            normal:
+              type: object
+              description: 正常档
+              properties:
+                maxMinutes: { type: integer, minimum: 1, maximum: 1440, description: 单笔最长分钟 }
+                maxAmount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 单笔最高金额 }
+            tight:
+              type: object
+              description: 紧档
+              properties:
+                maxMinutes: { type: integer, minimum: 1, maximum: 1440, description: 单笔最长分钟 }
+                maxAmount: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 单笔最高金额 }
+            hourlyDegradedOrders: { type: integer, minimum: 1, maximum: 100000, description: 每小时降级单总量 }
+            degradeDurationAlertMinutes: { type: integer, minimum: 1, maximum: 1440, description: 降级持续时长告警阈值（分钟） }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    PlatformParamItems:
+      type: object
+      description: 平台公司参数项
+      properties:
+        payWindowHours: { type: integer, minimum: 1, description: 一键支付期限（小时）, example: 24 }
+        csRefundLimit: { allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }], description: 客服退款授权额度，超出须客服主管确认, example: 2000 }
+        backfillWindowHours: { type: integer, minimum: 1, description: 补报窗口（小时）, example: 72 }
+        unlockReportTimeoutSec: { type: integer, minimum: 1, description: 开锁报告时限（秒）, example: 30 }
+        nearbyRadiusM: { type: integer, minimum: 1, description: 附近车辆范围（米）, example: 500 }
+        arrearsFreezeDays: { type: integer, minimum: 1, description: 欠费超过多少天冻结, example: 30 }
+        depositRefundWorkdays: { type: integer, minimum: 1, description: 退押时限（工作日）, example: 3 }
+        billPushTargetSec: { type: integer, minimum: 1, description: 账单推送目标时长（秒）, example: 10 }
+        pauseThreshold:
+          type: object
+          description: 暂停可租门槛
+          properties:
+            unlockSuccessRate: { type: number, minimum: 0, maximum: 1, description: 开锁成功率门槛, example: 0.9 }
+            availability: { type: number, minimum: 0, maximum: 1, description: 可用率门槛, example: 0.8 }
+            sustainMinutes: { type: integer, minimum: 1, description: 持续低于门槛的分钟数, example: 120 }
+        acceptance:
+          type: object
+          description: 验收条件
+          properties:
+            realVehicles: { type: integer, minimum: 1, description: 真车联调车辆数, example: 20 }
+            realOrders: { type: integer, minimum: 1, description: 真车联调订单数, example: 60 }
+            targetDays: { type: integer, minimum: 1, description: 接入目标天数, example: 21 }
+        availabilityTarget: { type: number, minimum: 0, maximum: 1, description: 可用性目标值, example: 0.995 }
+        unlockP90TargetSec: { type: integer, minimum: 1, description: 开锁耗时 P90 目标（秒）, example: 5 }
+        retentionYears:
+          type: object
+          description: 数据保存期限（年）
+          properties:
+            orders: { type: integer, minimum: 1, description: 订单 }
+            payments: { type: integer, minimum: 1, description: 资金流水 }
+            audit: { type: integer, minimum: 1, description: 操作留痕 }
+            evidence: { type: integer, minimum: 1, description: 执法证据 }
+        trackRetentionDays: { type: integer, minimum: 1, description: 轨迹保存天数, example: 180 }
+        deferredVerifyDays: { type: integer, minimum: 1, maximum: 30, description: 延迟核验天数（先骑后验的核验期限）；未录入时为默认值 3, example: 3 }
+        legalAge: { type: integer, minimum: 10, maximum: 30, description: 法定年龄（骑行最低年龄）；未录入时为默认值 16, example: 16 }
+    PlatformParams:
+      type: object
+      description: 平台公司参数现值；除 deferredVerifyDays（默认 3）与 legalAge（默认 16）外，未录入的项为 null
+      required: [owner, items]
+      properties:
+        owner: { type: string, description: 参数归属, example: 平台公司 }
+        updatedAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 最近修改时刻 }
+        updatedBy: { allOf: [{ $ref: './_common.yaml#/components/schemas/Actor' }], description: 最近修改人 }
+        items: { $ref: '#/components/schemas/PlatformParamItems' }

@@ -1,0 +1,988 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · site 站点与桩
+  version: 1.1.0
+  description: |
+    站点、电子围栏、桩、桩状态、桩在位。只提供围栏与桩在位事实，不做在点判定。
+    桩设备只与本模块通信，入口 /device/v1/...。
+tags:
+  - name: 用户端
+  - name: 主管部门
+  - name: 公共
+  - name: 桩设备
+paths:
+  /api/site/map:
+    get:
+      operationId: getStationMap
+      summary: 地图用站点与桩
+      description: 不需要登录。停用的站点不返回。
+      tags: [用户端]
+      security: []
+      x-prototype: api.user.stations
+      x-requirements: [R-26, R-27, R-28]
+      x-errors: [SERVER_BUSY]
+      responses:
+        '200':
+          description: 区域、站点与桩
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StationMap' }
+  /api/site/admin/stations:
+    get:
+      operationId: listStations
+      summary: 站点列表
+      description: 默认不含停用站点。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.list
+      x-requirements: [R-26]
+      x-permissions: [station.edit, pile.edit, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { $ref: './_common.yaml#/components/parameters/SortKey' }
+        - { $ref: './_common.yaml#/components/parameters/SortDir' }
+        - { name: district, in: query, description: 所在区, schema: { type: string } }
+        - name: type
+          in: query
+          description: 站点类型
+          schema: { $ref: '#/components/schemas/StationType' }
+        - { name: q, in: query, description: 站点名称或编号, schema: { type: string } }
+        - { name: includeRemoved, in: query, description: 是否包含停用站点, schema: { type: boolean, default: false } }
+      responses:
+        '200':
+          description: 分页站点与区域
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StationPage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: createStation
+      summary: 新建站点
+      description: 围栏自动闭合，须在本市范围内、面积不小于 20 平方米。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.create
+      x-requirements: [R-26, R-47]
+      x-permissions: [station.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StationCreate' }
+      responses:
+        '200':
+          description: 新站点
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Station' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/site/admin/stations/all:
+    get:
+      operationId: listAllStations
+      summary: 全部站点（管理端地图用，不分页）
+      description: 登录即可，不含停用站点。
+      tags: [公共]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.all
+      x-requirements: [R-26]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 区域与站点
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [region, stations]
+                properties:
+                  region: { $ref: '#/components/schemas/Region' }
+                  stations:
+                    type: array
+                    items: { $ref: '#/components/schemas/Station' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /api/site/admin/stations/{stationId}:
+    get:
+      operationId: getStation
+      summary: 站点详情（含桩）
+      description: 登录即可。
+      tags: [公共]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.get
+      x-requirements: [R-26, R-27]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/StationId' }
+      responses:
+        '200':
+          description: 站点与桩
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StationDetail' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    patch:
+      operationId: updateStation
+      summary: 调整站点
+      description: 调整围栏、名称、容量或类型；只传要改的项。留痕含前后值。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.update
+      x-requirements: [R-26, R-47]
+      x-permissions: [station.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/StationId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StationUpdate' }
+      responses:
+        '200':
+          description: 调整后的站点
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Station' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/site/admin/stations/{stationId}/remove:
+    post:
+      operationId: removeStation
+      summary: 删除站点
+      description: 站点下有桩、有进行中骑行或还停着车时不能删除。删除只标记"停用"并保留记录，不再参与还车判定、不在地图显示。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.stations.remove
+      x-requirements: [R-26, R-47]
+      x-permissions: [station.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, ALREADY_DONE, STATION_IN_USE, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/StationId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonBody' }
+      responses:
+        '200':
+          description: 已删除
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, stationId]
+                properties:
+                  ok: { type: boolean }
+                  stationId: { type: string, description: 站点编号 }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409':
+          description: 不能删除。STATION_IN_USE 附 piles、riding 或 parked（数量）
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+  /api/site/admin/piles:
+    get:
+      operationId: listPiles
+      summary: 桩列表
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.piles.list
+      x-requirements: [R-27]
+      x-permissions: [pile.edit, station.edit, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { $ref: './_common.yaml#/components/parameters/SortKey' }
+        - { $ref: './_common.yaml#/components/parameters/SortDir' }
+        - { name: stationId, in: query, description: 站点编号, schema: { type: string } }
+        - name: status
+          in: query
+          description: 桩状态
+          schema: { $ref: '#/components/schemas/PileStatus' }
+      responses:
+        '200':
+          description: 分页桩
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PilePage' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: createPile
+      summary: 登记桩
+      description: 位置须在所属站点围栏内，桩位号自动顺延。无桩站点登记后变为有桩。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.piles.create
+      x-requirements: [R-27, R-47]
+      x-permissions: [pile.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PileCreate' }
+      responses:
+        '200':
+          description: 新桩
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pile' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/site/admin/piles/{pileId}/status:
+    post:
+      operationId: setPileStatus
+      summary: 设置桩状态
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: api.admin.piles.setStatus
+      x-requirements: [R-27, R-47]
+      x-permissions: [pile.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/PileId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PileStatusUpdate' }
+      responses:
+        '200':
+          description: 更新后的桩
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pile' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/site/admin/controllers:
+    get:
+      operationId: listControllers
+      summary: 控制器列表
+      description: 管理端登记的控制器，加上部署配置（PILE_DEVICES）里的控制器（source 为 配置，只读）。不返回密钥，只给尾号。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-27, R-28]
+      x-permissions: [pile.edit, station.edit, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - { name: stationId, in: query, description: 所属站点, schema: { type: string } }
+        - name: status
+          in: query
+          description: 控制器状态
+          schema: { $ref: '#/components/schemas/ControllerStatus' }
+      responses:
+        '200':
+          description: 控制器
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rows]
+                properties:
+                  rows:
+                    type: array
+                    items: { $ref: '#/components/schemas/Controller' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: createController
+      summary: 登记控制器
+      description: |
+        登记一台桩控制器（站级控制器，或单桩直连设备）。给 stationId 为站级控制器，其 slotNo 对应该站点的桩位号；给 pileId 为单桩直连，只有 1 号桩位；二者须且只须给一个。
+        accessMode 为 厂商适配 时须给 vendor，且该厂商适配器在本市已启用；其余接入方式不得给 vendor。
+        密钥由平台生成，只在本次响应的 secret 里返回一次，之后只返回尾号 secretTail；丢失须重置。
+        部署配置里或已登记的同名 deviceId 返回 CONFLICT。响应含一次性密钥，本接口不做 Idempotency-Key 重放。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-27, R-28, R-47]
+      x-permissions: [pile.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ControllerCreate' }
+      responses:
+        '200':
+          description: 新控制器；secret 只此一次
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ControllerWithSecret' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/site/admin/controllers/{deviceId}/reset-secret:
+    post:
+      operationId: resetControllerSecret
+      summary: 重置控制器密钥
+      description: 生成新密钥，旧密钥立即失效；新密钥只在本次响应里返回一次，所以本接口不做 Idempotency-Key 重放，响应丢失时再重置一次即可。只能重置管理端登记且启用的控制器；部署配置里的或已停用的返回 CONFLICT。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-28, R-47]
+      x-permissions: [pile.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/DeviceId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonBody' }
+      responses:
+        '200':
+          description: 新密钥只此一次
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ControllerWithSecret' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/site/admin/controllers/{deviceId}/disable:
+    post:
+      operationId: disableController
+      summary: 停用控制器
+      description: 停用后该控制器的 MQTT 与 HTTP 接入拒绝（多实例时缓存最长 5 秒），其名下桩状态不变，由心跳超时自然转离线。已停用再停用返回 ALREADY_DONE。只能停用管理端登记的控制器，部署配置里的返回 CONFLICT。
+      tags: [主管部门]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-28, R-47]
+      x-permissions: [pile.edit]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, SCOPE_DENIED, NOT_FOUND, INVALID, REASON_REQUIRED, ALREADY_DONE, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/DeviceId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonBody' }
+      responses:
+        '200':
+          description: 停用后的控制器
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Controller' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /device/v1/occupancy:
+    post:
+      operationId: reportOccupancy
+      summary: 在位上报（标准桩消息）
+      description: |
+        桩位有车入位或离位时立即发；控制器重连后把断线期间的变化按顺序补发。报文与 MQTT `pile/v1/{deviceId}/up/occupancy` 相同，详见 ../pile-spec/桩接入规范.md 第 2、4 节。
+        按 deviceId + msgId 去重；按 deviceId + slotNo 找桩，按 tagType + tag 找车辆编号；识别不出的标识只记录、不发桩在位事件。
+        请求头 X-Device-Key 为该控制器的密钥（或其厂商云平台的密钥）；body 里的 deviceId 须是该密钥所属控制器。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-28, BR-01, BR-08, BR-09]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StdOccupancy' }
+      responses:
+        '200':
+          description: 已收到；未收到 200 的由设备重发
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StdAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /device/v1/heartbeat:
+    post:
+      operationId: reportHeartbeat
+      summary: 心跳上报（标准桩消息）
+      description: 定时发，默认 60 秒。报文与 MQTT `pile/v1/{deviceId}/up/heartbeat` 相同。不带 slots 视为该控制器下全部桩位正常。超过离线时限没有心跳的桩记为离线；人工标为故障的桩不因心跳自动恢复在线。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-27, R-28, BR-12]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StdHeartbeat' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StdAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /device/v1/snapshot:
+    post:
+      operationId: reportSnapshot
+      summary: 全量上报（标准桩消息）
+      description: 上电、重连、平台下发查询时发，列出全部桩位当前状态；平台把每个桩位对齐到报告的状态。报文与 MQTT `pile/v1/{deviceId}/up/snapshot` 相同。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-28, BR-08]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StdOccupancy' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StdAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /device/v1/vendor/{vendor}:
+    post:
+      operationId: reportVendor
+      summary: 厂商云平台回调
+      description: 厂商云平台转推的报文，报文格式由该厂商适配器决定，译成标准桩消息后同上处理。本市没有启用该厂商适配器时返回 NOT_FOUND。X-Device-Key 可用该控制器密钥或厂商密钥。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-28]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { name: vendor, in: path, required: true, description: 厂商适配器名, schema: { type: string, example: acme } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, description: 厂商自有报文, additionalProperties: true }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StdAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /device/v1/pile-presence:
+    post:
+      operationId: reportPilePresence
+      summary: 桩在位上报（旧入口，保留兼容）
+      description: |
+        桩报告"某车辆标识在某桩位"入位或离位。本模块把车辆标识换成车辆编号后发出桩在位事件；识别不出的车辆标识只记录、不发事件。
+        同一桩位同一时刻最多一辆车在位。同一 seq 重复到达只生效一次。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-28, BR-01, BR-08, BR-09]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, NOT_FOUND, CONFLICT, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PilePresenceReport' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PilePresenceAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /device/v1/pile-heartbeat:
+    post:
+      operationId: reportPileHeartbeat
+      summary: 桩心跳（旧入口，保留兼容）
+      description: 桩定时报告在线与自检状态。超过离线时限没有心跳的桩记为离线；人工标为故障的桩不因心跳自动恢复在线。
+      tags: [桩设备]
+      security:
+        - deviceAuth: []
+      x-prototype: 无
+      x-requirements: [R-27, R-28, BR-12]
+      x-errors: [INVALID, DEVICE_UNAUTHORIZED, NOT_FOUND, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PileHeartbeat' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PileHeartbeatAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    deviceAuth:
+      type: apiKey
+      in: header
+      name: X-Device-Key
+      description: 桩设备（站级控制器或厂商云平台）接入密钥，登记桩时发放。HTTP 入口是桩接入的方式之一，主方式是 MQTT，主题与报文见 ../pile-spec/桩接入规范.md；两种方式报文含义相同
+  parameters:
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      description: 控制器编号
+      schema: { type: string, example: DV0001 }
+    StationId:
+      name: stationId
+      in: path
+      required: true
+      description: 站点编号
+      schema: { type: string, example: ST0001 }
+    PileId:
+      name: pileId
+      in: path
+      required: true
+      description: 桩编号
+      schema: { type: string, example: PL00001 }
+  schemas:
+    StationStatus:
+      type: string
+      description: 站点状态；删除站点后为停用。停用站点不参与还车判定、不在地图显示
+      enum: [启用, 停用]
+    PresenceBasis:
+      type: string
+      description: |
+        桩位在位情况的依据。桩上报：以桩设备最近一次报告为准；
+        骑行事件·已离开：订阅到车辆开锁事件而桩的离位报告还没到，临时按"车已离开"处理；
+        骑行事件·已回来：订阅到车辆在该桩还车事件而桩的入位报告还没到，临时按"车已回来"处理。
+        桩报告到达后即恢复为桩上报
+      enum: [桩上报, 骑行事件·已离开, 骑行事件·已回来]
+    ControllerStatus:
+      type: string
+      description: 控制器状态
+      enum: [启用, 停用]
+    AccessMode:
+      type: string
+      description: 接入方式。MQTT、HTTP 为标准桩消息，同一控制器两种方式都可用；厂商适配须给 vendor
+      enum: [MQTT, HTTP, 厂商适配]
+    ControllerCreate:
+      type: object
+      required: [deviceId, accessMode, reason]
+      description: stationId 与 pileId 须且只须给一个
+      properties:
+        deviceId: { type: string, pattern: '^[A-Za-z0-9_-]{3,64}$', description: 控制器编号，同时是 MQTT 用户名，全局唯一 }
+        accessMode: { $ref: '#/components/schemas/AccessMode' }
+        vendor: { type: string, description: 厂商适配器名；accessMode 为 厂商适配 时必填，其余不得给 }
+        stationId: { type: string, description: 站级控制器所属站点；slotNo 对应该站点的桩位号 }
+        pileId: { type: string, description: 单桩直连所属桩；只有 1 号桩位 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    Controller:
+      type: object
+      required: [deviceId, accessMode, status, source, secretTail]
+      properties:
+        deviceId: { type: string }
+        accessMode:
+          nullable: true
+          description: 接入方式；来自部署配置的控制器只有给了 vendor 的才有值（厂商适配），其余为 null
+          allOf:
+            - { $ref: '#/components/schemas/AccessMode' }
+        vendor: { type: string, nullable: true, description: 厂商适配器名 }
+        stationId: { type: string, nullable: true, description: 站级控制器所属站点 }
+        pileId: { type: string, nullable: true, description: 单桩直连所属桩 }
+        status: { $ref: '#/components/schemas/ControllerStatus' }
+        source: { type: string, enum: [登记, 配置], description: 登记为管理端登记，配置为部署配置（只读） }
+        secretTail: { type: string, nullable: true, description: 密钥最后 4 位；配置来源为 null }
+        createdAt:
+          nullable: true
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        createdBy:
+          nullable: true
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Actor' }
+        disabledAt:
+          nullable: true
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+    ControllerWithSecret:
+      allOf:
+        - { $ref: '#/components/schemas/Controller' }
+        - type: object
+          required: [secret]
+          properties:
+            secret: { type: string, description: 控制器密钥，只在本响应返回一次；MQTT 密码与 HTTP 的 X-Device-Key 都用它 }
+    StdSlot:
+      type: object
+      required: [slotNo]
+      properties:
+        slotNo: { type: integer, minimum: 1, description: 桩位号，对应平台登记的桩 }
+        present: { type: boolean, description: 是否有车在位（在位、全量用） }
+        tag: { type: string, description: 识别到的车辆标识；present 为 true 时必填 }
+        tagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 识别方式 }
+        status: { type: string, enum: [正常, 故障], description: 自检状态（心跳用） }
+        note: { type: string, description: 故障说明（心跳用，可空） }
+    StdOccupancy:
+      type: object
+      required: [msgId, deviceId, ts, slots]
+      properties:
+        msgId: { type: string, maxLength: 64, description: 设备生成，同一设备内不重复；按 deviceId + msgId 去重 }
+        deviceId: { type: string, description: 控制器编号 }
+        ts:
+          description: 事件发生时刻（设备时钟）：RFC 3339 字符串或毫秒时间戳。与收到时刻相差超过阈值时以收到时刻为准
+          oneOf:
+            - { type: string, format: date-time }
+            - { type: integer, format: int64 }
+        slots:
+          type: array
+          items: { $ref: '#/components/schemas/StdSlot' }
+    StdHeartbeat:
+      type: object
+      required: [msgId, deviceId, ts]
+      properties:
+        msgId: { type: string, maxLength: 64 }
+        deviceId: { type: string }
+        ts:
+          oneOf:
+            - { type: string, format: date-time }
+            - { type: integer, format: int64 }
+        slots:
+          type: array
+          description: 每个桩位的自检状态；不给视为全部正常
+          items: { $ref: '#/components/schemas/StdSlot' }
+        fw: { type: string, description: 固件版本 }
+        rssi: { type: integer, description: 信号强度 }
+    StdAck:
+      type: object
+      required: [received, serverTime]
+      properties:
+        received: { type: boolean, description: 恒为 true }
+        duplicate: { type: boolean, description: 是否重复到达（未再次生效） }
+        recognized: { type: boolean, description: 在位的车辆标识是否都对应到了清单内车辆 }
+        unknownSlots:
+          type: array
+          description: 平台没有登记的桩位号（已忽略）
+          items: { type: integer }
+        serverTime:
+          description: 平台时刻，供设备校时
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+    StationType:
+      type: string
+      description: 站点类型
+      enum: [有桩, 无桩]
+    StationStatus:
+      type: string
+      description: 站点状态；删除站点后为停用。停用站点不参与还车判定、不在地图显示
+      enum: [启用, 停用]
+    PresenceBasis:
+      type: string
+      description: |
+        桩位在位情况的依据。桩上报：以桩设备最近一次报告为准；
+        骑行事件·已离开：订阅到车辆开锁事件而桩的离位报告还没到，临时按"车已离开"处理；
+        骑行事件·已回来：订阅到车辆在该桩还车事件而桩的入位报告还没到，临时按"车已回来"处理。
+        桩报告到达后即恢复为桩上报
+      enum: [桩上报, 骑行事件·已离开, 骑行事件·已回来]
+    PileStatus:
+      type: string
+      description: 桩状态
+      enum: [在线, 离线, 故障]
+    Fence:
+      type: array
+      description: 电子围栏，闭合多边形，首尾点相同
+      minItems: 4
+      items: { $ref: './_common.yaml#/components/schemas/Location' }
+    Region:
+      type: object
+      description: 本市范围
+      required: [city, center, bounds]
+      properties:
+        city: { type: string, description: 城市名 }
+        center: { $ref: './_common.yaml#/components/schemas/Location' }
+        bounds:
+          type: array
+          description: '[[西南角], [东北角]]'
+          minItems: 2
+          maxItems: 2
+          items: { $ref: './_common.yaml#/components/schemas/Location' }
+        coordSystem: { type: string, description: 坐标系, example: GCJ-02 }
+    MapStation:
+      type: object
+      description: 地图用站点
+      required: [stationId, name, type, center, fence, capacity, freePiles, pileCount]
+      properties:
+        stationId: { type: string, description: 站点编号 }
+        name: { type: string, description: 站点名称 }
+        district: { type: string, description: 所在区 }
+        type: { $ref: '#/components/schemas/StationType' }
+        center: { $ref: './_common.yaml#/components/schemas/Location' }
+        fence: { $ref: '#/components/schemas/Fence' }
+        capacity: { type: integer, description: 容量，含桩位与桩旁 }
+        freePiles: { type: integer, description: 空闲桩位数（在线且无车在位） }
+        pileCount: { type: integer, description: 桩数 }
+    MapPile:
+      type: object
+      description: 地图用桩
+      required: [pileId, stationId, no, location, status, occupied]
+      properties:
+        pileId: { type: string, description: 桩编号 }
+        stationId: { type: string, description: 站点编号 }
+        no: { type: integer, description: 桩位号 }
+        location: { $ref: './_common.yaml#/components/schemas/Location' }
+        status: { $ref: '#/components/schemas/PileStatus' }
+        occupied: { type: boolean, description: 是否有车在位（已计入骑行事件的临时判断） }
+    StationMap:
+      type: object
+      required: [region, stations, piles]
+      properties:
+        region: { $ref: '#/components/schemas/Region' }
+        stations:
+          type: array
+          items: { $ref: '#/components/schemas/MapStation' }
+        piles:
+          type: array
+          items: { $ref: '#/components/schemas/MapPile' }
+    Station:
+      type: object
+      description: 站点（管理端）
+      required: [stationId, name, district, type, center, fence, capacity, status]
+      properties:
+        stationId: { type: string, description: 站点编号 }
+        name: { type: string, description: 站点名称 }
+        district: { type: string, description: 所在区 }
+        type: { $ref: '#/components/schemas/StationType' }
+        center: { $ref: './_common.yaml#/components/schemas/Location' }
+        fence: { $ref: '#/components/schemas/Fence' }
+        capacity: { type: integer, description: 容量，含桩位与桩旁 }
+        status: { $ref: '#/components/schemas/StationStatus' }
+        pileIds:
+          type: array
+          description: 桩编号
+          items: { type: string }
+        pileCount: { type: integer, description: 桩数 }
+        onlinePiles: { type: integer, description: 在线桩数 }
+        freePiles: { type: integer, description: 空闲桩位数（在线且无车在位） }
+        faultPiles: { type: integer, description: 离线或故障桩数 }
+        parkedVehicles: { type: integer, description: 桩在位的车辆数 }
+        fullNow: { type: boolean, description: 有桩站点当前所有在线桩位都被占用 }
+        createdAt:
+          description: 创建时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        updatedAt:
+          description: 最近调整时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        updatedBy:
+          description: 最近调整人
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Actor' }
+        removedAt:
+          nullable: true
+          description: 删除时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        removedBy:
+          nullable: true
+          description: 删除人
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Actor' }
+    StationDetail:
+      allOf:
+        - { $ref: '#/components/schemas/Station' }
+        - type: object
+          required: [piles]
+          properties:
+            piles:
+              type: array
+              items: { $ref: '#/components/schemas/Pile' }
+    StationPage:
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+        - type: object
+          required: [rows, region]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Station' }
+            region: { $ref: '#/components/schemas/Region' }
+    StationCreate:
+      type: object
+      required: [name, district, fence, reason]
+      properties:
+        name: { type: string, minLength: 1, description: 站点名称 }
+        district: { type: string, description: 所在区, enum: [东城区, 西城区, 滨河区, 高新区] }
+        type:
+          description: 站点类型，缺省无桩
+          allOf:
+            - { $ref: '#/components/schemas/StationType' }
+        fence:
+          type: array
+          description: 围栏顶点，至少 3 个，未闭合时自动闭合
+          minItems: 3
+          items: { $ref: './_common.yaml#/components/schemas/Location' }
+        capacity: { type: integer, minimum: 1, default: 10, description: 容量 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    StationUpdate:
+      type: object
+      required: [reason]
+      properties:
+        name: { type: string, minLength: 1, description: 站点名称 }
+        fence:
+          type: array
+          description: 围栏顶点，至少 3 个，未闭合时自动闭合
+          minItems: 3
+          items: { $ref: './_common.yaml#/components/schemas/Location' }
+        capacity: { type: integer, minimum: 1, description: 容量 }
+        type: { $ref: '#/components/schemas/StationType' }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    Pile:
+      type: object
+      description: 桩
+      required: [pileId, stationId, no, location, status]
+      properties:
+        pileId: { type: string, description: 桩编号 }
+        stationId: { type: string, description: 站点编号 }
+        stationName: { type: string, description: 站点名称 }
+        no: { type: integer, description: 桩位号 }
+        location: { $ref: './_common.yaml#/components/schemas/Location' }
+        status: { $ref: '#/components/schemas/PileStatus' }
+        occupiedVehicleId: { type: string, nullable: true, description: 在位车辆编号 }
+        occupiedPlateNo: { type: string, nullable: true, description: 在位车辆车号 }
+        presenceBasis: { $ref: '#/components/schemas/PresenceBasis' }
+        presenceBasis: { $ref: '#/components/schemas/PresenceBasis' }
+        lastHeartbeatAt:
+          nullable: true
+          description: 最近一次心跳时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        installedAt:
+          description: 登记时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        faultNote: { type: string, nullable: true, description: 离线或故障说明 }
+    PilePage:
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Pile' }
+    PileCreate:
+      type: object
+      required: [stationId, location, reason]
+      properties:
+        stationId: { type: string, description: 所属站点编号 }
+        location:
+          description: 桩的位置，须在站点围栏内
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Location' }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    PileStatusUpdate:
+      type: object
+      required: [status, reason]
+      properties:
+        status: { $ref: '#/components/schemas/PileStatus' }
+        faultNote: { type: string, description: 离线或故障说明；缺省取事由 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    ReasonBody:
+      type: object
+      required: [reason]
+      properties:
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    PilePresenceReport:
+      type: object
+      required: [pileId, pileTag, event, at, seq]
+      properties:
+        pileId: { type: string, description: 桩编号 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+        event: { type: string, description: 入位或离位, enum: [入位, 离位] }
+        at:
+          description: 桩识别到的时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        seq: { type: string, maxLength: 64, description: 设备侧上报序号，重发时不变，用于去重 }
+    PilePresenceAck:
+      type: object
+      required: [received, recognized, duplicate]
+      properties:
+        received: { type: boolean, description: 恒为 true；收到本答复即可停止重发 }
+        recognized: { type: boolean, description: 车辆标识是否对应到清单内车辆；false 时不发在位事件 }
+        duplicate: { type: boolean, description: 是否重复到达（未再次生效） }
+    PileHeartbeat:
+      type: object
+      required: [pileId, at]
+      properties:
+        pileId: { type: string, description: 桩编号 }
+        at:
+          description: 设备时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        selfCheck: { type: string, description: 设备自检结果, enum: [正常, 故障] }
+        faultNote: { type: string, description: 自检故障说明 }
+        occupiedPileTag: { type: string, nullable: true, description: 当前在位的车辆标识；无车为空。用于与平台记录对齐 }
+    PileHeartbeatAck:
+      type: object
+      required: [received, serverTime]
+      properties:
+        received: { type: boolean, description: 恒为 true }
+        serverTime:
+          description: 平台时刻，供设备校时
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }

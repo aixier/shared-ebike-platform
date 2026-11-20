@@ -1,0 +1,546 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · enforce 执法核查
+  version: 1.0.0
+  description: |
+    扫码核查、取证、证据防篡改、主管部门查询与导出。
+
+    车辆、品牌、运营商信息来自本模块订阅 fleet 事件得到的投影，核查与证据里带的名称、车号、码状态都取自投影。
+    执法账号的登录、退出、本人信息在 iam；定位由手机给，后端不提供。本模块没有被其他模块调用的接口，也不调用其他模块。
+
+    证据提交即生成摘要并锁定，修改与删除一律返回 EVIDENCE_LOCKED。
+
+    所有写接口（上传照片、提交取证、修改与删除的拒绝、导出）都判只读：令牌 `readonly` 为真，或令牌 `scope` 对应的运营商已退出（订阅 `fleet.operator.exited`），返回 403 READONLY。
+    请求体必须是 UTF-8，否则 400 INVALID，提示"请求体不是 UTF-8 编码"。
+
+    码状态显示：车辆已移出清单（`fleet.vehicle.removed`）或所属运营商已退出（`fleet.operator.exited`）后，扫码核查与取证里的码状态一律为"已失效"，不随之后到达的码状态事件恢复。
+    摘要 = SHA-256( 证据编号|执法人员账号编号|取证时刻|经度,纬度（6 位小数）|扫码结果|照片 1 摘要|照片 2 摘要… )，
+    取证时刻用 RFC 3339 文本，照片摘要为上传时算出的文件 SHA-256。
+tags:
+  - name: 执法端
+    description: 执法人员手机页接口，只能看本人的记录
+  - name: 主管部门
+    description: 证据查询与导出
+paths:
+  /api/enforce/scan:
+    post:
+      operationId: scanCode
+      summary: 扫码核查
+      description: 识别是否政府码，显示车号、所属运营商、接入状态，并记一条核查记录。扫不到政府码不算失败，结果为无政府码。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.scan
+      x-requirements: [R-44]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, description: 扫到的内容，政府码或含政府码的网址；识别不出时原样传入, example: SF86020226 }
+      responses:
+        '200':
+          description: 核查结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScanResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/enforce/photos:
+    post:
+      operationId: uploadPhoto
+      summary: 上传取证照片
+      description: |
+        一次一张。返回的 photoId 填入取证请求的 photos。未被证据引用的照片定期清理；被引用后不可删除。
+        只收 JPEG 与 PNG，按文件内容判断（不看扩展名与 Content-Type）；其他格式返回 INVALID，提示"照片格式不支持，只收 JPEG 或 PNG 格式"；超过 10 MB 返回 INVALID，提示"照片不能超过 10 MB"。
+        上传一张照片记一条留痕，动作"上传取证照片"。账号只读时返回 READONLY。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-44, R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID, READONLY, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: 照片文件，JPEG 或 PNG，不超过 10 MB }
+      responses:
+        '201':
+          description: 已保存的照片
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Photo' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/enforce/photos/{photoId}:
+    get:
+      operationId: getPhoto
+      summary: 读取证照片
+      description: 执法人员只能读本人上传的照片；主管部门可读全部。
+      tags: [执法端, 主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - { name: photoId, in: path, required: true, description: 照片编号, schema: { type: string } }
+      responses:
+        '200':
+          description: 照片文件
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/enforce/my/evidence:
+    post:
+      operationId: captureEvidence
+      summary: 提交取证
+      description: 扫不到政府码或码异常时取证。提交即生成摘要并锁定。执法人员与工号取自登录账号。账号只读时返回 READONLY。提交记一条留痕，动作"提交取证记录"。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.capture
+      x-requirements: [R-44, R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID, READONLY, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureRequest' }
+      responses:
+        '201':
+          description: 已锁定的证据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Evidence' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    get:
+      operationId: listMyEvidence
+      summary: 我的取证记录
+      description: 只含本人提交的记录，按取证时刻新到旧。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.mine
+      x-requirements: [R-44, R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 分页证据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvidencePage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/enforce/my/evidence/{evidenceId}:
+    parameters:
+      - $ref: '#/components/parameters/EvidenceId'
+    get:
+      operationId: getMyEvidence
+      summary: 我的取证记录详情
+      description: 不是本人提交的返回 FORBIDDEN。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.get
+      x-requirements: [R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, NOT_FOUND]
+      responses:
+        '200':
+          description: 证据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Evidence' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    put:
+      operationId: updateMyEvidence
+      summary: 修改取证记录（一律拒绝）
+      description: 证据提交后不可修改。先判执法人员岗位与只读（只读账号返回 READONLY），再判证据是否存在，存在时固定返回 EVIDENCE_LOCKED，请求体不被读取。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.update
+      x-requirements: [R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, EVIDENCE_LOCKED]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+    delete:
+      operationId: removeMyEvidence
+      summary: 删除取证记录（一律拒绝）
+      description: 证据提交后不可删除。先判执法人员岗位与只读（只读账号返回 READONLY），再判证据是否存在，存在时固定返回 EVIDENCE_LOCKED。
+      tags: [执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.enforcement.remove
+      x-requirements: [R-45]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, EVIDENCE_LOCKED]
+      responses:
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/enforce/evidence:
+    get:
+      operationId: listEvidence
+      summary: 证据查询
+      description: 默认按取证时刻新到旧。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.list
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID]
+      parameters:
+        - { name: scanResult, in: query, description: 扫码结果, schema: { $ref: '#/components/schemas/EvidenceScanResult' } }
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string, example: BR06 } }
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string, example: OP05 } }
+        - { name: officerId, in: query, description: 执法人员账号编号, schema: { type: string, example: AC0503 } }
+        - { name: from, in: query, description: 取证日期起（含）, schema: { $ref: './_common.yaml#/components/schemas/Date' } }
+        - { name: to, in: query, description: 取证日期止（含）, schema: { $ref: './_common.yaml#/components/schemas/Date' } }
+        - { name: q, in: query, description: 关键字，匹配证据编号、车辆描述、地址、车号, schema: { type: string } }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 分页证据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvidencePage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/enforce/evidence/{evidenceId}:
+    parameters:
+      - $ref: '#/components/parameters/EvidenceId'
+    get:
+      operationId: getEvidence
+      summary: 证据详情
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.get
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      responses:
+        '200':
+          description: 证据
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Evidence' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    put:
+      operationId: updateEvidence
+      summary: 修改证据（一律拒绝）
+      description: 证据提交后不可修改。权限点（evidence.view）与只读一起判：无权限返回 FORBIDDEN，账号只读或所属运营商已退出返回 READONLY；通过后证据存在时固定返回 EVIDENCE_LOCKED，请求体不被读取。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.update
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, NOT_FOUND, EVIDENCE_LOCKED]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/enforce/evidence/{evidenceId}/verify:
+    parameters:
+      - $ref: '#/components/parameters/EvidenceId'
+    get:
+      operationId: verifyEvidence
+      summary: 重算摘要验证证据
+      description: 按当前保存的内容重算摘要，与提交时的摘要比对。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.verify
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      responses:
+        '200':
+          description: 验证结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerifyResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/enforce/evidence-exports:
+    post:
+      operationId: exportEvidence
+      summary: 导出证据
+      description: 按筛选条件导出，写导出记录与留痕（动作"导出证据"）。没有符合条件的证据时返回 INVALID。账号只读或所属运营商已退出时返回 READONLY。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.export
+      x-requirements: [R-45]
+      x-permissions: [evidence.export]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter: { $ref: '#/components/schemas/EvidenceFilter' }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '201':
+          description: 导出记录与导出内容
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [export, csv, csvFileName]
+                properties:
+                  export: { $ref: '#/components/schemas/ExportRecord' }
+                  csv: { type: string, description: 'CSV 文本，列为证据编号、取证时间、执法人员工号、核查结果、品牌、运营商、车辆描述、地址、经度、纬度、照片数、SHA-256' }
+                  csvFileName: { type: string, description: CSV 文件名, example: 执法证据_202610121005.csv }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    get:
+      operationId: listEvidenceExports
+      summary: 导出记录
+      description: 新到旧，不分页。
+      tags: [主管部门]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.evidence.exports
+      x-requirements: [R-45]
+      x-permissions: [evidence.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN]
+      responses:
+        '200':
+          description: 导出记录
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ExportRecord' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+components:
+  parameters:
+    EvidenceId:
+      name: evidenceId
+      in: path
+      required: true
+      description: 证据编号
+      schema: { type: string, example: EV20260923001 }
+  schemas:
+    CodeStatus:
+      type: string
+      description: 政府码状态
+      enum: [待启用, 已启用, 已失效]
+    AccessStatus:
+      type: string
+      description: 品牌接入状态
+      enum: [未接入, 联调中, 已接入, 暂停可租, 已退出]
+    EvidenceScanResult:
+      type: string
+      description: 可取证的扫码结果
+      enum: [无政府码, 码已失效, 码未启用]
+    ScanVehicle:
+      type: object
+      description: 扫到政府码时的车辆信息
+      required: [vehicleId, govCode, plateNo, codeStatus, brandId, brandName, operatorId, operatorName, operatorShortName, operatorStatus, accessStatus]
+      properties:
+        vehicleId: { type: string, description: 车辆编号, example: VH000004 }
+        govCode: { type: string, description: 政府码, example: SF86020226 }
+        plateNo: { type: string, description: 车号 }
+        model: { type: string, nullable: true, description: 车型 }
+        codeStatus: { $ref: '#/components/schemas/CodeStatus' }
+        codeIssuedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 发码时刻
+        codeEnableAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 计划启用时刻
+        codeInvalidAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 失效时刻
+        brandId: { type: string, description: 品牌编号 }
+        brandName: { type: string, description: 品牌名称 }
+        operatorId: { type: string, description: 运营商编号 }
+        operatorName: { type: string, description: 运营商全称 }
+        operatorShortName: { type: string, description: 运营商简称 }
+        operatorStatus:
+          type: string
+          description: 运营商状态
+          enum: [在营, 已退出]
+        accessStatus: { $ref: '#/components/schemas/AccessStatus' }
+    ScanResult:
+      type: object
+      required: [isGovCode, scanResult, needCapture, text, vehicle]
+      properties:
+        isGovCode: { type: boolean, description: 是否识别到政府码 }
+        scanResult:
+          type: string
+          description: 扫码结果
+          enum: [有效政府码, 码未启用, 码已失效, 无政府码]
+        needCapture: { type: boolean, description: 是否应取证；有效政府码为 false }
+        text: { type: string, description: 一句结论，可直接展示 }
+        vehicle:
+          allOf: [{ $ref: '#/components/schemas/ScanVehicle' }]
+          nullable: true
+          description: 无政府码时为 null
+    Photo:
+      type: object
+      required: [photoId, sha256, size, contentType, uploadedAt]
+      properties:
+        photoId: { type: string, description: 照片编号，凭它调读取证照片接口 }
+        sha256: { type: string, description: 文件 SHA-256（十六进制）, pattern: '^[0-9a-f]{64}$' }
+        size: { type: integer, description: 文件字节数 }
+        contentType: { type: string, description: 文件类型, enum: [image/jpeg, image/png] }
+        uploadedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+    CaptureRequest:
+      type: object
+      required: [scanResult, location, vehicleDescription, photos]
+      properties:
+        scanResult: { $ref: '#/components/schemas/EvidenceScanResult' }
+        govCode: { type: string, description: 扫到的政府码；有码时填，据此带出车辆、品牌、运营商与码状态, example: SF71009215 }
+        location: { $ref: './_common.yaml#/components/schemas/Location' }
+        address: { type: string, description: 地址 }
+        accuracyM: { type: number, description: 定位精度（米） }
+        capturedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 取证时刻；不传取提交时刻
+        vehicleDescription: { type: string, minLength: 1, description: 车辆描述，品牌字样、车身编号、颜色等 }
+        brandId: { type: string, description: 无码时执法人员判断的品牌编号，可不填 }
+        photos:
+          type: array
+          description: 照片编号，来自上传接口，至少 1 张
+          minItems: 1
+          items: { type: string }
+        note: { type: string, description: 备注 }
+    Evidence:
+      type: object
+      description: 证据。提交后只读
+      required: [evidenceId, officerId, badgeNo, capturedAt, submittedAt, location, address, accuracyM, scanResult, vehicleId, brandId, operatorId, codeStatus, vehicleDescription, photos, note, sha256, locked]
+      properties:
+        evidenceId: { type: string, description: 证据编号, example: EV20260923001 }
+        officerId: { type: string, description: 执法人员账号编号, example: AC0503 }
+        officerName: { type: string, description: 执法人员姓名 }
+        badgeNo: { type: string, description: 执法人员工号, example: '031322' }
+        capturedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 取证时刻
+        submittedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 提交时刻
+        location: { $ref: './_common.yaml#/components/schemas/Location' }
+        address: { type: string, description: 地址 }
+        accuracyM: { type: number, nullable: true, description: 定位精度（米） }
+        scanResult: { $ref: '#/components/schemas/EvidenceScanResult' }
+        vehicleId: { type: string, nullable: true, description: 车辆编号，有码时有 }
+        plateNo: { type: string, nullable: true, description: 车号，有码时有 }
+        brandId: { type: string, nullable: true, description: 品牌编号 }
+        brandName: { type: string, nullable: true, description: 品牌名称 }
+        operatorId: { type: string, nullable: true, description: 运营商编号 }
+        operatorName: { type: string, nullable: true, description: 运营商简称 }
+        codeStatus:
+          allOf: [{ $ref: '#/components/schemas/CodeStatus' }]
+          nullable: true
+          description: 取证时的码状态，有码时有
+        vehicleDescription: { type: string, description: 车辆描述 }
+        photos:
+          type: array
+          description: 照片编号
+          items: { type: string }
+        note: { type: string, nullable: true, description: 备注 }
+        sha256: { type: string, description: 防篡改摘要（十六进制）, pattern: '^[0-9a-f]{64}$' }
+        locked: { type: boolean, enum: [true], description: 已锁定 }
+    EvidencePage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Evidence' }
+    VerifyResult:
+      type: object
+      required: [evidenceId, ok, stored, actual]
+      properties:
+        evidenceId: { type: string, description: 证据编号 }
+        ok: { type: boolean, description: 重算摘要与提交时的摘要是否一致 }
+        stored: { type: string, description: 提交时的摘要 }
+        actual: { type: string, description: 重算的摘要 }
+    EvidenceFilter:
+      type: object
+      description: 证据筛选条件，与证据查询的参数一致
+      properties:
+        scanResult: { $ref: '#/components/schemas/EvidenceScanResult' }
+        brandId: { type: string, description: 品牌编号 }
+        operatorId: { type: string, description: 运营商编号 }
+        officerId: { type: string, description: 执法人员账号编号 }
+        from:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Date' }]
+          description: 取证日期起（含）
+        to:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Date' }]
+          description: 取证日期止（含）
+        q: { type: string, description: 关键字，匹配证据编号、车辆描述、地址、车号 }
+    ExportRecord:
+      type: object
+      description: 导出记录
+      required: [exportId, at, by, filter, evidenceIds, count, fileName]
+      properties:
+        exportId: { type: string, description: 导出编号, example: EV-EXP-20261012-01 }
+        at:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 导出时刻
+        by: { type: string, description: 导出人账号编号 }
+        byName: { type: string, description: 导出人姓名 }
+        filter: { $ref: '#/components/schemas/EvidenceFilter' }
+        evidenceIds:
+          type: array
+          description: 导出的证据编号
+          items: { type: string }
+        count: { type: integer, description: 导出条数 }
+        fileName: { type: string, description: 导出文件名, example: 执法证据_202610121005.zip }

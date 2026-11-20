@@ -1,0 +1,14 @@
+# 各服务专有、且本机启动必须给的变量（变量名以各服务 README 的配置表为准）。gen-env.sh 把它们追加进对应 env。
+# 值的写法：普通值原样写入；@secret32b64 = 生成 32 字节随机数的 base64（存 secrets/extra/，重跑沿用）；
+#           @dir:<名字> = 在 data/<名字> 建目录并写入其 Windows 路径。
+# 模块	变量	值
+opgw	OPGW_SECRET_KEY	@secret32b64
+enforce	ENFORCE_PHOTO_DIR	@dir:enforce-photos
+# 1883 在本机被 WSL 镜像网络里的 MQTT 服务占用
+site	MQTT_ADDR	127.0.0.1:11883
+# 以下为"对接后端看效果"用：fleet 启动时装入登记数据（契约里没有运营商/品牌登记接口）；opgw 向本机 mock 运营商发开锁/结束请求
+fleet	FLEET_SEED_FILE	seed/fleet-seed.json
+opgw	OPGW_BASE_URLS	OP01=http://127.0.0.1:18390,OP02=http://127.0.0.1:18390
+# 本机桩模拟器：站级控制器 SIM-CTRL-ST0001 管 ST0001 的 4 个桩位，密钥仅本机开发用（pile-sim.mjs 读同一份）
+site	PILE_DEVICES	[{"deviceId":"SIM-CTRL-ST0001","stationId":"ST0001","secret":"sim-local-dev-key-0001"}]
+iam	IAM_DEV_SEED_ADMIN	1

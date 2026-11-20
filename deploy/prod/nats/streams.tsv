@@ -1,0 +1,16 @@
+# 流	主题	保留期限	副本数
+EVT_ACCT	acct.>	400d	3
+EVT_RIDE	ride.>	400d	3
+EVT_OPGW	opgw.>	400d	3
+EVT_ONBOARD	onboard.>	400d	3
+EVT_FLEET	fleet.>	400d	3
+EVT_SITE	site.>	400d	3
+EVT_RULE	rule.>	400d	3
+EVT_BILL	bill.>	400d	3
+EVT_PAY	pay.>	400d	3
+EVT_DEPOSIT	deposit.>	400d	3
+EVT_SETTLE	settle.>	400d	3
+EVT_CS	cs.>	180d	3
+EVT_OPS	ops.>	180d	3
+EVT_ENFORCE	enforce.>	180d	3
+EVT_IAM	iam.>	180d	3

@@ -1,0 +1,870 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · onboard 接入验收
+  version: 1.0.0
+  description: |
+    接入记录、接入规范、联调环境、联调凭证、符合性测试、真车联调、验收报告。
+
+    只返回本模块持有的数据：品牌与运营商名称、车辆、生产凭证不在这里，前端按 brandId、operatorId 另查 fleet；
+    接入状态归 fleet，本模块返回的 status、vehicleList 是订阅 fleet 事件得到的投影，只用于显示。
+    暂停可租建议归 ops，接入验收页由前端按 brandId 另查 ops。本模块没有被其他模块调用的接口；`/internal/...` 一律先验服务凭证（不对返回 401 `UNAUTHORIZED`）再答复 404。
+
+    写操作（管理端）：令牌 `readonly=true`，或令牌 scope 对应的运营商已退出（订阅 fleet.operator.exited），一律 403 `READONLY`。请求体必须是 UTF-8，否则 400 `INVALID`。
+
+    同步调用：fleet（首次发放联调凭证后品牌置为联调中；验收确认后品牌上线）。调用时 `actor.kind` 只填 `人` 或 `系统`。
+    联调环境入口 /sandbox/open/v1/... 与生产 /open/v1/... 同形状，报文以 contracts/operator-spec/operator-api.yaml 为准；
+    联调环境里的订单与支付都是本模块内的模拟，不进生产订单与资金。
+tags:
+  - name: 运营商
+    description: 运营商技术对接、运营商业务使用的页面接口，只返回本运营商的数据
+  - name: 运维
+    description: 接入负责人使用的页面接口
+  - name: 联调入口
+    description: 运营商系统在联调环境里对接的入口，签名鉴权
+paths:
+  /api/onboard/integrations:
+    get:
+      operationId: listMyIntegrations
+      summary: 本运营商各品牌的接入记录
+      description: 每个品牌一条，含最新一轮符合性测试。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.get
+      x-requirements: [R-38, R-39, R-40]
+      x-permissions: [acceptance.view.own, access.view.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 接入记录
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/IntegrationView' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/spec:
+    get:
+      operationId: getIntegrationSpec
+      summary: 接入规范
+      description: 规范名称、版本、章节目录与参考报文。运营商的开发智能体可直接读取。完整规范文件在 contracts/operator-spec/。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.spec
+      x-requirements: [R-36]
+      x-permissions: [integration.doc]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 接入规范
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Spec' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/sandbox:
+    get:
+      operationId: getSandbox
+      summary: 联调环境
+      description: 联调地址、模拟车辆、模拟用户、模拟支付当前模式、本运营商各品牌的联调凭证。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.sandbox
+      x-requirements: [R-38]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 联调环境
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sandbox' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/sandbox/payment-mode:
+    put:
+      operationId: setMockPayment
+      summary: 切换联调环境的模拟支付
+      description: 只影响本运营商的联调环境。正常为全部扣款成功；余额不足为扣款返回失败，用于测欠费路径。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.setMockPayment
+      x-requirements: [R-38]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, INVALID, REASON_REQUIRED, SERVER_BUSY]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mode]
+              properties:
+                mode: { $ref: '#/components/schemas/PaymentMode' }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 切换后的模式
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [paymentMode]
+                properties:
+                  paymentMode: { $ref: '#/components/schemas/PaymentMode' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/integrations/{brandId}/credential/rotate:
+    post:
+      operationId: rotateCredential
+      summary: 轮换联调密钥
+      description: 旧密钥立即失效。新密钥只在本次返回里出现一次。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.rotateCredential
+      x-requirements: [R-38]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, NOT_FOUND, REASON_REQUIRED, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody: { $ref: '#/components/requestBodies/Reason' }
+      responses:
+        '200':
+          description: 新密钥与凭证
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [secret, credentials]
+                properties:
+                  secret: { type: string, description: 新密钥明文，只出现这一次, example: sk_br05_3f9a0c1d2e4b5a6978c0d1e2f3a4 }
+                  credentials: { $ref: '#/components/schemas/SandboxCredential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/credential/revoke:
+    post:
+      operationId: revokeCredential
+      summary: 吊销联调凭证
+      description: 凭证状态变为停用，之后联调请求被拒绝，不能发起测试、不能轮换。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.revokeCredential
+      x-requirements: [R-38]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, NOT_FOUND, REASON_REQUIRED, ALREADY_DONE, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody: { $ref: '#/components/requestBodies/Reason' }
+      responses:
+        '200':
+          description: 吊销后的凭证
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [credentials]
+                properties:
+                  credentials: { $ref: '#/components/schemas/SandboxCredential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/credential/issue:
+    post:
+      operationId: issueCredential
+      summary: 首次签发联调密钥
+      description: |
+        品牌登记时本模块已建好凭证（应用编号），但密钥还没交到运营商手里。本接口把密钥第一次交出：新密钥只在本次返回里出现一次，之后只返回尾号。
+        首次签发视为发放联调凭证，本模块同步调 fleet 把品牌置为联调中（调用时 `actor` 为 `人`；fleet 暂不可用时由定时任务以 `系统` 重试，不影响本次签发）。
+        已经签发过的凭证再调返回 CONFLICT，换密钥用轮换（rotate）。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-38, R-42]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, CONFLICT, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody: { $ref: '#/components/requestBodies/Reason' }
+      responses:
+        '200':
+          description: 密钥与凭证
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [secret, credentials]
+                properties:
+                  secret: { type: string, description: 密钥明文，只出现这一次, example: sk_br05_3f9a0c1d2e4b5a6978c0d1e2f3a4 }
+                  credentials: { $ref: '#/components/schemas/SandboxCredential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/credential/restore:
+    post:
+      operationId: restoreCredential
+      summary: 恢复已吊销的联调凭证
+      description: |
+        只有接入负责人可操作。凭证由停用变回有效，并生成新密钥（吊销前的旧密钥不恢复），新密钥只在本次返回里出现一次。
+        凭证本就有效返回 ALREADY_DONE；品牌已退出或运营商已退出的凭证不能恢复，返回 CONFLICT。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-38]
+      x-permissions: [acceptance.confirm]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, ALREADY_DONE, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody: { $ref: '#/components/requestBodies/Reason' }
+      responses:
+        '200':
+          description: 新密钥与恢复后的凭证
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [secret, credentials]
+                properties:
+                  secret: { type: string, description: 密钥明文，只出现这一次, example: sk_br05_3f9a0c1d2e4b5a6978c0d1e2f3a4 }
+                  credentials: { $ref: '#/components/schemas/SandboxCredential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/operator-base-url:
+    put:
+      operationId: setOperatorBaseUrl
+      summary: 登记运营商联调地址
+      description: |
+        登记运营商系统在联调时对外提供 M-01、M-02 的基础地址（`operatorBaseUrl`，http 或 https）。
+        符合性测试与真车联调向这个地址发请求；可重复登记，以最后一次为准。品牌已退出时返回 CONFLICT。
+        发起符合性测试的请求体里仍可带可选字段 `operatorBaseUrl`，等同于先登记再测试（兼容）。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-38, R-39]
+      x-permissions: [integration.sandbox.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, INVALID, CONFLICT, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorBaseUrl]
+              properties:
+                operatorBaseUrl: { type: string, description: 运营商联调基础地址, example: 'https://api.citybus-fleet.example/bike' }
+      responses:
+        '200':
+          description: 登记后的地址
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [operatorBaseUrl]
+                properties:
+                  operatorBaseUrl: { type: string }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/runs:
+    get:
+      operationId: listConformanceRuns
+      summary: 符合性测试轮次
+      description: 按时刻新到旧，不分页。失败用例含接入智能体给出的原因与修改建议。运营商账号只返回本运营商的轮次。
+      tags: [运营商, 运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.runs
+      x-requirements: [R-39]
+      x-permissions: [integration.conformance.own, ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, SERVER_BUSY]
+      parameters:
+        - { name: brandId, in: query, description: 品牌编号, schema: { type: string, example: BR05 } }
+      responses:
+        '200':
+          description: 测试轮次
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ConformanceRun' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/integrations/{brandId}/runs:
+    post:
+      operationId: startConformanceRun
+      summary: 发起一轮符合性测试
+      description: 跑全部用例，上轮失败项按修改后重跑。品牌已退出或未接入时返回 CONFLICT。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.startRun
+      x-requirements: [R-39]
+      x-permissions: [integration.conformance.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, INVALID, CONFLICT, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operatorBaseUrl: { type: string, description: 可选；带上则先登记运营商联调地址再测试（兼容，推荐用 operator-base-url 接口登记） }
+      responses:
+        '200':
+          description: 本轮测试结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConformanceRun' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/real-rides:
+    post:
+      operationId: submitRealRides
+      summary: 提交真车联调结果
+      description: 符合性测试全部通过后才能提交。按真车联调记录核对数量、订单与锁车报告匹配、时限，接入智能体生成验收报告，验收结果变为待确认。接入状态不是联调中时返回 CONFLICT。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.operator.integration.submitRealRides
+      x-requirements: [R-40, BR-37]
+      x-permissions: [integration.conformance.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, NOT_FOUND, CONFLICT, ACCEPTANCE_NOT_READY, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 提交后的接入记录
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Integration' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/real-rides/rides:
+    get:
+      operationId: listRealRides
+      summary: 真车联调订单
+      description: 本品牌的真车联调订单，新到旧，不分页。订单在联调环境内，不进生产订单与资金。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-40, BR-37]
+      x-permissions: [integration.conformance.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+      responses:
+        '200':
+          description: 真车联调订单
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RealRide' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    post:
+      operationId: startRealRide
+      summary: 发起一单真车联调
+      description: |
+        模拟用户实骑一辆真车：平台向运营商联调地址发开锁（M-01），运营商回报开锁结果（M-03）记入本单。
+        只允许本品牌已入清单的车辆；符合性测试最新一轮全部通过、接入状态为联调中、凭证有效、已登记运营商联调地址才可发起。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-40, BR-37]
+      x-permissions: [integration.conformance.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, INVALID, CONFLICT, ACCEPTANCE_NOT_READY, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plateNo, simUserId]
+              properties:
+                plateNo: { type: string, description: 车号（须在本品牌已入清单的车辆里）, example: SM000001 }
+                simUserId: { type: string, description: 模拟用户编号, example: SBX-U001 }
+      responses:
+        '200':
+          description: 发起后的订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RealRide' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/integrations/{brandId}/real-rides/rides/{orderId}/end:
+    post:
+      operationId: endRealRide
+      summary: 结束一单真车联调
+      description: 模拟用户还车：平台向运营商联调地址发结束骑行（M-02），运营商回报锁车（M-03）记入本单。订单不属于本品牌或不是真车联调订单返回 NOT_FOUND。
+      tags: [运营商]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-40, BR-37]
+      x-permissions: [integration.conformance.own]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, CONFLICT, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/BrandId'
+        - { name: orderId, in: path, required: true, description: 真车联调订单编号, schema: { type: string } }
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 结束后的订单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RealRide' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/acceptance:
+    get:
+      operationId: listAcceptance
+      summary: 各品牌接入与验收情况
+      description: 全部品牌的接入记录、最新一轮测试、已用天数。不分页。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.ops.acceptance.list
+      x-requirements: [R-40, BR-37]
+      x-permissions: [ops.monitor]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 接入与验收情况
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AcceptanceRow' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/onboard/acceptance/{integrationId}/confirm:
+    post:
+      operationId: confirmAcceptance
+      summary: 确认验收通过
+      description: 只有接入负责人可确认。验收结果须为待确认。确认后调 fleet 品牌上线：品牌置为已接入、待启用的码启用。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.ops.acceptance.confirm
+      x-requirements: [R-40, R-41, BR-37]
+      x-permissions: [acceptance.confirm]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, ACCEPTANCE_NOT_READY, INVALID, SERVER_BUSY]
+      parameters:
+        - { name: integrationId, in: path, required: true, description: 接入记录编号, schema: { type: string, example: IN-BR05 } }
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody: { $ref: '#/components/requestBodies/Reason' }
+      responses:
+        '200':
+          description: 确认后的接入记录
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Integration' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/onboard/todos:
+    get:
+      operationId: getOnboardTodos
+      summary: 本模块待办计数
+      description: 顶栏待办用，前端与其他模块的待办汇总。只含计数大于 0 的项。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me
+      x-requirements: [R-40]
+      x-permissions: [acceptance.confirm]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SERVER_BUSY]
+      responses:
+        '200':
+          description: 待办计数
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Todo' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+  /sandbox/open/v1/ride-events:
+    post:
+      operationId: sandboxReportRideEvent
+      summary: 联调环境 · 骑行事件上报（M-03）
+      description: |
+        运营商系统在联调环境里上报开锁结果与锁车。与生产 /open/v1 的同名入口同形状，
+        路径与报文以 contracts/operator-spec/operator-api.yaml 为准，这里不重复字段。
+        验签用联调凭证；凭证停用后一律拒绝。重复、延迟、补报按规范处理，结果记入符合性测试与真车联调记录。
+        平台在联调环境里向运营商发出的开锁（M-01）、结束骑行（M-02）由本模块的测试驱动发起，同样以该规范为准。
+      tags: [联调入口]
+      security: [{ operatorSign: [] }]
+      x-prototype: 无
+      x-requirements: [R-38, R-39, M-03]
+      x-errors: [INVALID, FORBIDDEN, SIGNATURE_INVALID, TIMESTAMP_EXPIRED, NONCE_REPLAYED, CREDENTIAL_DISABLED, NOT_FOUND, SCOPE_DENIED, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OperatorMessage' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OperatorAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /sandbox/open/v1/vehicle-lists:
+    post:
+      operationId: sandboxSubmitVehicleList
+      summary: 联调环境 · 车辆清单提交（M-04）
+      description: |
+        运营商系统在联调环境里提交车辆清单。与生产 /open/v1 的同名入口同形状，
+        路径与报文以 contracts/operator-spec/operator-api.yaml 为准，这里不重复字段。
+        只在本模块内校验并返回逐行错误，不入生产清单、不发政府码。
+      tags: [联调入口]
+      security: [{ operatorSign: [] }]
+      x-prototype: 无
+      x-requirements: [R-38, R-39, M-04]
+      x-errors: [INVALID, FORBIDDEN, SIGNATURE_INVALID, TIMESTAMP_EXPIRED, NONCE_REPLAYED, CREDENTIAL_DISABLED, SCOPE_DENIED, VEHICLE_LIST_INVALID, SERVER_BUSY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OperatorMessage' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OperatorAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+components:
+  parameters:
+    BrandId:
+      name: brandId
+      in: path
+      required: true
+      description: 品牌编号
+      schema: { type: string, example: BR05 }
+  requestBodies:
+    Reason:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [reason]
+            properties:
+              reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+  schemas:
+    AccessStatus:
+      type: string
+      description: 品牌接入状态。归 fleet，这里是投影
+      enum: [未接入, 联调中, 已接入, 暂停可租, 已退出]
+    PaymentMode:
+      type: string
+      description: 联调环境模拟支付模式
+      enum: [正常, 余额不足]
+    SandboxCredential:
+      type: object
+      description: 联调凭证，每个品牌一份
+      required: [sandboxAppId, sandboxKeyMasked, issuedAt, status, disabledAt]
+      properties:
+        sandboxAppId: { type: string, description: 联调应用编号, example: sbx_br05_387758 }
+        sandboxKeyMasked: { type: string, description: 脱敏的联调密钥, example: sk_****7587 }
+        issuedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 当前密钥签发时刻
+        status:
+          type: string
+          description: 凭证状态
+          enum: [有效, 停用]
+        disabledAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 停用时刻
+        disabledBy: { type: string, nullable: true, description: 吊销人账号编号 }
+        rotatedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 最近一次轮换时刻
+        rotatedBy: { type: string, nullable: true, description: 最近一次轮换人账号编号 }
+    StatusHistoryEntry:
+      type: object
+      required: [status, at, by, note]
+      properties:
+        status: { $ref: '#/components/schemas/AccessStatus' }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        by: { type: string, description: 操作人账号编号 }
+        note: { type: string, nullable: true, description: 说明 }
+    VehicleListSummary:
+      type: object
+      description: 车辆清单与发码情况。归 fleet，这里是投影
+      required: [submittedAt, vehicleCount, codesIssued, codeStatus, submittedBy]
+      properties:
+        submittedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 清单提交时刻
+        vehicleCount: { type: integer, description: 清单车辆数 }
+        codesIssued: { type: integer, description: 已发政府码数 }
+        codeStatus: { type: string, nullable: true, description: 码状态说明, example: 待启用（计划 2026-12-08 09:00 随上线启用） }
+        submittedBy: { type: string, nullable: true, description: 提交人账号编号 }
+    Acceptance:
+      type: object
+      description: 验收。结论由测试结果与真车联调记录决定
+      required: [reportId, realVehiclesRequired, realVehiclesRidden, realOrders, matchedOrders, lockReportsMatched, timeLimitOk, conformanceRunId, submittedAt, submittedBy, result, confirmedBy, confirmedAt, summary]
+      properties:
+        reportId: { type: string, nullable: true, description: 验收报告编号, example: IN-BR01-AR01 }
+        realVehiclesRequired: { type: integer, description: 参数规定的真车数量 }
+        realVehiclesRidden: { type: integer, description: 已实骑的真车数量 }
+        realOrders: { type: integer, description: 真车联调订单数 }
+        matchedOrders: { type: integer, description: 与平台记录匹配的订单数 }
+        lockReportsMatched: { type: integer, description: 匹配的锁车报告数 }
+        timeLimitOk: { type: boolean, description: 时限是否达标 }
+        conformanceRunId: { type: string, nullable: true, description: 所依据的符合性测试轮次编号 }
+        submittedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 验收报告提交时刻
+        submittedBy: { type: string, nullable: true, description: 报告提交者账号编号（接入智能体） }
+        result:
+          type: string
+          description: 验收结果
+          enum: [未开始, 待确认, 通过]
+        confirmedBy: { type: string, nullable: true, description: 确认人账号编号（接入负责人） }
+        confirmedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 确认时刻
+        summary: { type: string, nullable: true, description: 接入智能体写的报告摘要 }
+    RealRide:
+      type: object
+      description: 真车联调订单（联调环境内，不进生产）
+      required: [orderId, plateNo, simUserId, unlockRequestedAt, unlockReply, unlockResult, endRequestedAt, endCause, lockReported, payResult]
+      properties:
+        orderId: { type: string, description: 订单编号 }
+        plateNo: { type: string, description: 车号 }
+        simUserId: { type: string, nullable: true, description: 模拟用户编号 }
+        unlockRequestedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 平台发出开锁请求的时刻
+        unlockReply: { type: string, nullable: true, description: 运营商对 M-01 的答复, example: 已受理 }
+        unlockResult: { type: string, nullable: true, description: 运营商回报的开锁结果；尚未回报为空 }
+        endRequestedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 平台发出结束骑行请求的时刻
+        endCause: { type: string, nullable: true, description: 结束原因 }
+        lockReported: { type: boolean, description: 运营商是否已回报锁车 }
+        payResult: { type: string, nullable: true, description: 模拟支付结果 }
+    Integration:
+      type: object
+      description: 接入记录，每个品牌一条
+      required: [integrationId, brandId, operatorId, accessVia, providerId, status, statusSince, statusHistory, credentials, operatorBaseUrl, vehicleList, runIds, acceptance, targetDays, startedAt]
+      properties:
+        integrationId: { type: string, description: 接入记录编号, example: IN-BR05 }
+        brandId: { type: string, description: 品牌编号 }
+        operatorId: { type: string, description: 运营商编号 }
+        accessVia:
+          type: string
+          description: 接入方式
+          enum: [自行接入, 车联网服务商代接]
+        providerId: { type: string, nullable: true, description: 车联网服务商编号, example: SP01 }
+        status: { $ref: '#/components/schemas/AccessStatus' }
+        statusSince:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 进入当前状态的时刻
+        statusHistory:
+          type: array
+          description: 状态变更记录，最后一条为当前状态
+          items: { $ref: '#/components/schemas/StatusHistoryEntry' }
+        credentials: { $ref: '#/components/schemas/SandboxCredential' }
+        operatorBaseUrl: { type: string, nullable: true, description: 运营商联调基础地址，未登记为空 }
+        vehicleList:
+          allOf: [{ $ref: '#/components/schemas/VehicleListSummary' }]
+          nullable: true
+        runIds:
+          type: array
+          description: 符合性测试轮次编号
+          items: { type: string }
+        acceptance:
+          allOf: [{ $ref: '#/components/schemas/Acceptance' }]
+          nullable: true
+        targetDays: { type: integer, description: 联调到验收的目标天数（参数） }
+        startedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          nullable: true
+          description: 接入开始时刻
+    IntegrationView:
+      allOf:
+        - $ref: '#/components/schemas/Integration'
+        - type: object
+          required: [latestRun]
+          properties:
+            latestRun:
+              allOf: [{ $ref: '#/components/schemas/ConformanceRun' }]
+              nullable: true
+              description: 最新一轮符合性测试
+    AcceptanceRow:
+      allOf:
+        - $ref: '#/components/schemas/IntegrationView'
+        - type: object
+          required: [elapsedDays]
+          properties:
+            elapsedDays: { type: integer, nullable: true, description: 自接入开始已用天数 }
+    ConformanceCase:
+      type: object
+      required: [caseId, group, name, result, durationMs]
+      properties:
+        caseId: { type: string, description: 用例编号, example: M01-02 }
+        group:
+          type: string
+          description: 用例分组
+          enum: [M-01 开锁, M-02 结束骑行, M-03 骑行事件, M-04 车辆清单, 接入安全]
+        name: { type: string, description: 用例名称 }
+        result:
+          type: string
+          description: 用例结果
+          enum: [通过, 失败]
+        durationMs: { type: integer, description: 用时（毫秒） }
+        failReason: { type: string, description: 失败原因，失败时有 }
+        suggestion: { type: string, description: 接入智能体的修改建议，失败时有 }
+        suggestedBy: { type: string, description: 给出建议的账号编号（接入智能体）, example: AC0903 }
+    ConformanceRun:
+      type: object
+      description: 一轮符合性测试
+      required: [runId, integrationId, brandId, at, env, summary, cases]
+      properties:
+        runId: { type: string, description: 轮次编号, example: IN-BR05-R003 }
+        integrationId: { type: string, description: 接入记录编号 }
+        brandId: { type: string, description: 品牌编号 }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        env: { type: string, description: 运行环境, enum: [联调环境] }
+        summary:
+          type: object
+          required: [total, passed, failed]
+          properties:
+            total: { type: integer, description: 用例总数 }
+            passed: { type: integer, description: 通过数 }
+            failed: { type: integer, description: 失败数 }
+        cases:
+          type: array
+          items: { $ref: '#/components/schemas/ConformanceCase' }
+    SpecSection:
+      type: object
+      required: [no, title, summary]
+      properties:
+        no: { type: string, description: 章节号, example: '3.2' }
+        title: { type: string, description: 章节标题, example: 开锁结果（M-03） }
+        summary: { type: string, description: 章节摘要 }
+        example: { type: string, description: 参考报文（JSON 文本） }
+    Spec:
+      type: object
+      required: [name, version, publishedAt, sections]
+      properties:
+        name: { type: string, description: 规范名称 }
+        version: { type: string, description: 规范版本, example: '1.2' }
+        publishedAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 发布时刻
+        sections:
+          type: array
+          description: 章节目录
+          items: { $ref: '#/components/schemas/SpecSection' }
+    SimVehicle:
+      type: object
+      required: [simVehicleId, plateNo, pileTag, behavior]
+      properties:
+        simVehicleId: { type: string, description: 模拟车辆编号, example: SBX-V004 }
+        plateNo: { type: string, description: 车号 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+        behavior: { type: string, description: 模拟行为, example: 开锁慢（35 秒回报） }
+    SimUser:
+      type: object
+      required: [simUserId, kind]
+      properties:
+        simUserId: { type: string, description: 模拟用户编号, example: SBX-U001 }
+        kind:
+          type: string
+          description: 模拟用户类别
+          enum: [免押老用户, 押金老用户, 新用户, 有欠费用户, 先骑后验新用户]
+    Sandbox:
+      type: object
+      required: [baseUrl, note, simVehicles, simUsers, simPayment, paymentMode, credentials]
+      properties:
+        baseUrl: { type: string, description: 联调环境入口地址, example: 'https://sandbox.example/sandbox/open/v1' }
+        note: { type: string, description: 环境说明 }
+        simVehicles:
+          type: array
+          description: 模拟车辆
+          items: { $ref: '#/components/schemas/SimVehicle' }
+        simUsers:
+          type: array
+          description: 模拟用户
+          items: { $ref: '#/components/schemas/SimUser' }
+        simPayment: { type: string, description: 模拟支付说明 }
+        paymentMode: { $ref: '#/components/schemas/PaymentMode' }
+        credentials:
+          type: array
+          description: 本运营商各品牌的联调凭证
+          items:
+            allOf:
+              - $ref: '#/components/schemas/SandboxCredential'
+              - type: object
+                required: [brandId]
+                properties:
+                  brandId: { type: string, description: 品牌编号 }
+    Todo:
+      type: object
+      required: [key, label, count, menu]
+      properties:
+        key:
+          type: string
+          description: 待办项
+          enum: [acceptance]
+        label: { type: string, description: 显示名称, example: 待确认的验收报告 }
+        count: { type: integer, minimum: 1, description: 数量 }
+        menu: { type: string, description: 点击后进入的菜单, example: 接入验收 }
+    OperatorMessage:
+      type: object
+      description: 运营商报文，字段以 contracts/operator-spec/operator-api.yaml 为准
+      additionalProperties: true
+    OperatorAck:
+      type: object
+      description: 平台确认，字段以 contracts/operator-spec/operator-api.yaml 为准
+      additionalProperties: true

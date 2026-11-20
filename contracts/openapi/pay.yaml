@@ -1,0 +1,995 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · pay 收付款
+  version: 1.0.0
+  description: |
+    pay 持有资金流水、收款通道、免押扣款、一键支付、退款、人工转账、日对账单、差异项。
+    不知道该收多少（归 bill）、不知道押金规则（归 deposit）、不决定退不退。
+    每笔流水只属于骑行收入户或押金专户之一；流水只追加不修改。
+    姓名、手机号由前端按 userId 另查 acct；工单状态另查 cs。金额一律整数分，时间 RFC 3339。
+tags:
+  - name: 用户端
+  - name: 财务
+  - name: 客服
+  - name: 公共
+  - name: 内部
+paths:
+  /api/pay/me/payments:
+    get:
+      operationId: listMyOrderPayments
+      summary: 按订单号查我的流水
+      description: 订单详情页的流水部分，按创建时间升序。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.order
+      x-requirements: [R-12, R-09]
+      x-errors: [NOT_LOGGED_IN, INVALID]
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          description: 订单号（须为本人订单，否则返回空列表）
+          schema: { type: string, example: OD2026102613011 }
+      responses:
+        '200':
+          description: 该订单的流水
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserPayment' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/pay/me/payments/{paymentId}/payee:
+    post:
+      operationId: submitPayee
+      summary: 原路退回失败后提交本人实名收款账户
+      description: |
+        paymentId 为失败的退款或退押流水。户名须与实名一致。提交后该笔在财务页显示"待转账"，
+        并发出事件让 cs 的对话与 deposit 的退押把"等待收款账户"置为否。账号只保存尾号。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.submitPayee
+      x-requirements: [R-11]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, PAYEE_NAME_MISMATCH, INVALID, SERVER_BUSY]
+      parameters:
+        - $ref: '#/components/parameters/PaymentIdPath'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, bank, account]
+              properties:
+                name: { type: string, description: 户名，须与实名一致 }
+                bank: { type: string, description: 开户银行 }
+                account: { type: string, pattern: '^\d{12,19}$', description: 银行卡号，12 至 19 位数字 }
+      responses:
+        '200':
+          description: 已提交
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, payee, text]
+                properties:
+                  ok: { type: boolean }
+                  payee: { $ref: '#/components/schemas/PayeeSubmitted' }
+                  text: { type: string, description: 提示语，如"已提交，平台公司财务将人工转账，到账后通知你" }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+        '503':
+          description: 暂时无法核对户名（SERVER_BUSY）
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+
+  /api/pay/admin/recon:
+    get:
+      operationId: listRecon
+      summary: 每日收单对账列表
+      description: 新到旧。当天及次日 02:10 前的日期为"当日未出"（实时计算，不能处理差异）。另返回筛选范围内的合计与口径公式。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.recon.list
+      x-requirements: [R-25, R-18]
+      x-permissions: [recon.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - name: from
+          in: query
+          description: 起始日期（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Date' }
+        - name: to
+          in: query
+          description: 结束日期（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Date' }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ReconStatus' }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 对账分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './_common.yaml#/components/schemas/PageMeta'
+                  - type: object
+                    required: [rows, totals, formula]
+                    properties:
+                      rows:
+                        type: array
+                        items: { $ref: '#/components/schemas/Recon' }
+                      totals: { $ref: '#/components/schemas/ReconTotals' }
+                      formula: { type: string, description: 口径公式，如"应到账 = 订单实收 + 月卡款 − 押金抵扣；差异 = 渠道实到 − 应到账" }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/pay/admin/recon/{dateOrId}:
+    get:
+      operationId: getRecon
+      summary: 某日收单对账详情
+      description: 含当日相关流水（当日完成或当日到账的骑行收入户流水与押金抵扣）。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.recon.get
+      x-requirements: [R-25]
+      x-permissions: [recon.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - name: dateOrId
+          in: path
+          required: true
+          description: 日期（YYYY-MM-DD）或对账编号（RC20261009）
+          schema: { type: string }
+      responses:
+        '200':
+          description: 对账详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Recon'
+                  - type: object
+                    required: [payments]
+                    properties:
+                      payments:
+                        type: array
+                        items: { $ref: '#/components/schemas/Payment' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/pay/admin/recon/{reconId}/diff-items/{index}/handle:
+    post:
+      operationId: handleReconDiff
+      summary: 处理对账差异项
+      description: 写处理说明并把该差异项记为已处理，留痕"处理对账差异"。当日未出的对账不能处理（CONFLICT）。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.recon.handleDiff
+      x-requirements: [R-25, R-47]
+      x-permissions: [recon.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, REASON_REQUIRED, CONFLICT, NOT_FOUND, ALREADY_DONE]
+      parameters:
+        - name: reconId
+          in: path
+          required: true
+          description: 对账编号
+          schema: { type: string, example: RC20261130 }
+        - name: index
+          in: path
+          required: true
+          description: 差异项在 diffItems 中的序号，从 0 起
+          schema: { type: integer, minimum: 0 }
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [note]
+              properties:
+                note:
+                  allOf: [{ $ref: './_common.yaml#/components/schemas/Reason' }]
+                  description: 处理说明，至少 4 个字
+      responses:
+        '200':
+          description: 处理后的对账单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recon' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/pay/admin/refund-failures:
+    get:
+      operationId: listRefundFailures
+      summary: 原路失败的退款与退押
+      description: 失败且还没有成功的人工转账的退款、退押流水。status 为"待用户填写收款账户"或"待转账"。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.refunds.failures
+      x-requirements: [R-11]
+      x-permissions: [refund.manualTransfer]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      responses:
+        '200':
+          description: 退款失败清单
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RefundFailure' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/pay/admin/refund-failures/{paymentId}/transfer:
+    post:
+      operationId: transferRefundManually
+      summary: 录入人工转账
+      description: |
+        财务线下银行转账后录入结果，生成一笔"人工转账退款"或"人工转账退押"流水并发出退款成功事件，留痕"人工转账"。
+        payee 缺省用用户提交的收款账户；用户未提交且未传 payee 时返回 INVALID。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.refunds.transfer
+      x-requirements: [R-11, R-47]
+      x-permissions: [refund.manualTransfer]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, REASON_REQUIRED, NOT_FOUND, CONFLICT, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/PaymentIdPath'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                payee: { $ref: '#/components/schemas/Payee' }
+                tradeNo: { type: string, description: 银行流水号 }
+                reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+      responses:
+        '200':
+          description: 人工转账流水
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payment' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/pay/admin/orders/{orderId}/payments:
+    get:
+      operationId: listOrderPayments
+      summary: 按订单号查流水（管理端）
+      description: AdminOrder 的流水部分，按创建时间升序。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.get
+      x-requirements: [R-12, R-18]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: 订单号
+          schema: { type: string, example: OD2026102613011 }
+      responses:
+        '200':
+          description: 该订单的流水
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Payment' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/pay/admin/users/{userId}/payments:
+    get:
+      operationId: listUserPayments
+      summary: 按用户编号查流水（客服用）
+      description: 客服"用户全貌"的流水部分，两个账户的流水都含，按创建时间新到旧。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, R-18]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 用户编号
+          schema: { type: string, example: U100004 }
+        - name: type
+          in: query
+          schema: { $ref: '#/components/schemas/PaymentType' }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/PaymentStatus' }
+        - name: account
+          in: query
+          schema: { $ref: '#/components/schemas/FundAccount' }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 流水分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './_common.yaml#/components/schemas/PageMeta'
+                  - type: object
+                    required: [rows]
+                    properties:
+                      rows:
+                        type: array
+                        items: { $ref: '#/components/schemas/Payment' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/pay/admin/todos:
+    get:
+      operationId: getPayTodos
+      summary: pay 的待办计数
+      description: 顶栏待办由前端汇总各模块的计数。只返回当前账号有权限且 count 大于 0 的项：待处理对账差异（recon.manage）、退款失败待转账（refund.manualTransfer）。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me
+      x-requirements: [R-25, R-11]
+      x-permissions: [recon.manage, refund.manualTransfer]
+      x-errors: [ADMIN_NOT_LOGGED_IN, SCOPE_DENIED]
+      responses:
+        '200':
+          description: 待办计数
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Todo' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/credit-charges:
+    post:
+      operationId: chargeCreditFree
+      summary: 免押扣款（bill 调用）
+      description: |
+        经微信支付分或芝麻信用对免押用户做后扣款，进骑行收入户，记一笔"订单扣款"。
+        同一业务单号（bizNo）的扣款只成功一次；同一 Idempotency-Key 重复到达返回首次结果。
+        结果未知时本模块会向渠道查询补齐，补齐后发收款成功或收款失败事件。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-09, R-18, R-34]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreditChargeCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/payments:
+    post:
+      operationId: startOneTapPayment
+      summary: 发起一键支付（bill 调用，两步支付的第一步）
+      description: |
+        用户确认支付后，pay 向收单渠道预下单，进骑行收入户（用于订单支付、欠费补付、月卡购买）。
+        本接口**不返回支付成功**：返回 `result` 为"结果未知"（流水状态"处理中"）与调起参数 `payParams`，
+        调用方把 `payParams` 交给前端调起支付；支付结果以事件 `pay.payment.succeeded`、`pay.payment.failed` 为准。
+        同一业务单号已有待支付的流水时不重复下单，返回该流水与原 `payParams`（同一 Idempotency-Key 重复到达亦然）。
+        调起参数在 `payParams.expiresAt` 前有效，到期仍未支付的流水记失败并发 `pay.payment.failed`（失败原因"用户未在时限内完成支付"）。
+        渠道直接拒绝预下单时 result 为"失败"。
+        模拟渠道（PAY_CHANNEL_MODE=mock）下，pay 在可配置延迟（PAY_MOCK_CALLBACK_DELAY）后自动模拟渠道回调，按该用户的模拟行为出成功或失败；真实渠道由渠道回调与定时查询得到结果。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-09, R-18, BR-05]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OneTapPaymentCommand' }
+      responses:
+        '200':
+          description: 待用户支付（结果未知，带 payParams）；渠道拒绝预下单时为失败
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/one-tap-payments:
+    post:
+      operationId: startOneTapPaymentLegacy
+      summary: 发起一键支付（旧路径，已弃用）
+      description: 与 `POST /internal/pay/payments` 完全相同，只为兼容旧调用方，调用方应改用新路径。
+      deprecated: true
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-09, R-18, BR-05]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OneTapPaymentCommand' }
+      responses:
+        '200':
+          description: 同 startOneTapPayment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/refunds:
+    post:
+      operationId: refundOrderPayment
+      summary: 退款（bill 调用）
+      description: |
+        按订单原路退回，可部分退；该订单累计退款不超过渠道已收。记一笔"退款"流水。
+        原路失败时 result 为失败，流水留在"退款失败"清单，等用户提交收款账户后由财务人工转账。
+        该订单已被全额退过（累计退款已等于渠道已收）再退，返回 409 `CONFLICT`；未退完但本次金额超过剩余可退时仍返回 200，result 为失败、failCode 为 EXCEED_RECEIVED。
+        每笔退款留痕动作"执行退款"（操作人取请求里的 actor，缺省为系统）。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [BR-06, R-11, R-18]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, CONFLICT]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefundCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /internal/pay/deposit-charges:
+    post:
+      operationId: chargeDeposit
+      summary: 押金收款（deposit 调用）
+      description: 经押金商户号收款，进押金专户。用于押金缴纳与押金补缴。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-15, R-18]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepositChargeCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/deposit-refunds:
+    post:
+      operationId: refundDepositPayment
+      summary: 退押（deposit 调用）
+      description: |
+        从押金专户原路退回给用户本人，记一笔"退押"流水。渠道受理后到账前 result 为结果未知（流水状态"处理中"），
+        到账或失败后发退款成功或退款失败事件。原路失败的留在"退款失败"清单，等人工转账。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-17, R-18, R-11]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepositRefundCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /internal/pay/deposit-transfers:
+    post:
+      operationId: transferDepositToIncome
+      summary: 专户划转（deposit 调用）
+      description: 押金抵扣本人未付骑行费时，从押金专户划入骑行收入户，记一笔方向为"转"的"押金抵扣"流水。这是押金专户除退给本人外的唯一出口。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [BR-22, R-18]
+      x-errors: [UNAUTHORIZED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepositTransferCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/pay/payments/{paymentId}/confirm:
+    post:
+      operationId: confirmPaymentResult
+      summary: 确认收款结果（ops 调用）
+      description: |
+        结果未知的扣款向渠道查询后仍未知时，由运维在恢复闭合页人工确认。确认"已收款"发收款成功事件，"未收款"发收款失败事件。
+        该流水不在结果未知状态时 result 为失败（failCode 为 NOT_PENDING）。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-34, BR-32]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, REASON_REQUIRED]
+      parameters:
+        - $ref: '#/components/parameters/PaymentIdPath'
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmResultCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayCommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/pay/admin/income-summary:
+    get:
+      operationId: adminGetIncomeSummary
+      summary: 骑行收入户汇总
+      description: 押金专户页并排显示骑行收入时用。押金专户的汇总在 deposit。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.deposit.summary
+      x-requirements: [R-18, R-25]
+      x-permissions: [deposit.view, recon.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      responses:
+        '200':
+          description: 骑行收入户累计
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rideIncomeNet, received, refunded, monthCardIncome, asOf]
+                properties:
+                  rideIncomeNet: { $ref: './_common.yaml#/components/schemas/Money' }
+                  received: { $ref: './_common.yaml#/components/schemas/Money' }
+                  refunded: { $ref: './_common.yaml#/components/schemas/Money' }
+                  monthCardIncome: { $ref: './_common.yaml#/components/schemas/Money' }
+                  asOf: { $ref: './_common.yaml#/components/schemas/Time' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+components:
+  parameters:
+    PaymentIdPath:
+      name: paymentId
+      in: path
+      required: true
+      description: 流水号
+      schema: { type: string, example: PY20260908124428281 }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键，模块间命令必带；重复到达只执行一次并返回首次结果
+      schema: { type: string, maxLength: 64 }
+
+  schemas:
+    PaymentType:
+      type: string
+      description: 流水类型
+      enum: [订单扣款, 订单支付, 欠费补付, 月卡购买, 退款, 人工转账退款, 押金缴纳, 押金补缴, 押金抵扣, 退押, 人工转账退押]
+    FundAccount:
+      type: string
+      description: 所属账户
+      enum: [骑行收入户, 押金专户]
+    PaymentDirection:
+      type: string
+      description: 方向；转为押金专户划入骑行收入户
+      enum: [收, 付, 转]
+    PaymentChannel:
+      type: string
+      description: 渠道
+      enum: [微信支付, 支付宝, 银行转账, 押金专户划转]
+    CollectChannel:
+      type: string
+      description: 收单渠道
+      enum: [微信支付, 支付宝]
+    PaymentStatus:
+      type: string
+      description: 流水状态；处理中含结果未知
+      enum: [成功, 失败, 处理中]
+    ReconStatus:
+      type: string
+      enum: [平, 差异已处理, 差异待处理, 当日未出]
+
+    Payee:
+      type: object
+      description: 收款人（本人实名）
+      required: [name, bank, account]
+      properties:
+        name: { type: string, description: 户名 }
+        bank: { type: string, description: 开户银行 }
+        account: { type: string, description: 账号 }
+
+    PayeeSubmitted:
+      type: object
+      description: 用户提交的本人收款账户（脱敏，账号只留尾号）
+      required: [name, bank, account, submittedAt]
+      properties:
+        name: { type: string, description: 脱敏户名 }
+        bank: { type: string }
+        account: { type: string, description: 只留尾号的账号 }
+        submittedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+
+    UserPayment:
+      type: object
+      description: 用户本人看的流水
+      required: [paymentId, type, amount, channel, status, createdAt]
+      properties:
+        paymentId: { type: string }
+        type: { $ref: '#/components/schemas/PaymentType' }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 金额，正数
+        channel: { $ref: '#/components/schemas/PaymentChannel' }
+        status: { $ref: '#/components/schemas/PaymentStatus' }
+        failReason: { type: string, nullable: true, description: 失败原因，如"用户支付账户余额不足" }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        completedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 完成时刻，只在成功时有值
+
+    Payment:
+      type: object
+      description: 资金流水
+      required: [paymentId, type, account, direction, amount, channel, status, createdAt]
+      properties:
+        paymentId: { type: string, example: PY20260908124428281 }
+        type: { $ref: '#/components/schemas/PaymentType' }
+        account: { $ref: '#/components/schemas/FundAccount' }
+        direction: { $ref: '#/components/schemas/PaymentDirection' }
+        userId: { type: string, nullable: true }
+        orderId: { type: string, nullable: true }
+        cardId: { type: string, nullable: true, description: 月卡编号（月卡购买） }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 金额，正数
+        channel: { $ref: '#/components/schemas/PaymentChannel' }
+        channelTradeNo: { type: string, nullable: true, description: 渠道交易号 }
+        status: { $ref: '#/components/schemas/PaymentStatus' }
+        failReason: { type: string, nullable: true }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        completedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 完成时刻，只在成功时有值
+        channelSettledDate:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Date' }]
+          description: 渠道到账日；跨日到账为次日；渠道未到账为 null
+        relatedPaymentId: { type: string, nullable: true, description: 退款指向原支付；人工转账指向失败的原路退款 }
+        ticketId: { type: string, nullable: true, description: 发起工单号 }
+        operatorAccountId: { type: string, nullable: true, description: 操作人账号编号 }
+        payee:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/Payee' }]
+          description: 人工转账收款人
+        payeeSubmitted:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayeeSubmitted' }]
+          description: 原路退回失败后用户填写的收款账户；有值即可人工转账
+        note: { type: string, nullable: true }
+
+    ReconDiffItem:
+      type: object
+      description: 差异项
+      required: [type, amount, status]
+      properties:
+        type:
+          type: string
+          enum: [人工转账退款不经收单渠道, 跨日到账, 渠道未到账]
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 差异金额，可为负
+        paymentId: { type: string, nullable: true }
+        orderId: { type: string, nullable: true }
+        status: { type: string, enum: [已处理, 待处理] }
+        handledBy: { type: string, nullable: true, description: 处理人账号编号（对账智能体或财务） }
+        note: { type: string, nullable: true, description: 处理说明 }
+
+    Recon:
+      type: object
+      description: |
+        每日收单对账，按资金事件发生日。
+        订单实收 = 订单渠道收款 + 押金抵扣 − 原路退款 − 人工转账退款；应到账 = 订单实收 + 月卡款 − 押金抵扣；差异 = 渠道实到 − 应到账 = 各差异项之和。
+      required: [reconId, date, channelActual, orderPayments, depositDeducted, refundsOriginal, refundsManual, orderNetReceived, monthCardIncome, expected, diff, diffItems, status]
+      properties:
+        reconId: { type: string, example: RC20261009 }
+        date: { $ref: './_common.yaml#/components/schemas/Date' }
+        generatedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 出具时刻（次日 02:10）；当日未出为 null
+        channelActual:
+          type: object
+          description: 渠道实到，按渠道到账日汇总的净额（收为正、退为负）
+          required: [wechat, alipay, total]
+          properties:
+            wechat: { $ref: './_common.yaml#/components/schemas/Money' }
+            alipay: { $ref: './_common.yaml#/components/schemas/Money' }
+            total: { $ref: './_common.yaml#/components/schemas/Money' }
+        orderPayments:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 订单渠道收款（订单扣款、订单支付、欠费补付）
+        depositDeducted:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 押金抵扣
+        refundsOriginal:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 原路退款
+        refundsManual:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 人工转账退款
+        orderNetReceived:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 订单实收
+        monthCardIncome:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 月卡款
+        expected:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 应到账
+        diff:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 差异，可为负
+        diffItems:
+          type: array
+          items: { $ref: '#/components/schemas/ReconDiffItem' }
+        status: { $ref: '#/components/schemas/ReconStatus' }
+
+    ReconTotals:
+      type: object
+      description: 筛选范围内的合计
+      required: [channelActual, orderNetReceived, monthCardIncome, depositDeducted, expected, diff]
+      properties:
+        channelActual: { $ref: './_common.yaml#/components/schemas/Money' }
+        orderNetReceived: { $ref: './_common.yaml#/components/schemas/Money' }
+        monthCardIncome: { $ref: './_common.yaml#/components/schemas/Money' }
+        depositDeducted: { $ref: './_common.yaml#/components/schemas/Money' }
+        expected: { $ref: './_common.yaml#/components/schemas/Money' }
+        diff: { $ref: './_common.yaml#/components/schemas/Money' }
+
+    RefundFailure:
+      type: object
+      description: 原路失败的退款或退押（只含 pay 持有的部分）
+      required: [paymentId, type, userId, amount, createdAt, status]
+      properties:
+        paymentId: { type: string }
+        type: { type: string, enum: [退款, 退押] }
+        userId: { type: string }
+        orderId: { type: string, nullable: true }
+        amount: { $ref: './_common.yaml#/components/schemas/Money' }
+        failReason: { type: string, nullable: true, description: 如"原支付账户已注销" }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        ticketId: { type: string, nullable: true }
+        payeeSubmitted:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayeeSubmitted' }]
+        status: { type: string, enum: [待用户填写收款账户, 待转账] }
+
+    Todo:
+      type: object
+      required: [key, label, count]
+      properties:
+        key: { type: string, enum: [recon, refundFail], description: 待办标识；recon 为待处理对账差异，refundFail 为退款失败待转账 }
+        label: { type: string, example: 待处理对账差异 }
+        count: { type: integer }
+        menu: { type: string, description: 对应菜单名, example: 收单对账 }
+
+    CreditChargeCommand:
+      type: object
+      required: [bizNo, userId, orderId, amount, channel]
+      properties:
+        bizNo: { type: string, description: 业务单号（账单编号），同一业务单号只成功扣款一次 }
+        userId: { type: string }
+        orderId: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 扣款金额，大于 0
+        channel: { $ref: '#/components/schemas/CollectChannel' }
+
+    OneTapPaymentCommand:
+      type: object
+      required: [bizNo, type, userId, amount, channel]
+      properties:
+        payerOpenId: { type: string, description: 付款人的微信 openid；真实渠道微信支付预下单必填，模拟渠道可不带 }
+        bizNo: { type: string, description: 业务单号（账单编号或月卡编号），同一业务单号只成功收款一次 }
+        type: { type: string, enum: [订单支付, 欠费补付, 月卡购买] }
+        userId: { type: string }
+        orderId: { type: string, description: 订单支付、欠费补付时必填 }
+        cardId: { type: string, description: 月卡购买时必填 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 收款金额，大于 0
+        channel: { $ref: '#/components/schemas/CollectChannel' }
+
+    RefundCommand:
+      type: object
+      required: [userId, orderId, amount]
+      properties:
+        userId: { type: string }
+        orderId: { type: string, description: 原路退回到该订单的收款流水 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 退款金额，大于 0，该订单累计退款不超过渠道已收
+        ticketId: { type: string, description: 发起工单号 }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+        reason: { type: string, description: 退款事由 }
+
+    DepositChargeCommand:
+      type: object
+      required: [bizNo, type, userId, amount, channel]
+      properties:
+        bizNo: { type: string, description: 业务单号（deposit 的缴纳或补缴记录编号） }
+        type: { type: string, enum: [押金缴纳, 押金补缴] }
+        userId: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 收款金额，大于 0
+        channel: { $ref: '#/components/schemas/CollectChannel' }
+
+    DepositRefundCommand:
+      type: object
+      required: [bizNo, userId, amount, originalPaymentIds]
+      properties:
+        bizNo: { type: string, description: 业务单号（deposit 的退押申请编号） }
+        userId: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 退押金额（押金余额）
+        originalPaymentIds:
+          type: array
+          description: 原押金缴纳与补缴流水号，按此原路退回
+          minItems: 1
+          items: { type: string }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+
+    DepositTransferCommand:
+      type: object
+      required: [bizNo, userId, orderId, amount]
+      properties:
+        bizNo: { type: string, description: 业务单号（deposit 的抵扣记录编号） }
+        userId: { type: string }
+        orderId: { type: string, description: 被抵扣未付骑行费的订单 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 划转金额，大于 0
+
+    ConfirmResultCommand:
+      type: object
+      required: [result, reason, actor]
+      properties:
+        result: { type: string, enum: [已收款, 未收款], description: 人工确认的收款结果 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+
+    PayParams:
+      type: object
+      description: 调起支付的参数（一键支付第一步返回）。bill 原样交给前端，前端按 channel 调起微信支付或支付宝。
+      required: [paymentId, channel, mode, expiresAt, params]
+      properties:
+        paymentId: { type: string, description: 本次支付对应的流水号，也是渠道侧的商户订单号 }
+        channel: { $ref: '#/components/schemas/CollectChannel' }
+        mode:
+          type: string
+          enum: [mock, real]
+          description: 渠道模式；mock 为联调用模拟渠道，前端无需真调起，pay 会在延迟后自动回调
+        expiresAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        params:
+          type: object
+          additionalProperties: true
+          description: |
+            渠道调起参数。微信支付（JSAPI）：appId、timeStamp、nonceStr、package、signType、paySign；
+            支付宝：tradeNO；mock：prepayId 与说明文字。字段名以各渠道官方调起参数为准。
+
+    PayCommandResult:
+      type: object
+      description: |
+        模块间命令的结果。成功：钱已到位，completedAt 有值。失败：看 failCode 与 failReason，没有动钱。
+        结果未知：渠道没有返回或已受理未到账，流水状态为"处理中"，最终结果以收款成功、收款失败、退款成功、退款失败事件为准；用同一 Idempotency-Key 再次调用可取到最新结果。
+      required: [result, paymentId]
+      properties:
+        result: { type: string, enum: [成功, 失败, 结果未知] }
+        failCode:
+          type: string
+          nullable: true
+          description: |
+            失败原因分类。DECLINED 渠道拒绝（如余额不足）；CHANNEL_FAILED 原路退回失败（如原支付账户已注销）；
+            EXCEED_RECEIVED 累计退款超过已收；ALREADY_PAID 同一业务单号已成功；NOT_PENDING 该流水不在结果未知状态
+          enum: [DECLINED, CHANNEL_FAILED, EXCEED_RECEIVED, ALREADY_PAID, NOT_PENDING]
+        failReason: { type: string, nullable: true, description: 一句失败原因，可直接展示，如"用户支付账户余额不足" }
+        paymentId: { type: string, description: 流水号 }
+        type: { $ref: '#/components/schemas/PaymentType' }
+        account: { $ref: '#/components/schemas/FundAccount' }
+        amount: { $ref: './_common.yaml#/components/schemas/Money' }
+        status: { $ref: '#/components/schemas/PaymentStatus' }
+        completedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+        payParams:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayParams' }]
+          description: 仅一键支付第一步（POST /internal/pay/payments）在待用户支付时有值；其余命令与已出结果的流水为 null

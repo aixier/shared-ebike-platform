@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · 公共结构
+  version: 1.0.0
+  description: 各模块 swagger 共同引用的结构。本文件没有接口。
+paths: {}
+components:
+  securitySchemes:
+    userAuth:
+      type: http
+      scheme: bearer
+      description: 骑行用户令牌，acct 签发，各模块自行校验
+    adminAuth:
+      type: http
+      scheme: bearer
+      description: 管理端与执法令牌，iam 签发，内含岗位、权限点、数据范围
+    internalAuth:
+      type: http
+      scheme: bearer
+      description: 模块间调用凭证，装配层注入
+    operatorSign:
+      type: apiKey
+      in: header
+      name: X-Signature
+      description: 运营商请求签名；另带 X-App-Id、X-Timestamp、X-Nonce
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+    SortKey:
+      name: sortKey
+      in: query
+      schema: { type: string }
+    SortDir:
+      name: sortDir
+      in: query
+      schema: { type: string, enum: [asc, desc] }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: 幂等键；重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+  schemas:
+    Money:
+      type: integer
+      format: int64
+      description: 金额，单位分
+      example: 450
+    Time:
+      type: string
+      format: date-time
+      description: RFC 3339，带时区
+      example: '2026-12-01T12:00:00+08:00'
+    Date:
+      type: string
+      format: date
+      example: '2026-12-01'
+    Month:
+      type: string
+      pattern: '^\d{4}-\d{2}$'
+      example: '2026-11'
+    Location:
+      type: array
+      description: '[经度, 纬度]，GCJ-02'
+      minItems: 2
+      maxItems: 2
+      items: { type: number }
+      example: [104.0657, 30.6595]
+    Actor:
+      type: object
+      description: 操作人
+      required: [kind, id]
+      properties:
+        kind: { type: string, enum: [人, 智能体, 系统, 用户] }
+        id: { type: string, description: 账号编号或用户编号 }
+        name: { type: string }
+    Reason:
+      type: string
+      minLength: 4
+      description: 操作事由，至少 4 个字
+    PageMeta:
+      type: object
+      required: [total, page, pageSize]
+      properties:
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+    Next:
+      type: object
+      description: 失败后的一个下一步
+      required: [label, action]
+      properties:
+        label: { type: string }
+        action:
+          type: string
+          enum: [retry, login, onboarding, verifyRealName, unfreezeGuide, rescan, viewNearby, payArrears, payOrder, openCreditFree, payDeposit, topupDeposit, refundDeposit, goRide, viewArrears, viewDeposit, viewOrders, navStation, lockBeside, resolveBlockers, contactCS, close]
+        params: { type: object, additionalProperties: true }
+    Blocker:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, enum: [HAS_RIDING, HAS_ARREARS, UNPAID_ORDER, DEPOSIT_NOT_REFUNDED, DEPOSIT_REFUNDING] }
+        message: { type: string }
+        next: { $ref: '#/components/schemas/Next' }
+        orderId: { type: string }
+        amount: { $ref: '#/components/schemas/Money' }
+    Error:
+      type: object
+      required: [code, message]
+      description: 统一错误。各错误码的附加字段见原型 API.md 第 2 节，随 additionalProperties 返回
+      properties:
+        code: { type: string, example: HAS_ARREARS }
+        message: { type: string, description: 一句原因，可直接展示 }
+        charged: { type: boolean, description: 用户侧失败必有：是否产生费用 }
+        next: { $ref: '#/components/schemas/Next' }
+        blockers:
+          type: array
+          items: { $ref: '#/components/schemas/Blocker' }
+        errors:
+          type: array
+          description: 逐项校验错误
+          items:
+            type: object
+            properties:
+              row: { type: integer }
+              field: { type: string }
+              message: { type: string }
+      additionalProperties: true
+    Ok:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+  responses:
+    BadRequest:
+      description: 请求有误（INVALID、REASON_REQUIRED 等）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: 未登录或登录失效（NOT_LOGGED_IN、ADMIN_NOT_LOGGED_IN；内部接口服务凭证无效为 UNAUTHORIZED）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: 无权限或越出数据范围（FORBIDDEN、SCOPE_DENIED、READONLY）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: 没有找到（NOT_FOUND）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: 业务上不允许（各业务错误码，见接口的 x-errors）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

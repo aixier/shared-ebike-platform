@@ -1,0 +1,1136 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · bill 计费与权益
+  version: 1.0.0
+  description: |
+    bill 持有账单、计费明细、月卡、优惠券、权益抵扣、支付期限、欠费。
+    只返回本模块持有的部分：订单的行程部分由 ride 给，流水由 pay 给，押金由 deposit 给，姓名与手机号由 acct 给，页面由前端分别调用后拼装。
+    金额一律整数分，时间 RFC 3339。
+    请求体必须是 UTF-8，否则 400 INVALID（"请求体不是 UTF-8 编码"）。
+    本模块目前没有管理端（adminAuth）写接口；将来新增的管理端写接口一律在 `readonly=true` 的令牌、或其 `scope` 属于已退出运营商（订阅 `fleet.operator.exited`）时返回 403 READONLY。
+    内部接口（/internal）凭证无效返回 401 UNAUTHORIZED。
+tags:
+  - name: 用户端
+  - name: 财务
+  - name: 客服
+  - name: 公共
+  - name: 内部
+paths:
+  /api/bill/me/summary:
+    get:
+      operationId: getMyBillSummary
+      summary: 我的账户摘要（欠费、待付订单号、生效月卡、可用券数）
+      description: UserView 中归 bill 的部分。前端与 acct、deposit、ride 的结果拼成完整的"我的"。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.me
+      x-requirements: [R-09, R-12, BR-05]
+      x-errors: [NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 账户摘要
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BillSummary' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/bill/me/orders:
+    get:
+      operationId: listMyOrderBills
+      summary: 按订单号列表批量查我的订单费用部分
+      description: 前端先从 ride 取到一页订单，再用这一页的订单号来这里取费用部分。还没有账单的订单（开锁失败、骑行中）不在 rows 里，订单号列在 missing。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.orders
+      x-requirements: [R-12, R-09]
+      x-errors: [NOT_LOGGED_IN, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/OrderIds'
+      responses:
+        '200':
+          description: 费用部分列表
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderBillBatch' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /api/bill/me/orders/{orderId}:
+    get:
+      operationId: getMyOrderBill
+      summary: 按订单号查我的订单费用部分
+      description: 返回 fee、逐行账单明细、支付状态、支付方式、退款状态。订单不是本人的或还没有账单时返回 NOT_FOUND。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.order
+      x-requirements: [R-12, R-09, BR-03, BR-07, BR-14]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+      responses:
+        '200':
+          description: 订单费用部分
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderBill' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/me/orders/{orderId}/estimate:
+    get:
+      operationId: getMyRideEstimate
+      summary: 骑行中订单的实时费用估算
+      description: |
+        RideView 中归 bill 的部分。骑行中页轮询 ride 拿到开锁时刻与规则版本号后带到这里，bill 按该版本与当前生效月卡估算。
+        只是估算，不落账；出账以订单结束事件为准。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.ride
+      x-requirements: [R-08, BR-14, R-09]
+      x-errors: [NOT_LOGGED_IN, INVALID, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+        - name: startAt
+          in: query
+          required: true
+          description: 计费起点（ride 返回的 startAt）
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: pricingVersionId
+          in: query
+          required: true
+          description: 开锁时刻有效的规则版本号（ride 返回）
+          schema: { type: string, example: PR0003 }
+      responses:
+        '200':
+          description: 实时估算
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideEstimate' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/me/orders/{orderId}/pay-intent:
+    post:
+      operationId: createOrderPayIntent
+      summary: 一键支付第一步：生成调起参数（待支付）或补付（欠费）
+      description: |
+        一键支付分两步。第一步（本接口）按该单未付金额向 pay 发起一笔支付，返回调起参数 `payParams`（由 pay 生成，bill 原样透传，不解读）；
+        第二步由前端用 `payParams` 调起微信或支付宝收银台，支付结果**以 `pay.payment.succeeded` 事件为准**，前端回到本服务查账单（`GET /api/bill/me/orders/{orderId}`）看 `payStatus`。
+        该单已有一笔未了结的调起（`payParams` 非空且未到期）时重复调用返回同一份 `payParams`，不重复发起。
+        模拟渠道（pay 的 mock 开关）下 pay 可能直接返回成功：此时 `paid` 为 true、`payParams` 为 null，账单已更新。
+        扣款结果未知且没有调起参数、或同一单有免押扣款与押金抵扣在途时返回 CONFLICT，稍后再试；渠道拒绝返回 PAY_DECLINED。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.pay
+      x-requirements: [R-09, BR-05]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, NOTHING_TO_PAY, CONFLICT, PAY_DECLINED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 调起参数（或模拟渠道下已直接付清）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayIntentResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/bill/me/orders/{orderId}/pay:
+    post:
+      operationId: payMyOrder
+      deprecated: true
+      summary: 同 pay-intent（旧路径，保留一个版本）
+      description: 与 `pay-intent` 完全相同，响应是 PayIntentResult（旧响应字段 bill、paymentId、amount 仍在）。新代码用 `pay-intent`。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.pay
+      x-requirements: [R-09, BR-05]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, NOTHING_TO_PAY, CONFLICT, PAY_DECLINED, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 同 pay-intent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayIntentResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/bill/me/arrears/pay-intent:
+    post:
+      operationId: createArrearsPayIntent
+      summary: 一键补付全部欠费（逐单生成调起参数）
+      description: |
+        对每一张欠费单各发起一笔"欠费补付"，逐单返回调起参数（`intents`）；结果未知且无调起参数的单跳过。
+        真实渠道下 `paid` 为 0、`bills` 为空，`intents` 里每单一份 `payParams`，支付结果以 `pay.payment.succeeded` 事件为准，结清后发"欠费结清"，是否解冻由 acct 决定。
+        模拟渠道直接成功的单进 `bills` 并计入 `paid`。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.payArrears
+      x-requirements: [BR-05, R-14, R-09]
+      x-errors: [NOT_LOGGED_IN, NOTHING_TO_PAY, CONFLICT, PAY_DECLINED, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 各欠费单的调起参数与已直接补付的单
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayArrearsResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/bill/me/arrears/pay:
+    post:
+      operationId: payMyArrears
+      deprecated: true
+      summary: 同 arrears/pay-intent（旧路径，保留一个版本）
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.payArrears
+      x-requirements: [BR-05, R-14, R-09]
+      x-errors: [NOT_LOGGED_IN, NOTHING_TO_PAY, CONFLICT, PAY_DECLINED, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 同 arrears/pay-intent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PayArrearsResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/bill/me/month-cards:
+    get:
+      operationId: getMyMonthCards
+      summary: 月卡规则与我的月卡
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.monthCard.get
+      x-requirements: [R-02, R-09, BR-07]
+      x-errors: [NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 现行月卡规则与本人月卡（按生效时间新到旧）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MonthCardPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+    post:
+      operationId: buyMonthCard
+      summary: 购买月卡
+      description: |
+        价格取现行规则。有未到期的月卡时新卡顺延，状态为"未生效"。
+        同一用户上一次购买款还没有结果时返回 CONFLICT。真实渠道下返回 `payState` 为"待支付"的卡与 `payParams`，款到后才生效；模拟渠道直接返回已支付。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.monthCard.buy
+      x-requirements: [R-02, R-09]
+      x-errors: [NOT_LOGGED_IN, ACCOUNT_FROZEN, NEED_ONBOARDING, CONFLICT, PAY_DECLINED, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: 新月卡
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MonthCard' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/bill/me/coupons:
+    get:
+      operationId: listMyCoupons
+      summary: 我的优惠券
+      description: 未使用在前，按到期时间升序。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.coupons.list
+      x-requirements: [R-02, BR-07]
+      x-errors: [NOT_LOGGED_IN, INVALID]
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/CouponStatus' }
+      responses:
+        '200':
+          description: 优惠券列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Coupon' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+    post:
+      operationId: claimCoupon
+      summary: 领取优惠券
+      description: 只有"用户领取"类券可领，每周五 17:00 至周日开放，每期每人一张。
+      tags: [用户端]
+      security: [{ userAuth: [] }]
+      x-prototype: api.user.coupons.claim
+      x-requirements: [R-02]
+      x-errors: [NOT_LOGGED_IN, NOT_FOUND, COUPON_NOT_OPEN, COUPON_LIMIT, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [templateId]
+              properties:
+                templateId: { type: string, description: 券模板编号, example: CPT02 }
+      responses:
+        '200':
+          description: 领到的券
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coupon' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+
+  /api/bill/coupon-templates:
+    get:
+      operationId: listCouponTemplates
+      summary: 现行规则的券模板与能否领取
+      description: 不登录也可查看；未登录时 claimable 为 false，why 为"请先授权登录"。why 用于置灰按钮的说明。
+      tags: [用户端]
+      security: [{ userAuth: [] }, {}]
+      x-prototype: api.user.coupons.templates
+      x-requirements: [R-02]
+      x-errors: []
+      responses:
+        '200':
+          description: 券模板列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CouponTemplate' }
+
+  /api/bill/admin/arrears:
+    get:
+      operationId: listArrears
+      summary: 财务欠费清单
+      description: 每个欠费用户一行，按欠费天数从多到少。姓名、手机号、账户状态由前端按 userId 另查 acct。
+      tags: [财务]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.finance.arrears.list
+      x-requirements: [R-09, BR-05, R-14]
+      x-permissions: [arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 欠费清单
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './_common.yaml#/components/schemas/PageMeta'
+                  - type: object
+                    required: [rows, totals]
+                    properties:
+                      rows:
+                        type: array
+                        items: { $ref: '#/components/schemas/ArrearsRow' }
+                      totals:
+                        type: object
+                        required: [users, amount]
+                        properties:
+                          users: { type: integer, description: 欠费用户数 }
+                          amount:
+                            allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+                            description: 欠费合计
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/bill/admin/orders:
+    get:
+      operationId: listOrderBillsAdmin
+      summary: 按订单号列表批量查订单费用部分（管理端）
+      description: AdminOrder 的费用部分。前端先从 ride 取到一页订单，再用这一页的订单号来取。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.list
+      x-requirements: [R-12, R-09]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/OrderIds'
+      responses:
+        '200':
+          description: 费用部分列表
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderBillBatch' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /api/bill/admin/orders/{orderId}:
+    get:
+      operationId: getOrderBillAdmin
+      summary: 按订单号查订单费用部分（管理端）
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.get
+      x-requirements: [R-12, R-09]
+      x-permissions: [order.view, settlement.manage, ops.monitor, degrade.closure.view, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+      responses:
+        '200':
+          description: 订单费用部分
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderBill' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/users/{userId}/summary:
+    get:
+      operationId: getUserBillSummary
+      summary: 按用户编号查账户摘要（客服用）
+      description: 客服"用户全貌"中的欠费、待付订单号、生效月卡、可用券数。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, BR-05]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: 账户摘要
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BillSummary' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/users/{userId}/bills:
+    get:
+      operationId: listUserBills
+      summary: 按用户编号查账单（客服用）
+      description: 该用户的账单，按出账时间新到旧；可按支付状态筛选（如只看欠费）。
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, R-12]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - name: payStatus
+          in: query
+          schema: { $ref: '#/components/schemas/PayStatus' }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 账单分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './_common.yaml#/components/schemas/PageMeta'
+                  - type: object
+                    required: [rows]
+                    properties:
+                      rows:
+                        type: array
+                        items: { $ref: '#/components/schemas/OrderBill' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/users/{userId}/month-cards:
+    get:
+      operationId: listUserMonthCards
+      summary: 按用户编号查月卡（客服用）
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, R-02]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: 该用户全部月卡（按生效时间新到旧）
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MonthCard' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/users/{userId}/coupons:
+    get:
+      operationId: listUserCoupons
+      summary: 按用户编号查优惠券（客服用）
+      tags: [客服]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.cs.user
+      x-requirements: [R-10, R-02]
+      x-permissions: [user.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND, INVALID]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/CouponStatus' }
+      responses:
+        '200':
+          description: 该用户的优惠券
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Coupon' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/todos:
+    get:
+      operationId: getBillTodos
+      summary: bill 的待办计数
+      description: 顶栏待办由前端汇总各模块的计数。只返回当前账号有权限且 count 大于 0 的项。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me
+      x-requirements: [R-09, R-14]
+      x-permissions: [arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN]
+      responses:
+        '200':
+          description: 待办计数
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Todo' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+
+  /internal/bill/refunds:
+    post:
+      operationId: refundOrder
+      summary: 退款命令（cs 调用）
+      description: |
+        退不退、退多少由 cs 与人决定，bill 只执行：校验可退金额，调 pay 原路退回，更新账单已退款金额与退款状态。
+        只退渠道已收部分，押金抵扣部分不在线退；累计退款不超过渠道已收。
+        同一 Idempotency-Key 重复到达只执行一次，返回首次的结果。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-10, BR-06, R-11]
+      x-errors: [UNAUTHORIZED, INVALID, NOT_FOUND, REASON_REQUIRED, CONFLICT]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefundCommand' }
+      responses:
+        '200':
+          description: 命令结果（成功、失败带原因、结果未知）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RefundResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /internal/bill/orders/{orderId}:
+    get:
+      operationId: getBillFacts
+      summary: 读账单事实（cs 调用）
+      description: 客服智能体与客服据此提议和确认退款：各项金额、支付状态、可退金额。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-10, BR-06]
+      x-errors: [UNAUTHORIZED, NOT_FOUND]
+      parameters:
+        - $ref: '#/components/parameters/OrderIdPath'
+      responses:
+        '200':
+          description: 账单事实
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BillFacts' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+
+  /api/bill/admin/bills:
+    get:
+      operationId: adminListBillsByPayStatus
+      summary: 按支付状态查账单
+      description: 管理端订单列表要按支付状态筛选时，前端先在这里取订单号，再用订单号批量回查 ride。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.orders.list
+      x-requirements: [R-09, R-12]
+      x-permissions: [order.view, settlement.manage, arrears.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, INVALID]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - name: payStatus
+          in: query
+          description: 支付状态
+          schema: { type: string, enum: [无需支付, 已支付, 待支付, 押金抵扣, 欠费, 欠费已补付] }
+        - { name: from, in: query, description: 账单推送时刻起, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+        - { name: to, in: query, description: 账单推送时刻止, schema: { $ref: './_common.yaml#/components/schemas/Time' } }
+      responses:
+        '200':
+          description: 分页账单摘要
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+                  - type: object
+                    required: [rows]
+                    properties:
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [orderId, userId, payStatus, payable, unpaid]
+                          properties:
+                            orderId: { type: string, description: 订单号 }
+                            userId: { type: string, description: 用户编号 }
+                            payStatus: { type: string, description: 支付状态 }
+                            payable: { $ref: './_common.yaml#/components/schemas/Money' }
+                            unpaid: { $ref: './_common.yaml#/components/schemas/Money' }
+                            billPushedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+components:
+  parameters:
+    OrderIdPath:
+      name: orderId
+      in: path
+      required: true
+      description: 订单号
+      schema: { type: string, example: OD2026102613011 }
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      description: 用户编号
+      schema: { type: string, example: U100004 }
+    OrderIds:
+      name: orderIds
+      in: query
+      required: true
+      description: 订单号列表，逗号分隔，最多 200 个
+      style: form
+      explode: false
+      schema:
+        type: array
+        minItems: 1
+        maxItems: 200
+        items: { type: string }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键，模块间命令必带；重复到达只执行一次并返回首次结果
+      schema: { type: string, maxLength: 64 }
+
+  schemas:
+    PayStatus:
+      type: string
+      description: 支付状态
+      enum: [无需支付, 已支付, 待支付, 押金抵扣, 欠费, 欠费已补付]
+    PayMethod:
+      type: string
+      description: 支付方式
+      enum: [免押自动扣款, 一键支付, 押金抵扣]
+    RefundStatus:
+      type: string
+      description: 退款状态
+      enum: [无, 部分退款, 全额退款, 原路失败·待人工转账]
+    CouponStatus:
+      type: string
+      enum: [未使用, 已使用, 已过期]
+    MonthCardStatus:
+      type: string
+      enum: [生效中, 已过期, 未生效]
+
+    Fee:
+      type: object
+      description: 订单金额各项。恒等式：应付 = 渠道已收 + 押金抵扣 + 未付；订单实收 = 渠道已收 + 押金抵扣 − 已退款
+      required: [rideFee, dispatchFee, receivable, monthCardDeduct, couponDeduct, payable, channelPaid, depositDeducted, unpaid, refunded, netReceived]
+      properties:
+        rideFee:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 骑行费 = 起步价 + 超出起步时长的分钟 × 每分钟价，按开锁时刻有效的规则版本
+        dispatchFee:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 调度费，不在点还车时取该版本调度费，否则 0
+        receivable:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 订单应收 = 骑行费 + 调度费，未扣月卡与优惠券
+        monthCardDeduct:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 月卡抵扣，不超过每单上限，只抵骑行费
+        monthCardId: { type: string, nullable: true, description: 用于抵扣的月卡编号 }
+        couponDeduct:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 优惠券抵扣，每单最多一张，可抵调度费
+        couponId: { type: string, nullable: true, description: 用掉的优惠券编号 }
+        payable:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 应付 = 应收 − 月卡抵扣 − 优惠券；为 0 时无需支付
+        channelPaid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 渠道已收，本单在微信支付、支付宝成功收款之和
+        depositDeducted:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 押金抵扣，支付期限届满未付时从押金专户划转的金额
+        unpaid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 未付 = 应付 − 渠道已收 − 押金抵扣
+        refunded:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 已退款，成功的原路退款与已完成的人工转账退款之和
+        netReceived:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 订单实收 = 渠道已收 + 押金抵扣 − 已退款
+
+    BillLine:
+      type: object
+      description: 账单明细的一行，可直接逐行渲染
+      required: [key, label, amount]
+      properties:
+        key:
+          type: string
+          description: 行标识
+          enum: [rideFee, dispatchFee, monthCardDeduct, couponDeduct, payable, depositDeducted, refunded]
+        label: { type: string, description: 行名称，如"骑行费（18 分钟）""优惠券（绿色出行券）" }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 金额；月卡抵扣、优惠券、已退款为负数
+        note: { type: string, description: 行备注，如"站点外还车" }
+        total: { type: boolean, description: 是否合计行（应付） }
+
+    Bill:
+      type: object
+      description: |
+        逐行账单明细与账单说明。lines 依次为骑行费、调度费、月卡抵扣、优惠券、应付、押金抵扣、已退款，金额为 0 的抵扣行不出现。
+        notes 只含费用方面的说明（站外调度费、超时开锁 0 元、押金抵扣）；桩满桩旁、入桩未锁、客服强制结束等行程说明由 ride 给。
+      required: [lines, billedMinutes, receivable, payable, paid, unpaid, refunded, payStatus, canPay, notes, headline]
+      properties:
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/BillLine' }
+        billedMinutes: { type: integer, description: 计费分钟，向上取整，最少 1；超时后才开锁的单为 0 }
+        durationSec: { type: integer, description: 骑行时长（秒） }
+        receivable:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 订单应收
+        payable:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 应付
+        paid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 已付 = 渠道已收 + 押金抵扣
+        unpaid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 未付
+        refunded:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 已退款
+        payStatus: { $ref: '#/components/schemas/PayStatus' }
+        payMethod:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayMethod' }]
+        payDeadline:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 一键支付期限（账单推送时刻 + 支付期限），只在待支付时有值
+        canPay: { type: boolean, description: 现在能否支付：待支付或欠费、未付大于 0、且没有结果未知的扣款 }
+        couponName: { type: string, nullable: true, description: 用掉的优惠券名称 }
+        monthCardId: { type: string, nullable: true, description: 用于抵扣的月卡编号 }
+        notes:
+          type: array
+          description: 账单说明
+          items: { type: string }
+        headline: { type: string, description: 结束页大字，如"已自动扣款 ¥8.0""应付 ¥13.0""本单无需支付" }
+
+    OrderBill:
+      type: object
+      description: 订单的费用部分（UserOrder、AdminOrder 中归 bill 的字段）
+      required: [orderId, feeLater, statusText]
+      properties:
+        orderId: { type: string, description: 订单号 }
+        userId: { type: string, description: 用户编号；只在管理端接口返回 }
+        pricingVersionId: { type: string, description: 计价所用规则版本号（开锁时刻有效的版本） }
+        billedMinutes: { type: integer, nullable: true, description: 计费分钟 }
+        billPushedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 账单推送时刻；降级单为恢复后补算出账的时刻
+        fee:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/Fee' }]
+          description: 金额各项；降级单待收取时为 null
+        bill:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/Bill' }]
+          description: 逐行账单明细；没有金额时为 null
+        payStatus:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayStatus' }]
+        payMethod:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayMethod' }]
+        arrearsPaidAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 欠费补付时刻
+        refundStatus:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/RefundStatus' }]
+        refundFailedPaymentId: { type: string, nullable: true, description: 原路退款失败的流水号；用户据此向 pay 提交收款账户 }
+        degraded: { type: boolean, description: 是否降级单 }
+        feeLater: { type: boolean, description: 费用将稍后收取（降级单尚未出账）；为 true 时页面显示"费用将稍后收取"而不是 0 }
+        statusText: { type: string, description: 费用状态一句话，如"已支付""待支付""欠费""已从押金抵扣""已部分退款""费用将稍后收取""超时未开锁 · 0 元" }
+
+    OrderBillBatch:
+      type: object
+      required: [rows, missing]
+      properties:
+        rows:
+          type: array
+          items: { $ref: '#/components/schemas/OrderBill' }
+        missing:
+          type: array
+          description: 还没有账单（开锁失败、骑行中）或无权查看的订单号
+          items: { type: string }
+
+    RideEstimate:
+      type: object
+      description: 骑行中订单的实时费用估算（RideView 中归 bill 的字段）
+      required: [orderId, asOf, elapsedSec, liveBilledMinutes, liveRideFee, liveMonthCardDeduct, liveEstimate]
+      properties:
+        orderId: { type: string }
+        pricingVersionId: { type: string, description: 估算所用规则版本号 }
+        asOf:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 估算时刻（服务器时间）
+        elapsedSec: { type: integer, description: 已骑行秒数 }
+        liveBilledMinutes: { type: integer, description: 按当前时刻算的计费分钟 }
+        liveRideFee:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 当前骑行费
+        liveMonthCardDeduct:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 当前月卡可抵金额
+        liveEstimate:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 预计应付 = 当前骑行费 − 月卡可抵；不含调度费与优惠券（还车后才确定）
+
+    ActiveMonthCard:
+      type: object
+      description: 当前生效的月卡
+      required: [cardId, perOrderCap, startAt, endAt, status]
+      properties:
+        cardId: { type: string }
+        perOrderCap:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 每单最多抵扣
+        startAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        endAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        status: { $ref: '#/components/schemas/MonthCardStatus' }
+
+    BillSummary:
+      type: object
+      description: 账户摘要（UserView 中归 bill 的字段）
+      required: [userId, arrears, arrearsOrderIds, unpaidOrderIds, monthCard, usableCouponCount]
+      properties:
+        userId: { type: string }
+        arrears:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 当前欠费合计 = 本人欠费订单未付之和
+        arrearsOrderIds:
+          type: array
+          description: 欠费订单号
+          items: { type: string }
+        unpaidOrderIds:
+          type: array
+          description: 待支付（一键支付期限内）订单号
+          items: { type: string }
+        monthCard:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/ActiveMonthCard' }]
+          description: 当前生效的月卡，没有为 null
+        usableCouponCount: { type: integer, description: 未使用且未到期的券数 }
+
+    PayParams:
+      type: object
+      nullable: true
+      description: 调起参数，由 pay 生成、bill 原样透传，前端用它调起微信或支付宝收银台；bill 不解读其内容。已直接付清（模拟渠道）时为 null
+      additionalProperties: true
+    PayIntent:
+      type: object
+      required: [orderId, paymentId, amount, payParams]
+      properties:
+        orderId: { type: string }
+        paymentId: { type: string, nullable: true, description: pay 的收款流水号 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 本次支付金额 = 该单未付
+        payParams: { $ref: '#/components/schemas/PayParams' }
+    PayIntentResult:
+      type: object
+      description: 一键支付第一步的结果。旧字段 bill、paymentId、amount 保持
+      required: [orderId, bill, paymentId, amount, payParams, paid]
+      properties:
+        orderId: { type: string }
+        bill: { $ref: '#/components/schemas/OrderBill' }
+        paymentId: { type: string, nullable: true, description: 收款流水号 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 本次支付金额 = 该单未付
+        payParams: { $ref: '#/components/schemas/PayParams' }
+        paid: { type: boolean, description: 是否已直接付清（模拟渠道）；真实渠道恒为 false，以支付成功事件后的账单为准 }
+    PayArrearsResult:
+      type: object
+      required: [paid, bills, intents, summary]
+      properties:
+        paid:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 本次已直接补付的合计（真实渠道为 0）
+        bills:
+          type: array
+          description: 已直接补付的各单
+          items: { $ref: '#/components/schemas/OrderBill' }
+        intents:
+          type: array
+          description: 等待调起支付的各单（带调起参数）
+          items: { $ref: '#/components/schemas/PayIntent' }
+        summary: { $ref: '#/components/schemas/BillSummary' }
+    MonthCardRule:
+      type: object
+      description: 现行月卡规则
+      required: [price, days, perOrderCap, text]
+      properties:
+        price:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 售价
+        days: { type: integer, description: 有效天数 }
+        perOrderCap:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 每单最多抵扣
+        appliesTo: { type: string, description: 适用范围 }
+        text: { type: string, description: 一句话说明，如"30 天内每单骑行费最多抵 ¥3.0（不抵调度费）" }
+
+    MonthCard:
+      type: object
+      required: [cardId, userId, pricingVersionId, price, perOrderCap, startAt, endAt, status]
+      properties:
+        cardId: { type: string, example: MC202611201001 }
+        userId: { type: string }
+        pricingVersionId: { type: string, description: 购买时的规则版本号 }
+        price:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 购买价
+        perOrderCap:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 每单最多抵扣
+        startAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        endAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        paymentId: { type: string, nullable: true, description: 购买流水号 }
+        status: { $ref: '#/components/schemas/MonthCardStatus' }
+        payState:
+          type: string
+          enum: [已支付, 待支付]
+          description: 购买款状态。真实渠道下购买接口先返回"待支付"，款到后（pay.payment.succeeded）变已支付，才出现在"我的月卡"并参与抵扣
+        payParams: { $ref: '#/components/schemas/PayParams' }
+        usedOrderIds:
+          type: array
+          description: 用过这张月卡抵扣的订单号
+          items: { type: string }
+
+    MonthCardPage:
+      type: object
+      required: [rule, cards]
+      properties:
+        rule: { $ref: '#/components/schemas/MonthCardRule' }
+        cards:
+          type: array
+          items: { $ref: '#/components/schemas/MonthCard' }
+
+    Coupon:
+      type: object
+      required: [couponId, userId, templateId, name, amount, issuedAt, expireAt, obtainedBy, status]
+      properties:
+        couponId: { type: string, example: CP30010002 }
+        userId: { type: string }
+        templateId: { type: string, description: 券模板编号 }
+        name: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 面额
+        issuedAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        expireAt:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 到期时刻（第 N 天 23:59:59）
+        obtainedBy: { type: string, enum: [系统发放, 用户领取] }
+        usedOrderId: { type: string, nullable: true }
+        usedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+        status: { $ref: '#/components/schemas/CouponStatus' }
+
+    CouponTemplate:
+      type: object
+      required: [templateId, name, amount, validDays, issue, claimable]
+      properties:
+        templateId: { type: string, example: CPT02 }
+        name: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 面额
+        audience: { type: string, description: 发放对象 }
+        validDays: { type: integer, description: 有效天数 }
+        issue: { type: string, description: 发放方式说明（规则版本里写的原文，bill 据此判定 kind） }
+        kind:
+          type: string
+          enum: [领取券, 注册券, 渠道券, 关怀券, 系统券, 定时券, 其他]
+          description: |
+            发放类别，按 `issue`（与 `audience`）文字判定，先到先得：含"开锁失败"为关怀券；含"领取"为领取券（用户在窗口内自己领）；
+            含"系统一次性发放"为系统券（版本生效后一次性发给当时全部未注销用户）；含形如 `2027-01-01 00:00` 的日期时间为定时券（到点一次性发给当时全部未注销用户）；
+            含"注册"且 `audience` 含"微信"或"支付宝"为渠道券（只发给该渠道的新注册用户），否则为注册券（发给每个新注册用户）；其余为其他（不自动发放）。
+        perUser: { type: integer, description: 每人每期可得张数 }
+        claimable: { type: boolean, description: 当前用户现在能否领取 }
+        why: { type: string, nullable: true, description: 不能领取的原因，用于置灰按钮说明 }
+
+    ArrearsRow:
+      type: object
+      description: 欠费清单的一行（只含 bill 持有的部分）
+      required: [userId, arrears, orderCount, orderIds, days, degradedOrders]
+      properties:
+        userId: { type: string }
+        arrears:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 欠费金额
+        orderCount: { type: integer, description: 欠费单数 }
+        orderIds:
+          type: array
+          items: { type: string }
+        oldestAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+          description: 最早欠费账单的推送时刻
+        days: { type: integer, description: 最早欠费至今的天数 }
+        degradedOrders: { type: integer, description: 其中降级单的数量 }
+
+    Todo:
+      type: object
+      required: [key, label, count]
+      properties:
+        key: { type: string, enum: [arrears], description: 待办标识；arrears 为欠费用户 }
+        label: { type: string, example: 欠费用户 }
+        count: { type: integer }
+        menu: { type: string, description: 对应菜单名, example: 欠费与退款失败 }
+
+    RefundCommand:
+      type: object
+      required: [orderId, amount, reason, actor]
+      properties:
+        orderId: { type: string }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 退款金额，大于 0，累计不超过渠道已收
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+        ticketId: { type: string, description: 发起退款的工单号 }
+        actor: { $ref: './_common.yaml#/components/schemas/Actor' }
+
+    RefundResult:
+      type: object
+      description: 退款命令结果
+      required: [result, orderId]
+      properties:
+        result:
+          type: string
+          description: 成功为已原路退回；失败看 failCode 与 failReason；结果未知表示渠道尚未返回，最终结果以"已退款"事件或再次查询账单事实为准
+          enum: [成功, 失败, 结果未知]
+        failCode:
+          type: string
+          nullable: true
+          description: 失败原因分类。EXCEED_REFUNDABLE 超过可退金额；NOTHING_TO_REFUND 该单没有渠道收款；CHANNEL_FAILED 原路退回失败（等用户提交本人收款账户后由财务人工转账）
+          enum: [EXCEED_REFUNDABLE, NOTHING_TO_REFUND, CHANNEL_FAILED]
+        failReason: { type: string, nullable: true, description: 一句失败原因，如"原支付账户已注销" }
+        orderId: { type: string }
+        paymentId: { type: string, nullable: true, description: 退款流水号 }
+        amount:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 本次退款金额
+        refunded:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 该单累计已退款
+        refundStatus:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/RefundStatus' }]
+        awaitingPayee: { type: boolean, description: 原路失败、等用户填写收款账户 }
+
+    BillFacts:
+      type: object
+      description: 账单事实
+      required: [orderId, userId, feeLater, refundable]
+      properties:
+        orderId: { type: string }
+        userId: { type: string }
+        pricingVersionId: { type: string }
+        billedMinutes: { type: integer, nullable: true }
+        billPushedAt:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+        payDeadline:
+          nullable: true
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }]
+        fee:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/Fee' }]
+        payStatus:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayStatus' }]
+        payMethod:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/PayMethod' }]
+        refundStatus:
+          nullable: true
+          allOf: [{ $ref: '#/components/schemas/RefundStatus' }]
+        refundFailedPaymentId: { type: string, nullable: true }
+        degraded: { type: boolean }
+        feeLater: { type: boolean, description: 降级单尚未出账 }
+        refundable:
+          allOf: [{ $ref: './_common.yaml#/components/schemas/Money' }]
+          description: 现在最多可在线退的金额 = 渠道已收 − 已退款

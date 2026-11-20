@@ -1,0 +1,8 @@
+# TYPE    DATABASE     USER         ADDRESS                  METHOD
+local     all          postgres                              peer
+# 每个服务账号只能连与自己同名的库
+hostssl   sameuser     all          <服务所在网段>/24          scram-sha-256
+# 复制只放行从库
+hostssl   replication  replicator   <从库地址>/32              scram-sha-256
+# 备份账号只在从库上用，只读
+hostssl   all          bike_backup  <从库地址>/32              scram-sha-256

@@ -1,0 +1,323 @@
+{
+ "source": "原型/mockdata/users.json（种子 20261201，NOW=2026-12-01 12:00:00）",
+ "users": [
+  {
+   "userId": "U100004",
+   "name": "邓＊",
+   "phone": "15111980720",
+   "phoneMasked": "151****0720",
+   "channel": "微信",
+   "registeredAt": "2026-08-01 20:01:14",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-08-01 20:01:43",
+    "idMasked": "510***********0573",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "正常",
+    "freeze": null,
+    "history": []
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 0.0,
+   "lastActiveAt": "2026-10-28 17:49:47"
+  },
+  {
+   "userId": "U100011",
+   "name": "龚＊＊",
+   "phone": "13060167604",
+   "phoneMasked": "130****7604",
+   "channel": "支付宝",
+   "registeredAt": "2026-07-11 08:36:35",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-07-11 08:37:13",
+    "idMasked": "530***********2222",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "正常",
+    "freeze": null,
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-10-04 06:50:44",
+      "reason": "欠费追缴未结（超过 30 天）",
+      "by": "AC0900"
+     },
+     {
+      "action": "自动解冻",
+      "at": "2026-11-12 08:34:10",
+      "reason": "已结清欠费且实名有效",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 0.0,
+   "lastActiveAt": "2026-11-24 18:15:41"
+  },
+  {
+   "userId": "U100026",
+   "name": "胡＊＊",
+   "phone": "18966080155",
+   "phoneMasked": "189****0155",
+   "channel": "微信",
+   "registeredAt": "2026-11-27 21:22:49",
+   "realName": {
+    "status": "待核验",
+    "verifiedAt": null,
+    "idMasked": "511***********500X",
+    "adult": null,
+    "method": "先骑后验（降级期间注册）",
+    "deadline": "2026-12-04 23:59:59"
+   },
+   "account": {
+    "status": "正常",
+    "freeze": null,
+    "history": []
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": "OPS-DG-20261127-01",
+   "arrears": 0.0,
+   "lastActiveAt": "2026-11-27 21:38:17"
+  },
+  {
+   "userId": "U100127",
+   "name": "韩＊＊",
+   "phone": "18920181272",
+   "phoneMasked": "189****1272",
+   "channel": "微信",
+   "registeredAt": "2026-11-24 13:41:26",
+   "realName": {
+    "status": "未实名",
+    "verifiedAt": null,
+    "idMasked": null,
+    "adult": null,
+    "method": null
+   },
+   "account": {
+    "status": "正常",
+    "freeze": null,
+    "history": []
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 0.0,
+   "lastActiveAt": "2026-11-24 13:41:26"
+  },
+  {
+   "userId": "U100598",
+   "name": "史＊＊",
+   "phone": "17314425184",
+   "phoneMasked": "173****5184",
+   "channel": "支付宝",
+   "registeredAt": "2026-08-02 12:36:52",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-08-02 12:37:26",
+    "idMasked": "360***********0730",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "已注销",
+    "freeze": null,
+    "history": [
+     {
+      "action": "注销",
+      "at": "2026-10-14 05:29:25",
+      "reason": "用户申请注销",
+      "by": "U100598"
+     }
+    ]
+   },
+   "cancelledAt": "2026-10-14 05:29:25",
+   "degradedSignupEventId": null,
+   "arrears": 0.0,
+   "lastActiveAt": "2026-08-02 12:36:52"
+  },
+  {
+   "userId": "U100712",
+   "name": "何＊＊",
+   "phone": "18253112381",
+   "phoneMasked": "182****2381",
+   "channel": "微信",
+   "registeredAt": "2026-07-10 21:04:06",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-07-10 21:04:38",
+    "idMasked": "420***********297X",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "冻结",
+    "freeze": {
+     "reason": "欠费追缴未结（超过 30 天）",
+     "at": "2026-10-09 20:03:49",
+     "unfreezeHow": "结清欠费后自动解冻"
+    },
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-10-09 20:03:49",
+      "reason": "欠费追缴未结（超过 30 天）",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 10.7,
+   "lastActiveAt": "2026-09-09 19:38:37"
+  },
+  {
+   "userId": "U100886",
+   "name": "方＊＊",
+   "phone": "16690334827",
+   "phoneMasked": "166****4827",
+   "channel": "微信",
+   "registeredAt": "2026-08-14 00:31:25",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-08-14 00:32:17",
+    "idMasked": "513***********3580",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "冻结",
+    "freeze": {
+     "reason": "欠费追缴未结（超过 30 天）",
+     "at": "2026-11-01 06:40:27",
+     "unfreezeHow": "结清欠费后自动解冻"
+    },
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-11-01 06:40:27",
+      "reason": "欠费追缴未结（超过 30 天）",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 8.3,
+   "lastActiveAt": "2026-10-02 06:21:14"
+  },
+  {
+   "userId": "U101014",
+   "name": "戴＊＊",
+   "phone": "15914676275",
+   "phoneMasked": "159****6275",
+   "channel": "支付宝",
+   "registeredAt": "2026-07-07 22:05:59",
+   "realName": {
+    "status": "已核验",
+    "verifiedAt": "2026-07-07 22:06:45",
+    "idMasked": "610***********0690",
+    "adult": true,
+    "method": "在线实名核验"
+   },
+   "account": {
+    "status": "冻结",
+    "freeze": {
+     "reason": "欠费追缴未结（超过 30 天）",
+     "at": "2026-11-15 18:42:27",
+     "unfreezeHow": "结清欠费后自动解冻"
+    },
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-11-15 18:42:27",
+      "reason": "欠费追缴未结（超过 30 天）",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": null,
+   "arrears": 5.5,
+   "lastActiveAt": "2026-10-16 18:36:15"
+  },
+  {
+   "userId": "U101538",
+   "name": "郝＊＊",
+   "phone": "18839175643",
+   "phoneMasked": "188****5643",
+   "channel": "微信",
+   "registeredAt": "2026-11-27 21:26:36",
+   "realName": {
+    "status": "未通过",
+    "verifiedAt": "2026-11-28 09:12:33",
+    "idMasked": "500***********6678",
+    "adult": false,
+    "method": "先骑后验补验",
+    "failReason": "未达法定驾驶年龄（16 周岁）"
+   },
+   "account": {
+    "status": "冻结",
+    "freeze": {
+     "reason": "先骑后验核验未通过（未达法定驾驶年龄（16 周岁））",
+     "at": "2026-11-28 09:12:37",
+     "unfreezeHow": "完成实名核验（达到法定年龄）并结清欠费后自动解冻"
+    },
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-11-28 09:12:37",
+      "reason": "先骑后验核验未通过（未达法定驾驶年龄（16 周岁））",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": "OPS-DG-20261127-01",
+   "arrears": 4.0,
+   "lastActiveAt": "2026-11-27 21:37:25"
+  },
+  {
+   "userId": "U101761",
+   "name": "贾＊＊",
+   "phone": "13763547172",
+   "phoneMasked": "137****7172",
+   "channel": "支付宝",
+   "registeredAt": "2026-11-27 21:23:54",
+   "realName": {
+    "status": "未通过",
+    "verifiedAt": "2026-11-28 10:40:02",
+    "idMasked": "420***********8412",
+    "adult": null,
+    "method": "先骑后验补验",
+    "failReason": "身份信息与人像比对不一致"
+   },
+   "account": {
+    "status": "冻结",
+    "freeze": {
+     "reason": "先骑后验核验未通过（身份信息与人像比对不一致）",
+     "at": "2026-11-28 10:40:06",
+     "unfreezeHow": "完成实名核验（达到法定年龄）并结清欠费后自动解冻"
+    },
+    "history": [
+     {
+      "action": "冻结",
+      "at": "2026-11-28 10:40:06",
+      "reason": "先骑后验核验未通过（身份信息与人像比对不一致）",
+      "by": "AC0900"
+     }
+    ]
+   },
+   "cancelledAt": null,
+   "degradedSignupEventId": "OPS-DG-20261127-01",
+   "arrears": 11.5,
+   "lastActiveAt": "2026-11-27 21:42:15"
+  }
+ ]
+}

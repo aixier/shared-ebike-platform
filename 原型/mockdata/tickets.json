@@ -1,0 +1,2538 @@
+[
+ {
+  "ticketId": "TK202609010031",
+  "userId": "U100484",
+  "orderId": "OD2026090110600",
+  "category": "调度费异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-01 08:50:52",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-01 09:09:52",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-01 08:50:52",
+    "text": "我明明停在和平路汽车客运站站点里，为什么还收了调度费？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-01 08:51:01",
+    "text": "订单 OD2026090110600 锁车位置距离和平路汽车客运站站点围栏 111 米，车端判定在站外。但该站点在你锁车前后有桩离线，车辆定位可能漂移。建议退还调度费 ¥3.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-01 09:07:52",
+    "text": "核实后已退还调度费 ¥3.0，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.0,
+   "kind": "部分退款",
+   "basis": "站点桩离线，定位漂移可能导致误判站外",
+   "proposedAt": "2026-09-01 08:51:01",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0301",
+   "decidedAt": "2026-09-01 09:07:52",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026090110600",
+   "startAt": "2026-09-01 06:38:42",
+   "endAt": "2026-09-01 06:57:50",
+   "billedMinutes": 20,
+   "distanceKm": 3.3,
+   "receivable": 11.3,
+   "payable": 9.3,
+   "netReceived": 6.3,
+   "inStation": false,
+   "inStationBasis": "站外"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20260901090752934",
+    "at": "2026-09-01 09:07:52",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609060033",
+  "userId": "U100456",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-09-06 15:34:02",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-06 15:37:02",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-06 15:34:02",
+    "text": "之前在简途交了99押金，现在还要再交吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-06 15:34:21",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-09-06 15:34:40",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609060032",
+  "userId": "U101100",
+  "orderId": "OD2026090611203",
+  "category": "调度费异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-06 18:44:35",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-06 18:51:35",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-06 18:44:35",
+    "text": "我明明停在金沙路地铁站A口站点里，为什么还收了调度费？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-06 18:44:44",
+    "text": "订单 OD2026090611203 锁车位置距离金沙路地铁站A口站点围栏 237 米，车端判定在站外。但该站点在你锁车前后有桩离线，车辆定位可能漂移。建议退还调度费 ¥3.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-06 18:49:35",
+    "text": "核实后已退还调度费 ¥3.0，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.0,
+   "kind": "部分退款",
+   "basis": "站点桩离线，定位漂移可能导致误判站外",
+   "proposedAt": "2026-09-06 18:44:44",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0301",
+   "decidedAt": "2026-09-06 18:49:35",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026090611203",
+   "startAt": "2026-09-06 15:29:13",
+   "endAt": "2026-09-06 15:38:29",
+   "billedMinutes": 10,
+   "distanceKm": 2.0,
+   "receivable": 7.3,
+   "payable": 4.3,
+   "netReceived": 1.3,
+   "inStation": false,
+   "inStationBasis": "站外"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20260906184935935",
+    "at": "2026-09-06 18:49:35",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609060031",
+  "userId": "U100004",
+  "orderId": "OD2026090611322",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-06 18:47:17",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-09-06 18:53:17",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-06 18:47:17",
+    "text": "刹车有问题骑不了，我马上就还了，为什么还扣钱？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-06 18:47:25",
+    "text": "已调出订单 OD2026090611322：6 分钟、0.8 公里，已扣 ¥2.7。车辆在开锁后 6 分钟内停在原地附近，运营商同日报告该车故障。建议全额退款 ¥2.7。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-06 18:52:17",
+    "text": "已为你全额退款 ¥2.7，原路退回，一般几分钟到账。给你带来不便很抱歉。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 2.7,
+   "kind": "全额退款",
+   "basis": "车辆故障，骑行时长短且未离开起点附近",
+   "proposedAt": "2026-09-06 18:47:25",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0302",
+   "decidedAt": "2026-09-06 18:52:17",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026090611322",
+   "startAt": "2026-09-06 17:51:42",
+   "endAt": "2026-09-06 17:57:09",
+   "billedMinutes": 6,
+   "distanceKm": 0.8,
+   "receivable": 2.7,
+   "payable": 2.7,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20260906185217933",
+    "at": "2026-09-06 18:52:17",
+    "by": "AC0302"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609080031",
+  "userId": "U101803",
+  "orderId": "OD2026090813287",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-08 18:25:17",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-10 01:15:17",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-08 18:25:17",
+    "text": "开锁后车没电，骑不动，这单要退。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-08 18:25:24",
+    "text": "订单 OD2026090813287：11 分钟，车辆电量在开锁后 2 分钟降至 3%，运营商同日报告该车电池故障。建议全额退款 ¥4.7。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-08 18:35:57",
+    "text": "原路退回没有成功：你付款用的账户已注销。请在下方填写本人实名的银行卡或支付账户，我们会人工转账。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-09-08 21:04:17",
+    "text": "已填写：万＊，6215 **** **** 2261。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-10 01:14:17",
+    "text": "财务已转账 ¥4.7 到你填写的账户，请查收。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 4.7,
+   "kind": "全额退款",
+   "basis": "车辆电池故障",
+   "proposedAt": "2026-09-08 18:25:24",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0301",
+   "decidedAt": "2026-09-08 18:35:17",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026090813287",
+   "startAt": "2026-09-08 08:14:26",
+   "endAt": "2026-09-08 08:25:11",
+   "billedMinutes": 11,
+   "distanceKm": 2.3,
+   "receivable": 4.7,
+   "payable": 4.7,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20260908183517938",
+    "at": "2026-09-08 18:35:17",
+    "by": "AC0301"
+   },
+   {
+    "type": "人工转账",
+    "paymentId": "PY20260910010417939",
+    "at": "2026-09-10 01:04:17",
+    "by": "AC0201"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609090031",
+  "userId": "U101654",
+  "orderId": null,
+  "category": "开锁失败",
+  "entry": "失败提示页",
+  "createdAt": "2026-09-09 18:21:45",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-09-09 18:24:45",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-09 18:21:45",
+    "text": "刚才扫码开不了锁，会扣钱吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-09 18:22:15",
+    "text": "开锁失败的订单不计费，你这次没有扣款。附近还有可用车，可以在扫码页查看。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-09-09 18:22:39",
+    "text": "换了一辆已经骑上了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609120031",
+  "userId": "U101367",
+  "orderId": "OD2026091213778",
+  "category": "调度费异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-12 10:50:18",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-09-12 10:58:18",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-12 10:50:18",
+    "text": "我明明停在银杏大道滨河公园站点里，为什么还收了调度费？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-12 10:50:27",
+    "text": "订单 OD2026091213778 锁车位置距离银杏大道滨河公园站点围栏 225 米，车端判定在站外。但该站点在你锁车前后有桩离线，车辆定位可能漂移。建议退还调度费 ¥3.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-12 10:56:18",
+    "text": "核实后已退还调度费 ¥3.0，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.0,
+   "kind": "部分退款",
+   "basis": "站点桩离线，定位漂移可能导致误判站外",
+   "proposedAt": "2026-09-12 10:50:27",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0302",
+   "decidedAt": "2026-09-12 10:56:18",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026091213778",
+   "startAt": "2026-09-12 07:38:45",
+   "endAt": "2026-09-12 07:58:10",
+   "billedMinutes": 20,
+   "distanceKm": 4.1,
+   "receivable": 11.3,
+   "payable": 11.3,
+   "netReceived": 8.3,
+   "inStation": false,
+   "inStationBasis": "站外"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20260912105618936",
+    "at": "2026-09-12 10:56:18",
+    "by": "AC0302"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609140031",
+  "userId": "U100821",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-09-14 22:27:11",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-14 22:30:11",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-14 22:27:11",
+    "text": "原来那个App的押金怎么退？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-14 22:27:45",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-09-14 22:28:13",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609150031",
+  "userId": "U100199",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-09-15 11:19:48",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-15 12:19:48",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-15 11:19:48",
+    "text": "欠费我已经补了，为什么还是显示账户冻结？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-15 11:19:55",
+    "text": "欠费已结清。你的实名信息已过期，未能触发自动解冻。建议客服核验本人身份后人工解冻。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-15 12:18:48",
+    "text": "已核验本人身份，账户已解冻，可以正常骑行。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [
+   {
+    "type": "人工解冻",
+    "at": "2026-09-15 12:18:48",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609160031",
+  "userId": "U100416",
+  "orderId": "OD2026091610316",
+  "category": "调度费异议",
+  "entry": "我的订单",
+  "createdAt": "2026-09-16 22:20:34",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-09-16 22:31:34",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-16 22:20:34",
+    "text": "我明明停在人民南路与桂溪路路口站点里，为什么还收了调度费？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-16 22:20:43",
+    "text": "订单 OD2026091610316 锁车位置距离人民南路与桂溪路路口站点围栏 90 米，站点桩均在线且未识别到该车，车辆轨迹显示停在路边人行道。按规则站外还车收调度费 ¥3.0。不建议退款。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-16 22:30:34",
+    "text": "核实了锁车位置，车停在站点外 90 米的人行道上，调度费按规则收取。下次还车前页面会提示最近站点，停进围栏就不收。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 0.0,
+   "kind": "不退款",
+   "basis": "锁车位置在站外，桩记录与车端一致",
+   "proposedAt": "2026-09-16 22:20:43",
+   "proposedBy": "AC0904",
+   "decision": "已驳回",
+   "decidedBy": "AC0302",
+   "decidedAt": "2026-09-16 22:30:34",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026091610316",
+   "startAt": "2026-09-16 20:03:44",
+   "endAt": "2026-09-16 20:24:28",
+   "billedMinutes": 21,
+   "distanceKm": 4.5,
+   "receivable": 11.7,
+   "payable": 11.7,
+   "netReceived": 11.7,
+   "inStation": false,
+   "inStationBasis": "站外"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609210031",
+  "userId": "U100751",
+  "orderId": "OD2026092111452",
+  "category": "订单无法结束",
+  "entry": "骑行中页",
+  "createdAt": "2026-09-21 16:50:10",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-09-21 17:08:10",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-21 16:50:10",
+    "text": "我已经在银杏大道金融城把车锁好了，页面还在计时。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-21 16:50:16",
+    "text": "订单 OD2026092111452 未收到锁车报告。车辆定位自 15:50 起停在银杏大道金融城站点内未移动，已向运营商请求结束骑行两次无回执。建议强制结束并按 15:50 计费。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-21 17:06:10",
+    "text": "已为你结束订单并锁车，按 15:50 还车计费，共 10 分钟。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": {
+   "at": "2026-09-21 17:06:10",
+   "by": "AC0302",
+   "reason": "用户已在站点内锁车，运营商未上报锁车，车辆定位自 15:50 起静止，按实际还车时刻结束",
+   "billedEndAt": "2026-09-21 15:50:10"
+  },
+  "facts": {
+   "orderId": "OD2026092111452",
+   "startAt": "2026-09-21 15:40:58",
+   "endAt": "2026-09-21 15:50:10",
+   "billedMinutes": 10,
+   "distanceKm": 1.9,
+   "receivable": 4.3,
+   "payable": 4.3,
+   "netReceived": 4.3,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "强制结束",
+    "at": "2026-09-21 17:06:10",
+    "by": "AC0302"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609250031",
+  "userId": "U100017",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-09-25 05:21:03",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-25 06:18:03",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-25 05:21:03",
+    "text": "欠费我已经补了，为什么还是显示账户冻结？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-25 05:21:10",
+    "text": "欠费已结清。你的实名信息已过期，未能触发自动解冻。建议客服核验本人身份后人工解冻。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-25 06:17:03",
+    "text": "已核验本人身份，账户已解冻，可以正常骑行。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [
+   {
+    "type": "人工解冻",
+    "at": "2026-09-25 06:17:03",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609260031",
+  "userId": "U101256",
+  "orderId": "OD2026092613394",
+  "category": "订单无法结束",
+  "entry": "骑行中页",
+  "createdAt": "2026-09-26 21:11:37",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-09-26 21:35:37",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-26 21:11:37",
+    "text": "我已经在天府东街妇幼保健院把车锁好了，页面还在计时。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-26 21:11:43",
+    "text": "订单 OD2026092613394 未收到锁车报告。车辆定位自 19:08 起停在天府东街妇幼保健院站点内未移动，已向运营商请求结束骑行两次无回执。建议强制结束并按 19:08 计费。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-09-26 21:33:37",
+    "text": "已为你结束订单并锁车，按 19:08 还车计费，共 23 分钟。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": {
+   "at": "2026-09-26 21:33:37",
+   "by": "AC0301",
+   "reason": "用户已在站点内锁车，运营商未上报锁车，车辆定位自 19:08 起静止，按实际还车时刻结束",
+   "billedEndAt": "2026-09-26 19:08:37"
+  },
+  "facts": {
+   "orderId": "OD2026092613394",
+   "startAt": "2026-09-26 18:46:02",
+   "endAt": "2026-09-26 19:08:37",
+   "billedMinutes": 23,
+   "distanceKm": 4.8,
+   "receivable": 9.5,
+   "payable": 9.5,
+   "netReceived": 9.5,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "强制结束",
+    "at": "2026-09-26 21:33:37",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202609300031",
+  "userId": "U101055",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-09-30 00:33:30",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-09-30 00:36:30",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-09-30 00:33:30",
+    "text": "之前在简途交了99押金，现在还要再交吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-09-30 00:33:46",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-09-30 00:33:56",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610070031",
+  "userId": "U101221",
+  "orderId": null,
+  "category": "月卡与优惠券",
+  "entry": "我的",
+  "createdAt": "2026-10-07 06:47:34",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-10-07 06:50:34",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-07 06:47:34",
+    "text": "月卡是每单都能抵吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-07 06:48:05",
+    "text": "月卡有效期内每单最多抵扣 ¥3.0；结账时还会自动用一张抵扣最多的优惠券，金额相同时先用快到期的。两者可以一起用。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-10-07 06:48:00",
+    "text": "明白了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610140031",
+  "userId": "U100598",
+  "orderId": null,
+  "category": "注销",
+  "entry": "账户",
+  "createdAt": "2026-10-14 02:29:25",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-14 02:34:25",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-14 02:29:25",
+    "text": "我要注销账户。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-14 02:29:30",
+    "text": "你没有欠费和骑行中订单，押金已申请退回，可以直接在\"账户\"页注销。注销后订单记录按规定保存。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610150031",
+  "userId": "U101951",
+  "orderId": null,
+  "category": "稍后扣费咨询",
+  "entry": "我的",
+  "createdAt": "2026-10-15 06:20:23",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-10-15 06:23:23",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-15 06:20:23",
+    "text": "那天骑车页面写着费用稍后收取，后来扣了，是正常的吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-15 06:20:37",
+    "text": "那段时间支付服务临时故障，为了不耽误你骑车，费用在恢复后才收取，金额按开锁时的价格计算，没有多扣。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-10-15 06:20:53",
+    "text": "好的。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610160033",
+  "userId": "U100662",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-10-16 08:13:02",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-10-16 08:16:02",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-16 08:13:02",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-16 08:13:08",
+    "text": "押金 ¥99.0 已申请退回，预计 2026-10-21 前原路到账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610160032",
+  "userId": "U100537",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-10-16 22:20:52",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-16 22:23:52",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-16 22:20:52",
+    "text": "原来那个App的押金怎么退？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-16 22:21:32",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-10-16 22:21:06",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610160031",
+  "userId": "U100832",
+  "orderId": "OD2026101610821",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-10-16 23:38:19",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-16 23:51:19",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-16 23:38:19",
+    "text": "刹车有问题骑不了，我马上就还了，为什么还扣钱？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-16 23:38:27",
+    "text": "已调出订单 OD2026101610821：7 分钟、1.4 公里，已扣 ¥3.5。车辆在开锁后 7 分钟内停在原地附近，运营商同日报告该车故障。建议全额退款 ¥3.5。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-10-16 23:50:19",
+    "text": "已为你全额退款 ¥3.5，原路退回，一般几分钟到账。给你带来不便很抱歉。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.5,
+   "kind": "全额退款",
+   "basis": "车辆故障，骑行时长短且未离开起点附近",
+   "proposedAt": "2026-10-16 23:38:27",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0304",
+   "decidedAt": "2026-10-16 23:50:19",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026101610821",
+   "startAt": "2026-10-16 22:52:53",
+   "endAt": "2026-10-16 22:59:15",
+   "billedMinutes": 7,
+   "distanceKm": 1.4,
+   "receivable": 3.5,
+   "payable": 3.5,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261016235019931",
+    "at": "2026-10-16 23:50:19",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610170031",
+  "userId": "U101401",
+  "orderId": null,
+  "category": "月卡与优惠券",
+  "entry": "我的",
+  "createdAt": "2026-10-17 14:23:07",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-10-17 14:26:07",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-17 14:23:07",
+    "text": "为什么这单没有用我的优惠券？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-17 14:23:35",
+    "text": "月卡有效期内每单最多抵扣 ¥3.0；结账时还会自动用一张抵扣最多的优惠券，金额相同时先用快到期的。两者可以一起用。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-10-17 14:23:57",
+    "text": "明白了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610180031",
+  "userId": "U100442",
+  "orderId": "OD2026101813550",
+  "category": "订单无法结束",
+  "entry": "骑行中页",
+  "createdAt": "2026-10-18 08:56:35",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-18 09:17:35",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-18 08:56:35",
+    "text": "我已经在天府东街第一中学把车锁好了，页面还在计时。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-18 08:56:41",
+    "text": "订单 OD2026101813550 未收到锁车报告。车辆定位自 07:58 起停在天府东街第一中学站点内未移动，已向运营商请求结束骑行两次无回执。建议强制结束并按 07:58 计费。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-10-18 09:15:35",
+    "text": "已为你结束订单并锁车，按 07:58 还车计费，共 17 分钟。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": {
+   "at": "2026-10-18 09:15:35",
+   "by": "AC0304",
+   "reason": "用户已在站点内锁车，运营商未上报锁车，车辆定位自 07:58 起静止，按实际还车时刻结束",
+   "billedEndAt": "2026-10-18 07:58:35"
+  },
+  "facts": {
+   "orderId": "OD2026101813550",
+   "startAt": "2026-10-18 07:41:54",
+   "endAt": "2026-10-18 07:58:35",
+   "billedMinutes": 17,
+   "distanceKm": 4.1,
+   "receivable": 8.5,
+   "payable": 8.5,
+   "netReceived": 8.5,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "强制结束",
+    "at": "2026-10-18 09:15:35",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610190031",
+  "userId": "U100076",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-10-19 16:56:54",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-10-19 16:59:54",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-19 16:56:54",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-19 16:57:00",
+    "text": "押金 ¥99.0 已申请退回，预计 2026-10-21 前原路到账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610200031",
+  "userId": "U101445",
+  "orderId": null,
+  "category": "注销",
+  "entry": "账户",
+  "createdAt": "2026-10-20 14:39:21",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-20 14:44:21",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-20 14:39:21",
+    "text": "我要注销账户。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-20 14:39:26",
+    "text": "你没有欠费和骑行中订单，可以直接在\"账户\"页注销。注销后订单记录按规定保存。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610210031",
+  "userId": "U100426",
+  "orderId": "OD2026102110844",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-10-21 10:05:18",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-10-21 10:15:18",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-21 10:05:18",
+    "text": "车把松了骑不了，只骑了一小段就还车了。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-21 10:05:26",
+    "text": "已调出订单 OD2026102110844：8 分钟、1.1 公里，已扣 ¥4.0。车辆在开锁后 8 分钟内停在原地附近，运营商同日报告该车故障。建议全额退款 ¥4.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-10-21 10:14:18",
+    "text": "已为你全额退款 ¥4.0，原路退回，一般几分钟到账。给你带来不便很抱歉。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 4.0,
+   "kind": "全额退款",
+   "basis": "车辆故障，骑行时长短且未离开起点附近",
+   "proposedAt": "2026-10-21 10:05:26",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0301",
+   "decidedAt": "2026-10-21 10:14:18",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026102110844",
+   "startAt": "2026-10-21 09:08:16",
+   "endAt": "2026-10-21 09:16:13",
+   "billedMinutes": 8,
+   "distanceKm": 1.1,
+   "receivable": 4.0,
+   "payable": 4.0,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "车端判定"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261021101418932",
+    "at": "2026-10-21 10:14:18",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610240031",
+  "userId": "U100821",
+  "orderId": "OD2026102412695",
+  "category": "订单无法结束",
+  "entry": "骑行中页",
+  "createdAt": "2026-10-24 19:25:41",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-10-24 19:42:41",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-24 19:25:41",
+    "text": "我已经在迎宾大道社区卫生服务中心把车锁好了，页面还在计时。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-24 19:25:47",
+    "text": "订单 OD2026102412695 未收到锁车报告。车辆定位自 18:01 起停在迎宾大道社区卫生服务中心站点内未移动，已向运营商请求结束骑行两次无回执。建议强制结束并按 18:01 计费。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-10-24 19:40:41",
+    "text": "已为你结束订单并锁车，按 18:01 还车计费，共 16 分钟。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": {
+   "at": "2026-10-24 19:40:41",
+   "by": "AC0301",
+   "reason": "用户已在站点内锁车，运营商未上报锁车，车辆定位自 18:01 起静止，按实际还车时刻结束",
+   "billedEndAt": "2026-10-24 18:01:41"
+  },
+  "facts": {
+   "orderId": "OD2026102412695",
+   "startAt": "2026-10-24 17:46:07",
+   "endAt": "2026-10-24 18:01:41",
+   "billedMinutes": 16,
+   "distanceKm": 2.7,
+   "receivable": 8.0,
+   "payable": 8.0,
+   "netReceived": 8.0,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "强制结束",
+    "at": "2026-10-24 19:40:41",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202610260031",
+  "userId": "U100726",
+  "orderId": null,
+  "category": "注销",
+  "entry": "账户",
+  "createdAt": "2026-10-26 09:48:48",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-10-26 09:53:48",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-10-26 09:48:48",
+    "text": "我要注销账户。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-10-26 09:48:53",
+    "text": "你没有欠费和骑行中订单，可以直接在\"账户\"页注销。注销后订单记录按规定保存。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611020031",
+  "userId": "U101138",
+  "orderId": "OD2026102813920",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-11-02 10:30:52",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-02 10:42:52",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-02 10:30:52",
+    "text": "车把松了骑不了，只骑了一小段就还车了。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-02 10:31:00",
+    "text": "已调出订单 OD2026102813920：10 分钟、1.5 公里，已扣 ¥2.0。车辆在开锁后 10 分钟内停在原地附近，运营商同日报告该车故障。建议全额退款 ¥2.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-02 10:41:52",
+    "text": "已为你全额退款 ¥2.0，原路退回，一般几分钟到账。给你带来不便很抱歉。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 2.0,
+   "kind": "全额退款",
+   "basis": "车辆故障，骑行时长短且未离开起点附近",
+   "proposedAt": "2026-11-02 10:31:00",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0304",
+   "decidedAt": "2026-11-02 10:41:52",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026102813920",
+   "startAt": "2026-10-28 07:10:16",
+   "endAt": "2026-10-28 07:19:59",
+   "billedMinutes": 10,
+   "distanceKm": 1.5,
+   "receivable": 5.0,
+   "payable": 2.0,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261102104152929",
+    "at": "2026-11-02 10:41:52",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611020033",
+  "userId": "U101385",
+  "orderId": "OD2026110213040",
+  "category": "开具发票",
+  "entry": "我的订单",
+  "createdAt": "2026-11-02 20:06:07",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-02 20:09:47",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-02 20:06:07",
+    "text": "这单需要开发票，怎么开？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-02 20:06:41",
+    "text": "骑行发票由客服人工开具。请提供发票抬头和税号，开好后发送到你留的邮箱。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-02 20:07:21",
+    "text": "抬头是个人，邮箱已在资料里。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-02 20:07:10",
+    "text": "已开具电子发票并发送到你的邮箱，请查收。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026110213040",
+   "startAt": "2026-11-02 18:06:25",
+   "endAt": "2026-11-02 18:21:04",
+   "billedMinutes": 15,
+   "distanceKm": 2.7,
+   "receivable": 7.5,
+   "payable": 7.5,
+   "netReceived": 7.5,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611020032",
+  "userId": "U101385",
+  "orderId": "OD2026110213040",
+  "category": "开具发票",
+  "entry": "我的订单",
+  "createdAt": "2026-11-02 20:10:07",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-02 20:13:47",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-02 20:10:07",
+    "text": "这单需要开发票，怎么开？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-02 20:10:45",
+    "text": "骑行发票由客服人工开具。请提供发票抬头和税号，开好后发送到你留的邮箱。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-02 20:10:29",
+    "text": "抬头是个人，邮箱已在资料里。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-02 20:11:01",
+    "text": "已开具电子发票并发送到你的邮箱，请查收。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026110213040",
+   "startAt": "2026-11-02 18:06:25",
+   "endAt": "2026-11-02 18:21:04",
+   "billedMinutes": 15,
+   "distanceKm": 2.7,
+   "receivable": 7.5,
+   "payable": 7.5,
+   "netReceived": 7.5,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611030033",
+  "userId": "U100712",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-03 09:30:19",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-03 09:34:19",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-03 09:30:19",
+    "text": "为什么我的账户被冻结了？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-03 09:30:25",
+    "text": "你有一笔 ¥10.7 的欠费超过 30 天未结清，账户已冻结。在扫码页一键补付后会自动解冻。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611030032",
+  "userId": "U100004",
+  "orderId": "OD2026102813769",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-11-03 14:16:00",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-03 14:33:00",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-03 14:16:00",
+    "text": "还车的时候点了好几次还车按钮都没反应，多算了几分钟。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-03 14:16:09",
+    "text": "订单 OD2026102813769：用户在锁车前 5 分钟内 3 次点击还车，平台记录到运营商锁车回执延迟。建议退还多计的 4 分钟费用 ¥2.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-03 14:32:00",
+    "text": "已退还 ¥2.0，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 2.0,
+   "kind": "部分退款",
+   "basis": "锁车回执延迟导致多计时",
+   "proposedAt": "2026-11-03 14:16:09",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0304",
+   "decidedAt": "2026-11-03 14:32:00",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026102813769",
+   "startAt": "2026-10-28 17:49:49",
+   "endAt": "2026-10-28 18:17:29",
+   "billedMinutes": 28,
+   "distanceKm": 4.7,
+   "receivable": 14.0,
+   "payable": 14.0,
+   "netReceived": 12.0,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261103143200942",
+    "at": "2026-11-03 14:32:00",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611030031",
+  "userId": "U100454",
+  "orderId": "OD2026103112982",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-11-03 14:49:00",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-03 14:54:00",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-03 14:49:00",
+    "text": "还车的时候点了好几次还车按钮都没反应，多算了几分钟。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-03 14:49:09",
+    "text": "订单 OD2026103112982：用户在锁车前 7 分钟内 3 次点击还车，平台记录到运营商锁车回执延迟。建议退还多计的 6 分钟费用 ¥3.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-03 14:53:00",
+    "text": "已退还 ¥3.0，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.0,
+   "kind": "部分退款",
+   "basis": "锁车回执延迟导致多计时",
+   "proposedAt": "2026-11-03 14:49:09",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0304",
+   "decidedAt": "2026-11-03 14:53:00",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026103112982",
+   "startAt": "2026-10-31 12:38:32",
+   "endAt": "2026-10-31 12:53:40",
+   "billedMinutes": 16,
+   "distanceKm": 3.1,
+   "receivable": 8.0,
+   "payable": 8.0,
+   "netReceived": 5.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261103145300941",
+    "at": "2026-11-03 14:53:00",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611060031",
+  "userId": "U100592",
+  "orderId": null,
+  "category": "月卡与优惠券",
+  "entry": "我的",
+  "createdAt": "2026-11-06 02:13:48",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-06 02:16:48",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-06 02:13:48",
+    "text": "月卡是每单都能抵吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-06 02:14:19",
+    "text": "月卡有效期内每单最多抵扣 ¥3.0；结账时还会自动用一张抵扣最多的优惠券，金额相同时先用快到期的。两者可以一起用。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-06 02:15:04",
+    "text": "明白了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611060032",
+  "userId": "U101221",
+  "orderId": null,
+  "category": "稍后扣费咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-06 16:51:28",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-06 16:54:28",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-06 16:51:28",
+    "text": "那天骑车页面写着费用稍后收取，后来扣了，是正常的吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-06 16:51:53",
+    "text": "那段时间支付服务临时故障，为了不耽误你骑车，费用在恢复后才收取，金额按开锁时的价格计算，没有多扣。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-06 16:52:42",
+    "text": "好的。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611080031",
+  "userId": "U101389",
+  "orderId": "OD2026110812268",
+  "category": "开具发票",
+  "entry": "我的订单",
+  "createdAt": "2026-11-08 19:58:11",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-08 20:01:51",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-08 19:58:11",
+    "text": "这单需要开发票，怎么开？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-08 19:58:18",
+    "text": "骑行发票由客服人工开具。请提供发票抬头和税号，开好后发送到你留的邮箱。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-08 19:59:23",
+    "text": "抬头是个人，邮箱已在资料里。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-08 20:00:11",
+    "text": "已开具电子发票并发送到你的邮箱，请查收。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026110812268",
+   "startAt": "2026-11-08 18:48:41",
+   "endAt": "2026-11-08 19:35:08",
+   "billedMinutes": 47,
+   "distanceKm": 8.2,
+   "receivable": 23.5,
+   "payable": 23.5,
+   "netReceived": 23.5,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611090031",
+  "userId": "U100104",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-11-09 22:48:36",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-09 22:51:36",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-09 22:48:36",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-09 22:48:42",
+    "text": "押金 ¥99.0 已申请退回，预计 2026-11-12 前原路到账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611110033",
+  "userId": "U100011",
+  "orderId": null,
+  "category": "稍后扣费咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-11 03:00:26",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-11 03:03:26",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-11 03:00:26",
+    "text": "那天骑车页面写着费用稍后收取，后来扣了，是正常的吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-11 03:00:36",
+    "text": "那段时间支付服务临时故障，为了不耽误你骑车，费用在恢复后才收取，金额按开锁时的价格计算，没有多扣。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-11 03:00:42",
+    "text": "好的。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611110031",
+  "userId": "U101021",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-11 03:10:24",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-11 03:13:24",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-11 03:10:24",
+    "text": "我以前在别的单车App交过押金，能转到这里吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-11 03:10:38",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-11 03:10:42",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611110032",
+  "userId": "U100528",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-11 23:35:40",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-11 23:38:40",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-11 23:35:40",
+    "text": "原来那个App的押金怎么退？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-11 23:35:55",
+    "text": "原品牌的押金由原品牌退还，不转到这里。你已开通免押，不用再交押金。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-11 23:36:42",
+    "text": "好的，知道了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611130031",
+  "userId": "U100821",
+  "orderId": "OD2026111213318",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-11-13 02:29:17",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-13 03:18:17",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-13 02:29:17",
+    "text": "我早就到锦绣路与科创大道路口桩旁锁好车（桩位都满了）了，结果显示骑了 51 分钟，扣了 ¥25.5，太多了。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-13 02:29:27",
+    "text": "订单 OD2026111213318 计费 51 分钟。车辆在结束前约 45 分钟已停在锦绣路与科创大道路口站点内未移动，锁车报告延迟到达。建议按车辆停止移动的时刻重算，退款 ¥22.5；超过客服授权额度 ¥20.0，需客服主管确认。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-13 03:17:17",
+    "text": "主管已确认，按实际骑行时长退款 ¥22.5，原路退回。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 22.5,
+   "kind": "部分退款",
+   "basis": "车辆提前停在站点内，锁车报告延迟，按停止移动时刻重算",
+   "proposedAt": "2026-11-13 02:29:27",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0303",
+   "decidedAt": "2026-11-13 03:17:17",
+   "overLimit": true
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026111213318",
+   "startAt": "2026-11-12 11:38:21",
+   "endAt": "2026-11-12 12:29:09",
+   "billedMinutes": 51,
+   "distanceKm": 11.7,
+   "receivable": 25.5,
+   "payable": 25.5,
+   "netReceived": 3.0,
+   "inStation": true,
+   "inStationBasis": "桩满·围栏内"
+  },
+  "actions": [
+   {
+    "type": "超额退款确认",
+    "paymentId": "PY20261113031717937",
+    "at": "2026-11-13 03:17:17",
+    "by": "AC0303"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611130032",
+  "userId": "U100605",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-11-13 07:45:08",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-13 07:48:08",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-13 07:45:08",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-13 07:45:14",
+    "text": "押金 ¥199.0 已申请退回，预计 2026-11-17 前原路到账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611140031",
+  "userId": "U100751",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-14 21:56:10",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-14 21:59:10",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-14 21:56:10",
+    "text": "我在原来品牌的骑行卡还有 20 多天，能转过来吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-14 21:56:29",
+    "text": "原品牌的骑行卡、余额和押金由原品牌处理，不转到这里。这里可以购买月卡，每单最多抵扣 ¥3.0。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-14 21:57:00",
+    "text": "好吧。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611170031",
+  "userId": "U100479",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-11-17 03:00:29",
+  "status": "处理中",
+  "assignee": "AC0302",
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-17 03:00:29",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-17 03:00:35",
+    "text": "押金 ¥99.0 原路退回失败（原支付账户已注销）。请填写本人实名的银行卡或支付账户，由平台公司人工转账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611180032",
+  "userId": "U100555",
+  "orderId": null,
+  "category": "旧押金咨询",
+  "entry": "我的",
+  "createdAt": "2026-11-18 04:43:21",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-18 04:46:21",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-18 04:43:21",
+    "text": "我在原来品牌的骑行卡还有 20 多天，能转过来吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-18 04:43:42",
+    "text": "原品牌的骑行卡、余额和押金由原品牌处理，不转到这里。这里可以购买月卡，每单最多抵扣 ¥3.0。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-18 04:44:37",
+    "text": "好吧。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611180031",
+  "userId": "U102085",
+  "orderId": null,
+  "category": "月卡与优惠券",
+  "entry": "我的",
+  "createdAt": "2026-11-18 06:53:08",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-18 06:56:08",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-18 06:53:08",
+    "text": "月卡和优惠券能一起用吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-18 06:53:37",
+    "text": "月卡有效期内每单最多抵扣 ¥3.0；结账时还会自动用一张抵扣最多的优惠券，金额相同时先用快到期的。两者可以一起用。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-18 06:53:36",
+    "text": "明白了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611190031",
+  "userId": "U100258",
+  "orderId": null,
+  "category": "开锁失败",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-19 13:02:28",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-19 13:05:28",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-19 13:02:28",
+    "text": "刚才扫码开不了锁，会扣钱吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-19 13:02:54",
+    "text": "开锁失败的订单不计费，你这次没有扣款。附近还有可用车，可以在扫码页查看。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-19 13:03:48",
+    "text": "换了一辆已经骑上了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611250031",
+  "userId": "U100195",
+  "orderId": null,
+  "category": "开锁失败",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-25 14:47:10",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-25 14:50:10",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-25 14:47:10",
+    "text": "刚才扫码开不了锁，会扣钱吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-25 14:47:24",
+    "text": "开锁失败的订单不计费，你这次没有扣款。附近还有可用车，可以在扫码页查看。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-25 14:48:18",
+    "text": "换了一辆已经骑上了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611260031",
+  "userId": "U100540",
+  "orderId": null,
+  "category": "开锁失败",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-26 02:14:31",
+  "status": "已解决",
+  "assignee": "AC0302",
+  "closedAt": "2026-11-26 02:17:31",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-26 02:14:31",
+    "text": "刚才扫码开不了锁，会扣钱吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-26 02:14:47",
+    "text": "开锁失败的订单不计费，你这次没有扣款。附近还有可用车，可以在扫码页查看。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-26 02:15:17",
+    "text": "换了一辆已经骑上了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611260032",
+  "userId": "U100886",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-26 13:44:38",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-26 13:48:38",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-26 13:44:38",
+    "text": "为什么我的账户被冻结了？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-26 13:44:44",
+    "text": "你有一笔 ¥8.3 的欠费超过 30 天未结清，账户已冻结。在扫码页一键补付后会自动解冻。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611290031",
+  "userId": "U100484",
+  "orderId": "OD2026112714351",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-11-29 16:03:07",
+  "status": "处理中",
+  "assignee": "AC0301",
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-29 16:03:07",
+    "text": "开锁后车没电，骑不动，这单要退。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-29 16:03:14",
+    "text": "订单 OD2026112714351：12 分钟，车辆电量在开锁后 2 分钟降至 3%，运营商同日报告该车电池故障。建议全额退款 ¥3.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-11-29 16:14:47",
+    "text": "原路退回没有成功：你付款用的账户已注销。请在下方填写本人实名的银行卡或支付账户，我们会人工转账。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-29 17:26:07",
+    "text": "已填写：薛＊＊，6214 **** **** 7908。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 3.0,
+   "kind": "全额退款",
+   "basis": "车辆电池故障",
+   "proposedAt": "2026-11-29 16:03:14",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0301",
+   "decidedAt": "2026-11-29 16:14:07",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026112714351",
+   "startAt": "2026-11-27 18:11:02",
+   "endAt": "2026-11-27 18:22:13",
+   "billedMinutes": 12,
+   "distanceKm": 2.1,
+   "receivable": 6.0,
+   "payable": 3.0,
+   "netReceived": 3.0,
+   "inStation": true,
+   "inStationBasis": "无桩站点·车端判定"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261129161407940",
+    "at": "2026-11-29 16:14:07",
+    "by": "AC0301"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611300032",
+  "userId": "U101538",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-30 04:37:33",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-30 04:41:33",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-30 04:37:33",
+    "text": "为什么我的账户被冻结了？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-30 04:37:39",
+    "text": "降级期间注册时的实名核验在恢复后补做未通过（未达法定驾驶年龄（16 周岁）），账户已冻结。完成本人实名核验并结清本次费用后自动解冻。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611300031",
+  "userId": "U101840",
+  "orderId": null,
+  "category": "开锁失败",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-30 11:39:36",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-11-30 11:42:36",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-30 11:39:36",
+    "text": "刚才扫码开不了锁，会扣钱吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-30 11:39:59",
+    "text": "开锁失败的订单不计费，你这次没有扣款。附近还有可用车，可以在扫码页查看。"
+   },
+   {
+    "from": "用户",
+    "at": "2026-11-30 11:40:34",
+    "text": "换了一辆已经骑上了。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202611300033",
+  "userId": "U101761",
+  "orderId": null,
+  "category": "账户冻结",
+  "entry": "失败提示页",
+  "createdAt": "2026-11-30 16:39:54",
+  "status": "已解决",
+  "assignee": "AC0301",
+  "closedAt": "2026-11-30 16:43:54",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-11-30 16:39:54",
+    "text": "为什么我的账户被冻结了？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-11-30 16:40:00",
+    "text": "降级期间注册时的实名核验在恢复后补做未通过（身份信息与人像比对不一致），账户已冻结。完成本人实名核验并结清本次费用后自动解冻。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010032",
+  "userId": "U101601",
+  "orderId": "OD2026113010347",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-12-01 00:09:44",
+  "status": "待主管确认",
+  "assignee": "AC0302",
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 00:09:44",
+    "text": "我早就到长青街老城区商业街桩旁锁好车（桩位都满了）了，结果显示骑了 48 分钟，扣了 ¥24.0，太多了。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 00:09:54",
+    "text": "订单 OD2026113010347 计费 48 分钟。车辆在结束前约 42 分钟已停在长青街老城区商业街站点内未移动，锁车报告延迟到达。建议按车辆停止移动的时刻重算，退款 ¥21.0；超过客服授权额度 ¥20.0，需客服主管确认。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-12-01 00:12:44",
+    "text": "已提交客服主管确认，确认后原路退回，会在这里通知你。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 21.0,
+   "kind": "部分退款",
+   "basis": "车辆提前停在站点内，锁车报告延迟，按停止移动时刻重算",
+   "proposedAt": "2026-12-01 00:09:54",
+   "proposedBy": "AC0904",
+   "decision": "待主管确认",
+   "decidedBy": null,
+   "decidedAt": null,
+   "overLimit": true
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026113010347",
+   "startAt": "2026-11-30 17:21:49",
+   "endAt": "2026-11-30 18:09:38",
+   "billedMinutes": 48,
+   "distanceKm": 8.0,
+   "receivable": 24.0,
+   "payable": 24.0,
+   "netReceived": 24.0,
+   "inStation": true,
+   "inStationBasis": "桩满·围栏内"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010034",
+  "userId": "U101097",
+  "orderId": null,
+  "category": "退押",
+  "entry": "押金",
+  "createdAt": "2026-12-01 05:29:43",
+  "status": "处理中",
+  "assignee": "AC0302",
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 05:29:43",
+    "text": "押金什么时候到账？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 05:29:49",
+    "text": "押金 ¥199.0 已申请退回，预计 2026-12-04 前原路到账。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010035",
+  "userId": "U100279",
+  "orderId": null,
+  "category": "注销",
+  "entry": "账户",
+  "createdAt": "2026-12-01 06:48:00",
+  "status": "处理中",
+  "assignee": "AC0304",
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 06:48:00",
+    "text": "帮我注销账户。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 06:48:05",
+    "text": "你还有 ¥14.5 欠费未结清，结清后才能注销。可以在\"账户\"页一键补付。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": null,
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010031",
+  "userId": "U101091",
+  "orderId": "OD2026112912671",
+  "category": "费用异议",
+  "entry": "我的订单",
+  "createdAt": "2026-12-01 09:03:01",
+  "status": "已解决",
+  "assignee": "AC0304",
+  "closedAt": "2026-12-01 09:11:01",
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 09:03:01",
+    "text": "车子骑了没多久就没电了，推回来的，这单能退吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 09:03:09",
+    "text": "已调出订单 OD2026112912671：10 分钟、1.9 公里，已扣 ¥5.0。车辆在开锁后 10 分钟内停在原地附近，运营商同日报告该车故障。建议全额退款 ¥5.0。"
+   },
+   {
+    "from": "客服",
+    "at": "2026-12-01 09:10:01",
+    "text": "已为你全额退款 ¥5.0，原路退回，一般几分钟到账。给你带来不便很抱歉。"
+   }
+  ],
+  "refundProposal": {
+   "amount": 5.0,
+   "kind": "全额退款",
+   "basis": "车辆故障，骑行时长短且未离开起点附近",
+   "proposedAt": "2026-12-01 09:03:09",
+   "proposedBy": "AC0904",
+   "decision": "已确认",
+   "decidedBy": "AC0304",
+   "decidedAt": "2026-12-01 09:10:01",
+   "overLimit": false
+  },
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026112912671",
+   "startAt": "2026-11-29 18:06:46",
+   "endAt": "2026-11-29 18:15:49",
+   "billedMinutes": 10,
+   "distanceKm": 1.9,
+   "receivable": 5.0,
+   "payable": 5.0,
+   "netReceived": 0.0,
+   "inStation": true,
+   "inStationBasis": "桩识别"
+  },
+  "actions": [
+   {
+    "type": "退款",
+    "paymentId": "PY20261201091001930",
+    "at": "2026-12-01 09:10:01",
+    "by": "AC0304"
+   }
+  ],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010036",
+  "userId": "U101654",
+  "orderId": "OD2026112512051",
+  "category": "费用咨询",
+  "entry": "我的",
+  "createdAt": "2026-12-01 11:04:00",
+  "status": "待处理",
+  "assignee": null,
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 11:04:00",
+    "text": "这单为什么要我自己点支付，不能自动扣吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 11:04:06",
+    "text": "你是缴押金用户，骑完在账单页一键支付即可；24 小时内未支付会自动从押金抵扣并通知你。也可以改为开通信用免押，骑完自动扣款。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026112512051",
+   "startAt": "2026-11-25 08:26:41",
+   "endAt": "2026-11-25 08:39:18",
+   "billedMinutes": 13,
+   "distanceKm": 2.7,
+   "receivable": 6.5,
+   "payable": 6.5,
+   "netReceived": 6.5,
+   "inStation": true,
+   "inStationBasis": "车端判定"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010037",
+  "userId": "U101994",
+  "orderId": "OD2026111512928",
+  "category": "费用咨询",
+  "entry": "我的",
+  "createdAt": "2026-12-01 11:09:00",
+  "status": "待处理",
+  "assignee": null,
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 11:09:00",
+    "text": "这单为什么要我自己点支付，不能自动扣吗？"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 11:09:40",
+    "text": "你是缴押金用户，骑完在账单页一键支付即可；24 小时内未支付会自动从押金抵扣并通知你。也可以改为开通信用免押，骑完自动扣款。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026111512928",
+   "startAt": "2026-11-15 08:04:25",
+   "endAt": "2026-11-15 08:18:56",
+   "billedMinutes": 15,
+   "distanceKm": 3.5,
+   "receivable": 7.5,
+   "payable": 4.5,
+   "netReceived": 4.5,
+   "inStation": true,
+   "inStationBasis": "桩故障或离线·车端判定"
+  },
+  "actions": [],
+  "awaitingPayee": false
+ },
+ {
+  "ticketId": "TK202612010033",
+  "userId": "U100123",
+  "orderId": "OD2026120111070",
+  "category": "订单无法结束",
+  "entry": "骑行中页",
+  "createdAt": "2026-12-01 11:32:08",
+  "status": "待处理",
+  "assignee": null,
+  "closedAt": null,
+  "messages": [
+   {
+    "from": "用户",
+    "at": "2026-12-01 11:32:08",
+    "text": "早上 8 点就在文昌街与学府路路口把车锁了，现在页面还在计时，已经三个多小时了。"
+   },
+   {
+    "from": "客服智能体",
+    "at": "2026-12-01 11:32:15",
+    "text": "订单 OD2026120111070 未收到锁车报告。车辆定位自 08:02 起停在文昌街与学府路路口站点内未移动。建议强制结束并按 08:02 计费，约 21 分钟。待客服确认。"
+   }
+  ],
+  "refundProposal": null,
+  "forceEnd": null,
+  "facts": {
+   "orderId": "OD2026120111070",
+   "startAt": "2026-12-01 07:41:18",
+   "endAt": null,
+   "billedMinutes": null,
+   "distanceKm": null,
+   "receivable": null,
+   "payable": null,
+   "netReceived": null,
+   "inStation": null,
+   "inStationBasis": null
+  },
+  "actions": [],
+  "awaitingPayee": false
+ }
+]

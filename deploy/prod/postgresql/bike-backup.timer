@@ -1,0 +1,12 @@
+# 配套 bike-backup.service：
+#   [Service] Type=oneshot User=bike-backup ExecStart=/opt/bike/deploy/bike-backup.sh
+[Unit]
+Description=每日异地备份订单与资金相关数据库
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

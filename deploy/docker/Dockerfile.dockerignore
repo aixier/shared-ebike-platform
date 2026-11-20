@@ -1,0 +1,16 @@
+# 构建上下文 = 项目根目录（共享单车/）。只放行需要的，其余全部排除；
+# 这个文件按 Dockerfile 名与 Dockerfile 同目录，BuildKit 优先读它，不需要在项目根放 .dockerignore。
+*
+!backend
+!原型
+!deploy/services.tsv
+!deploy/docker
+
+# 以下在放行目录内再排除（后写的优先）
+**/.tmp
+**/*.exe
+**/*.exe~
+**/*.test
+**/.git
+**/node_modules
+deploy/docker/**/*.md

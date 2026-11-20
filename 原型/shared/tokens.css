@@ -1,0 +1,74 @@
+/* 晨光橙设计令牌：用户端与管理端共用 */
+:root{
+  /* 品牌色 */
+  --orange-50:#FFF7ED; --orange-100:#FFEDD5; --orange-200:#FED7AA;
+  --orange-500:#F97316; --orange-600:#EA580C; --orange-700:#C2410C;
+  /* 中性色 */
+  --bg:#FFFBF5; --surface:#FFFFFF; --surface-2:#FBF6EF; --line:#EADFD3; --line-2:#F3EBE1;
+  --ink:#2A1D14; --ink-2:#6B5B4E; --ink-3:#7C6D61;
+  --on-orange:#2A1405;
+  --disabled-bg:#EFE7DE; --disabled-ink:#8A7C70;
+  --mask:rgba(42,29,20,.45);
+  /* 状态色（只有三种） */
+  --ok:#15803D; --ok-bg:#DCFCE7; --ok-ink:#14532D;
+  --warn:#B45309; --warn-bg:#FEF3C7; --warn-ink:#78350F;
+  --err:#B91C1C; --err-bg:#FEE2E2; --err-ink:#7F1D1D;
+  /* 形状 */
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-btn:14px; --r-full:999px;
+  --sh-1:0 1px 2px rgba(42,29,20,.06),0 2px 8px rgba(42,29,20,.05);
+  --sh-2:0 4px 16px rgba(42,29,20,.10);
+  /* 间距（8px 网格） */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px;
+  /* 动效 */
+  --d-fast:120ms; --d-base:220ms; --d-slow:360ms;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  /* 字体 */
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-mono:ui-monospace,Consolas,"SF Mono",monospace;
+  /* 焦点环 */
+  --focus:0 0 0 3px rgba(249,115,22,.45);
+  /* 层级 */
+  --z-sheet:900; --z-modal:1000; --z-toast:1100;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:var(--orange-700);text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus{outline:none}
+:focus-visible{box-shadow:var(--focus);outline:2px solid transparent}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.mono{font-family:var(--font-mono)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* 状态标签（两端通用） */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;line-height:20px;border-radius:var(--r-full);padding:2px 10px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.err{background:var(--err-bg);color:var(--err)}
+.chip.brand{background:var(--orange-100);color:var(--orange-700)}
+.chip.mute{background:var(--disabled-bg);color:var(--ink-2)}
+
+/* 骨架屏动效（两端通用） */
+.skel{display:block;background:linear-gradient(90deg,#F3EBE1 25%,#FAF4EC 50%,#F3EBE1 75%);background-size:200% 100%;animation:skel 1.2s linear infinite;border-radius:var(--r-sm);min-height:12px}
+@keyframes skel{to{background-position:-200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+
+/* 调试面板（仅 ?debug=1 出现） */
+.dbg-panel{position:fixed;right:12px;bottom:12px;z-index:2000;width:260px;background:#2A1D14;color:#FFF7ED;border-radius:var(--r-md);box-shadow:var(--sh-2);font-size:12px;padding:10px 12px}
+.dbg-panel h4{font-size:12px;margin-bottom:6px;color:var(--orange-200)}
+.dbg-panel button{background:#4A3A2E;color:#FFF7ED;border:0;border-radius:6px;padding:4px 8px;margin:2px 4px 2px 0;font-size:12px}
+.dbg-panel button:hover{background:#6B5444}
+.dbg-panel label{display:block;margin:4px 0}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;scroll-behavior:auto!important}
+}

@@ -1,0 +1,25 @@
+{
+ "operatorId": "OP02",
+ "name": "驰路智行科技有限公司",
+ "shortName": "驰路智行",
+ "type": "运营商",
+ "creditCode": "91510107MA62QH8L5N",
+ "contacts": [
+  {
+   "name": "沈＊＊",
+   "role": "业务负责人",
+   "phone": "138****6629"
+  },
+  {
+   "name": "汪＊",
+   "role": "财务",
+   "phone": "159****3307"
+  }
+ ],
+ "settlementAccount": {
+  "bank": "示范市商业银行滨河支行",
+  "accountName": "驰路智行科技有限公司",
+  "account": "6214 **** **** 0928"
+ },
+ "reason": "本机联调登记运营商"
+}

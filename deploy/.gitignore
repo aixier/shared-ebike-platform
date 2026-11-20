@@ -1,0 +1,8 @@
+# 下载物、运行数据、生成的配置与密钥一律不入库
+local/bin/
+local/data/
+local/logs/
+local/env/
+local/secrets/
+local/run/
+docker/.dl/

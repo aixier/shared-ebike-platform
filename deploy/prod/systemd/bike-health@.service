@@ -1,0 +1,9 @@
+# 健康检查：/healthz 连续失败即重启对应实例。由 bike-health@<实例名>.timer 每 15 秒触发。
+# 进程退出由 bike@.service 的 Restart=always 拉起；本单元处理"进程在但不健康"。
+[Unit]
+Description=健康检查 %i
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/bike/%i.env
+ExecStart=/bin/sh -c 'for n in 1 2 3; do curl -fsS -m 3 "http://127.0.0.1:${PORT}/healthz" >/dev/null && exit 0; sleep 2; done; logger -t bike-health "%i 连续 3 次健康检查失败，重启"; systemctl restart bike@%i.service'

@@ -1,0 +1,9 @@
+{
+ "brandId": "BR03",
+ "name": "驰路",
+ "displayName": "【驰路】电单车",
+ "color": "#2563EB",
+ "vehicleType": "电单车",
+ "operatorId": "OP02",
+ "reason": "本机联调登记品牌"
+}

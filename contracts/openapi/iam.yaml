@@ -1,0 +1,482 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · iam 账号与留痕
+  version: 1.0.0
+  description: |
+    管理账号、岗位、权限点、数据范围、登录会话、留痕记录。
+    管理端与执法端共用同一套登录、退出、当前账号接口：登录时用 client 说明从哪一端登录，执法人员账号只能从执法端登录，其余岗位只能从管理端登录，不匹配按 LOGIN_FAILED 处理。
+    令牌内含岗位、权限点、数据范围，各模块自行校验并自行做权限判断与数据范围过滤。
+    留痕内容由各模块以"留痕已记录"事件送来，本模块只保存与查询，没有写留痕的接口。
+    待办计数不在本模块，由各模块各自提供。时间 RFC 3339。
+    令牌有效期 30 分钟，到期前用 POST /api/iam/token/refresh 换新令牌；令牌声明见 contracts/wire.md 第 2 节（含 badgeNo，仅执法端令牌有，其余为 null）。
+    请求体必须是 UTF-8，不是的返回 400 INVALID（"请求体不是 UTF-8 编码"）。
+    HTTP 状态：INVALID、REASON_REQUIRED 为 400；ADMIN_NOT_LOGGED_IN、LOGIN_FAILED 为 401；FORBIDDEN、READONLY、ACCOUNT_DISABLED 为 403；NOT_FOUND 为 404；其余业务错误码为 409。
+servers:
+  - url: /
+tags:
+  - name: 公共
+    description: 管理端各岗位共用：登录与账号、操作留痕
+  - name: 执法端
+    description: 执法人员手机页
+  - name: 运维
+    description: 运维账号管理员
+  - name: 内部
+    description: 模块间查询，不对公网开放
+paths:
+  /api/iam/login:
+    post:
+      operationId: login
+      summary: 登录
+      description: 管理端与执法端共用。成功后签发令牌并记最近登录时间。账号或密码不对、账号岗位与 client 不匹配、智能体与系统账号，一律 LOGIN_FAILED；停用的账号 ACCOUNT_DISABLED。运营商已退出的只读账号可以登录。
+      tags: [公共, 执法端]
+      security: []
+      x-prototype: api.admin.login、api.enforcement.login
+      x-requirements: [R-46, R-42, R-44]
+      x-permissions: []
+      x-errors: [LOGIN_FAILED, ACCOUNT_DISABLED, INVALID]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: 已登录
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/logout:
+    post:
+      operationId: logout
+      summary: 退出登录
+      description: 管理端与执法端共用。当前会话作废；令牌已失效时也返回成功。
+      tags: [公共, 执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.logout、api.enforcement.logout
+      x-requirements: [R-46]
+      x-permissions: []
+      x-errors: []
+      responses:
+        '200':
+          description: 已退出
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Ok' }
+  /api/iam/password:
+    post:
+      operationId: changePassword
+      summary: 修改本人密码
+      description: 当前密码不对返回 LOGIN_FAILED；新密码至少 8 位、同时含字母和数字、不能与当前密码相同，否则 INVALID。记留痕"修改密码"。只读账号不能改。
+      tags: [公共, 执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.changePassword
+      x-requirements: [R-46, R-47]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, READONLY, LOGIN_FAILED, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '200':
+          description: 已修改
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Ok' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/token/refresh:
+    post:
+      operationId: refreshToken
+      summary: 续期令牌
+      description: 用未过期的旧令牌换新令牌。账号未停用、会话有效才可；已过期、已退出、已作废的令牌 ADMIN_NOT_LOGGED_IN，账号已停用 ACCOUNT_DISABLED。岗位、权限点、数据范围、只读、badgeNo 取账号当前状态重新签发，端（client）沿用；新令牌有效期 30 分钟，旧令牌随即作废。只读账号可续期，新令牌仍只读。不记留痕。
+      tags: [公共, 执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-46]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED]
+      responses:
+        '200':
+          description: 新令牌，结构同登录结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResult' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/me:
+    get:
+      operationId: getMe
+      summary: 当前账号、菜单与权限
+      description: 管理端与执法端共用。菜单按 menus 裁剪，按钮按 permissions 控制。不含待办（各模块提供自己的待办计数）；执法人员的取证数由前端另调 enforce。
+      tags: [公共, 执法端]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.me、api.enforcement.me
+      x-requirements: [R-46, R-42]
+      x-permissions: []
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED]
+      responses:
+        '200':
+          description: 当前账号
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/accounts:
+    get:
+      operationId: listAccounts
+      summary: 账号列表
+      description: 含不可登录的智能体与系统账号（username 为 null）。不返回密码。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.accounts.list
+      x-requirements: [R-46]
+      x-permissions: [account.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      parameters:
+        - name: role
+          in: query
+          schema: { $ref: '#/components/schemas/Role' }
+        - name: q
+          in: query
+          description: 姓名、账号名或机构，包含匹配
+          schema: { type: string }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 分页账号
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+    post:
+      operationId: createAccount
+      summary: 开通账号
+      description: 菜单与权限点按岗位给。账号名只能用小写字母、数字和点，3～30 位，不能重复；运营商岗位必须指定所属运营商；否则 INVALID。初始密码为统一初始密码。记留痕"账号开通"，发布"账号变更"。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.accounts.create
+      x-requirements: [R-46, R-47]
+      x-permissions: [account.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, REASON_REQUIRED, INVALID]
+      parameters:
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateAccountRequest' }
+      responses:
+        '201':
+          description: 新开通的账号
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/accounts/{accountId}/status:
+    put:
+      operationId: setAccountStatus
+      summary: 停用或恢复账号
+      description: 停用的账号不能登录，已签发的会话同时作废。智能体与系统账号不能修改（INVALID）。记留痕"权限调整"（含前后值），发布"账号变更"。
+      tags: [运维]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.accounts.setStatus
+      x-requirements: [R-46, R-47]
+      x-permissions: [account.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID]
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: 账号编号
+          schema: { type: string, example: AC0301 }
+        - $ref: './_common.yaml#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetAccountStatusRequest' }
+      responses:
+        '200':
+          description: 更新后的账号
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+  /api/iam/audit:
+    get:
+      operationId: listAudit
+      summary: 操作留痕查询
+      description: 按时间新到旧。可按账号、动作、对象、操作人类别、时间筛选；订单详情页按 targetId 查该订单的留痕也用本接口。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.audit.list
+      x-requirements: [R-47, AC-09]
+      x-permissions: [audit.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      parameters:
+        - name: accountId
+          in: query
+          description: 操作人编号：管理账号、智能体或系统账号，注销留痕里是用户编号
+          schema: { type: string }
+        - name: action
+          in: query
+          description: 留痕动作，可多选
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/AuditAction' }
+        - name: targetType
+          in: query
+          schema: { $ref: '#/components/schemas/AuditTargetType' }
+        - name: targetId
+          in: query
+          description: 对象编号
+          schema: { type: string }
+        - name: actorKind
+          in: query
+          schema: { $ref: '#/components/schemas/ActorKind' }
+        - name: from
+          in: query
+          description: 起始时刻（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: to
+          in: query
+          description: 结束时刻（含）
+          schema: { $ref: './_common.yaml#/components/schemas/Time' }
+        - name: q
+          in: query
+          description: 摘要、事由或对象编号，包含匹配
+          schema: { type: string }
+        - $ref: './_common.yaml#/components/parameters/Page'
+        - $ref: './_common.yaml#/components/parameters/PageSize'
+        - $ref: './_common.yaml#/components/parameters/SortKey'
+        - $ref: './_common.yaml#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: 分页留痕
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuditPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/iam/audit/actions:
+    get:
+      operationId: listAuditActions
+      summary: 已出现的留痕动作
+      description: 筛选下拉用，按名称排序。
+      tags: [公共]
+      security: [{ adminAuth: [] }]
+      x-prototype: api.admin.audit.actions
+      x-requirements: [R-47]
+      x-permissions: [audit.view]
+      x-errors: [ADMIN_NOT_LOGGED_IN, ACCOUNT_DISABLED, FORBIDDEN]
+      responses:
+        '200':
+          description: 留痕动作
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AuditAction' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+
+  /internal/iam/token-keys:
+    get:
+      operationId: internalGetTokenKeys
+      summary: 令牌验签公钥
+      description: 各模块取公钥后自行校验管理端与执法令牌；轮换期间同时返回新旧公钥，按 kid 匹配。本模块不可用时各模块用已缓存的公钥继续校验。
+      tags: [内部]
+      security: [{ internalAuth: [] }]
+      x-prototype: 无
+      x-requirements: [R-46]
+      x-errors: [UNAUTHORIZED]
+      responses:
+        '200':
+          description: 公钥集合
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenKeys' }
+
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+  schemas:
+    Role:
+      type: string
+      description: 岗位。智能体与系统是不可登录的账号，只作为操作人出现在留痕里
+      enum: [主管部门管理员, 运营商业务, 运营商技术对接, 财务, 客服, 客服主管, 运维值班, 运维接入负责人, 运维账号管理员, 执法人员, 智能体, 系统]
+    LoginableRole:
+      type: string
+      description: 可开通的岗位
+      enum: [主管部门管理员, 运营商业务, 运营商技术对接, 财务, 客服, 客服主管, 运维值班, 运维接入负责人, 运维账号管理员, 执法人员]
+    AccountStatus:
+      type: string
+      description: |
+        账号状态。运营商退出后其账号转"只读（运营商已退出）"；本机开发演示账号 admin 用"只读（演示账号）"，两者互不借用。
+        两种只读都可登录可查看，令牌 readonly=true，写操作各模块返回 READONLY。凡以"只读"开头的取值都按只读处理（订阅方、前端判断只读用前缀，不枚举）
+      enum: [正常, 停用, 只读（运营商已退出）, 只读（演示账号）]
+    ActorKind:
+      type: string
+      description: 操作人类别
+      enum: [人, 智能体, 系统, 用户]
+    Account:
+      type: object
+      description: 账号（不含密码）
+      required: [accountId, role, post, name, org, permissions, menus, status, createdAt]
+      properties:
+        accountId: { type: string, description: 账号编号，AC + 4 位, example: AC0301 }
+        role: { $ref: '#/components/schemas/Role' }
+        post: { type: string, enum: [主管部门, 运营商, 平台公司财务, 平台公司客服, 平台公司运维, 执法, 智能体, 系统], description: 岗位所属的端 }
+        name: { type: string, description: 姓名（脱敏）或智能体名称 }
+        username: { type: string, nullable: true, description: 登录账号名；智能体与系统账号为 null }
+        org: { type: string, description: 机构 }
+        operatorScope: { type: string, nullable: true, description: 数据范围：运营商账号只能看这个运营商的数据；其他岗位为 null }
+        badgeNo: { type: string, nullable: true, description: 执法证号，执法人员才有；令牌里的 badgeNo 只在执法端令牌出现 }
+        permissions:
+          type: array
+          description: 权限点，如 refund.confirm.overLimit、degrade.control、acceptance.confirm
+          items: { type: string }
+        menus:
+          type: array
+          description: 菜单，与页面名一致
+          items: { type: string }
+        status: { $ref: '#/components/schemas/AccountStatus' }
+        createdAt: { $ref: './_common.yaml#/components/schemas/Time' }
+        createdBy: { type: string, nullable: true, description: 开通人的账号编号 }
+        lastLoginAt: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 最近登录时刻 }
+        agentRole: { type: string, nullable: true, description: 智能体职责说明 }
+    AccountPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Account' }
+    LoginRequest:
+      type: object
+      required: [username, password, client]
+      properties:
+        username: { type: string, description: 登录账号名 }
+        password: { type: string, format: password }
+        client: { type: string, enum: [管理端, 执法端], description: 从哪一端登录；执法人员只能从执法端登录，其余岗位只能从管理端登录 }
+    LoginResult:
+      type: object
+      required: [token, expiresAt, account]
+      properties:
+        token: { type: string, description: 登录令牌，内含岗位、权限点、数据范围，放在 Authorization Bearer 里 }
+        expiresAt: { allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 令牌过期时刻，签发后 30 分钟 }
+        account: { $ref: '#/components/schemas/Account' }
+    ChangePasswordRequest:
+      type: object
+      required: [oldPassword, newPassword]
+      properties:
+        oldPassword: { type: string, format: password, description: 当前密码 }
+        newPassword: { type: string, format: password, minLength: 8, description: 新密码，至少 8 位，同时含字母和数字，不能与当前密码相同 }
+    Me:
+      type: object
+      required: [account, menus, permissions, readonly]
+      properties:
+        account: { $ref: '#/components/schemas/Account' }
+        menus:
+          type: array
+          description: 当前账号可见的菜单
+          items: { type: string }
+        permissions:
+          type: array
+          description: 当前账号的权限点
+          items: { type: string }
+        readonly: { type: boolean, description: 是否只读账号（运营商已退出，或演示账号） }
+        operator:
+          nullable: true
+          description: 数据范围对应的运营商；非运营商账号为 null。运营商名称等资料由前端按 operatorId 调 fleet
+          type: object
+          required: [operatorId]
+          properties:
+            operatorId: { type: string, description: 运营商编号, example: OP01 }
+    CreateAccountRequest:
+      type: object
+      required: [username, role, reason]
+      properties:
+        username: { type: string, pattern: '^[a-z0-9.]{3,30}$', description: 登录账号名 }
+        name: { type: string, description: 姓名 }
+        role: { $ref: '#/components/schemas/LoginableRole' }
+        org: { type: string, description: 机构 }
+        operatorScope: { type: string, nullable: true, description: 所属运营商编号；运营商业务、运营商技术对接必填 }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    SetAccountStatusRequest:
+      type: object
+      required: [status, reason]
+      properties:
+        status: { type: string, enum: [正常, 停用] }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    AuditAction:
+      type: string
+      description: 留痕动作。iam 只存不判：各模块发来的动作原样保存，枚举外的也照存；本枚举供筛选与展示，与 contracts/events/README.md 第 3 节「动作清单」逐项一致，新增动作先改清单再在此补
+      enum: [注册用户, 核验实名, 冻结账户, 解冻账户, 注销账户, 查看用户信息, 购买月卡, 抵扣押金, 执行退款, 处理对账差异, 人工转账, 确认退款, 确认超额退款, 驳回退款, 结案工单, 缴纳押金, 补缴押金, 申请退押, 恢复押金, 退还押金, 开通免押, 关闭免押, 上传取证照片, 提交取证记录, 导出证据, 登记运营商, 登记品牌, 登记服务商, 更新服务商, 提交车辆清单, 编辑车辆, 移出车辆, 发放政府码, 开始联调, 上线品牌, 暂停可租, 恢复可租, 驳回暂停建议, 设置自动暂停, 设置运营商退出, 签发联调凭证, 轮换联调凭证, 吊销联调凭证, 恢复联调凭证, 设置联调环境, 登记联调地址, 执行符合性测试, 试骑真车, 提交真车联调结果, 确认验收, 提出联调建议, 撰写验收摘要, 生成生产凭证, 录入接入凭证, 修改接入凭证, 调整凭证范围, 轮换生产凭证, 停用生产凭证, 进入降级, 收紧降级, 停止降级, 放宽降级, 退出降级, 闭合订单, 强制结束订单, 新增规则版本, 撤销规则版本, 修改平台参数, 生成结算单, 调整结算单, 审核结算单, 发送结算单, 登记到账, 提交异议, 处理异议, 新建站点, 调整站点, 删除站点, 登记桩, 设置桩状态, 登记控制器, 重置控制器密钥, 停用控制器, 开通账号, 调整权限, 修改密码]
+    AuditTargetType:
+      type: string
+      description: 留痕对象类型
+      enum: [pricing, station, pile, brand, operator, provider, credential, integration, degrade, order, payment, user, settlement, dispute, account, evidence, ticket]
+    AuditRecord:
+      type: object
+      description: 留痕记录，只追加
+      required: [auditId, at, accountId, actorKind, action, targetType, targetId, summary]
+      properties:
+        auditId: { type: string, description: 留痕编号，AU + 日期 + 4 位 }
+        at: { $ref: './_common.yaml#/components/schemas/Time' }
+        accountId: { type: string, description: 操作人编号：管理账号、智能体账号（AC09xx）、系统（AC0900），注销留痕里是用户编号 }
+        actorName: { type: string, nullable: true, description: 操作人显示名，如姓名、"运行智能体"、"系统" }
+        actorKind: { $ref: '#/components/schemas/ActorKind' }
+        action: { $ref: '#/components/schemas/AuditAction' }
+        targetType: { $ref: '#/components/schemas/AuditTargetType' }
+        targetId: { type: string, description: 对象编号 }
+        summary: { type: string, description: 一句话摘要 }
+        reason: { type: string, nullable: true, description: 操作事由 }
+        before: { type: object, nullable: true, additionalProperties: true, description: 变更前的值 }
+        after: { type: object, nullable: true, additionalProperties: true, description: 变更后的值 }
+    AuditPage:
+      allOf:
+        - $ref: './_common.yaml#/components/schemas/PageMeta'
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/AuditRecord' }
+    TokenKeys:
+      type: object
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            required: [kid, alg, publicKey]
+            properties:
+              kid: { type: string, description: 密钥标识，与令牌头里的 kid 对应 }
+              alg: { type: string, description: 签名算法, example: EdDSA }
+              publicKey: { type: string, description: PEM 格式公钥 }
+              notAfter: { nullable: true, allOf: [{ $ref: './_common.yaml#/components/schemas/Time' }], description: 停用时刻；轮换中的旧密钥才有 }

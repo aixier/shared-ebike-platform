@@ -1,0 +1,780 @@
+{
+ "accounts": [
+  {
+   "accountId": "AC0001",
+   "role": "主管部门管理员",
+   "post": "主管部门",
+   "name": "周＊＊",
+   "username": "zgbm.zhou",
+   "password": "Shifan@2026",
+   "org": "示范市交通运输局 共享单车管理科",
+   "operatorScope": null,
+   "permissions": [
+    "pricing.view",
+    "pricing.edit",
+    "station.edit",
+    "pile.edit",
+    "access.view",
+    "metrics.unlockRate.view",
+    "access.setExit",
+    "evidence.view",
+    "evidence.export",
+    "audit.view"
+   ],
+   "menus": [
+    "价格与规则配置",
+    "站点与围栏",
+    "桩管理",
+    "接入状态总览",
+    "证据查询导出",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 03:51:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0002",
+   "role": "主管部门管理员",
+   "post": "主管部门",
+   "name": "叶＊",
+   "username": "zgbm.ye",
+   "password": "Shifan@2026",
+   "org": "示范市交通运输局 共享单车管理科",
+   "operatorScope": null,
+   "permissions": [
+    "pricing.view",
+    "pricing.edit",
+    "station.edit",
+    "pile.edit",
+    "access.view",
+    "metrics.unlockRate.view",
+    "access.setExit",
+    "evidence.view",
+    "evidence.export",
+    "audit.view"
+   ],
+   "menus": [
+    "价格与规则配置",
+    "站点与围栏",
+    "桩管理",
+    "接入状态总览",
+    "证据查询导出",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 07:34:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0101",
+   "role": "运营商业务",
+   "post": "运营商",
+   "name": "何＊＊",
+   "username": "qhcx.he",
+   "password": "Shifan@2026",
+   "org": "青禾出行科技有限公司",
+   "operatorScope": "OP01",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "order.view.own",
+    "order.export.own",
+    "settlement.view.own",
+    "settlement.export.own",
+    "dispute.submit.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "订单明细",
+    "结算单",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 07:26:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0102",
+   "role": "运营商业务",
+   "post": "运营商",
+   "name": "沈＊＊",
+   "username": "clzx.shen",
+   "password": "Shifan@2026",
+   "org": "驰路智行科技有限公司",
+   "operatorScope": "OP02",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "order.view.own",
+    "order.export.own",
+    "settlement.view.own",
+    "settlement.export.own",
+    "dispute.submit.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "订单明细",
+    "结算单",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 07:47:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0103",
+   "role": "运营商业务",
+   "post": "运营商",
+   "name": "韦＊＊",
+   "username": "jtgx.wei",
+   "password": "Shifan@2026",
+   "org": "简途共享出行有限公司",
+   "operatorScope": "OP03",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "order.view.own",
+    "order.export.own",
+    "settlement.view.own",
+    "settlement.export.own",
+    "dispute.submit.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "订单明细",
+    "结算单",
+    "验收与上线"
+   ],
+   "status": "只读（运营商已退出）",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 09:57:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0104",
+   "role": "运营商业务",
+   "post": "运营商",
+   "name": "龚＊＊",
+   "username": "gjcd.gong",
+   "password": "Shifan@2026",
+   "org": "示范市公共交通集团有限公司",
+   "operatorScope": "OP04",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "order.view.own",
+    "order.export.own",
+    "settlement.view.own",
+    "settlement.export.own",
+    "dispute.submit.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "订单明细",
+    "结算单",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-11-03 11:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 19:22:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0111",
+   "role": "运营商技术对接",
+   "post": "运营商",
+   "name": "邓＊",
+   "username": "qhcx.deng",
+   "password": "Shifan@2026",
+   "org": "青禾出行科技有限公司",
+   "operatorScope": "OP01",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "integration.doc",
+    "integration.sandbox.own",
+    "integration.conformance.own",
+    "acceptance.view.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "接入文档",
+    "联调与测试",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 06:32:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0112",
+   "role": "运营商技术对接",
+   "post": "运营商",
+   "name": "闫＊＊",
+   "username": "lt.yan",
+   "password": "Shifan@2026",
+   "org": "联泰车联网科技有限公司（代接驰路智行）",
+   "operatorScope": "OP02",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "integration.doc",
+    "integration.sandbox.own",
+    "integration.conformance.own",
+    "acceptance.view.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "接入文档",
+    "联调与测试",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-29 21:37:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0114",
+   "role": "运营商技术对接",
+   "post": "运营商",
+   "name": "黎＊",
+   "username": "gjcd.li",
+   "password": "Shifan@2026",
+   "org": "示范市公共交通集团有限公司",
+   "operatorScope": "OP04",
+   "permissions": [
+    "vehicle.view.own",
+    "vehicle.edit.own",
+    "integration.doc",
+    "integration.sandbox.own",
+    "integration.conformance.own",
+    "acceptance.view.own",
+    "access.view.own"
+   ],
+   "menus": [
+    "车辆清单",
+    "接入文档",
+    "联调与测试",
+    "验收与上线"
+   ],
+   "status": "正常",
+   "createdAt": "2026-11-03 11:05:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-29 22:50:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0201",
+   "role": "财务",
+   "post": "平台公司财务",
+   "name": "吕＊＊",
+   "username": "cw.lv",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 财务部",
+   "operatorScope": null,
+   "permissions": [
+    "settlement.manage",
+    "settlement.adjust",
+    "dispute.decide",
+    "recon.manage",
+    "deposit.view",
+    "arrears.view",
+    "refund.manualTransfer",
+    "degrade.closure.view",
+    "audit.view"
+   ],
+   "menus": [
+    "结算单管理",
+    "处理异议",
+    "收单对账",
+    "押金专户",
+    "欠费与退款失败",
+    "恢复闭合",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 23:36:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0202",
+   "role": "财务",
+   "post": "平台公司财务",
+   "name": "姜＊",
+   "username": "cw.jiang",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 财务部",
+   "operatorScope": null,
+   "permissions": [
+    "settlement.manage",
+    "settlement.adjust",
+    "dispute.decide",
+    "recon.manage",
+    "deposit.view",
+    "arrears.view",
+    "refund.manualTransfer",
+    "degrade.closure.view",
+    "audit.view"
+   ],
+   "menus": [
+    "结算单管理",
+    "处理异议",
+    "收单对账",
+    "押金专户",
+    "欠费与退款失败",
+    "恢复闭合",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 22:56:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0301",
+   "role": "客服",
+   "post": "平台公司客服",
+   "name": "苏＊＊",
+   "username": "kf.su",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 客服中心",
+   "operatorScope": null,
+   "permissions": [
+    "user.view",
+    "order.view",
+    "refund.confirm",
+    "order.forceEnd",
+    "account.unfreeze",
+    "deposit.assist",
+    "account.cancel.assist"
+   ],
+   "menus": [
+    "用户与订单查询",
+    "退款处理",
+    "强制结束订单",
+    "账户处理"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 08:17:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0302",
+   "role": "客服",
+   "post": "平台公司客服",
+   "name": "钟＊",
+   "username": "kf.zhong",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 客服中心",
+   "operatorScope": null,
+   "permissions": [
+    "user.view",
+    "order.view",
+    "refund.confirm",
+    "order.forceEnd",
+    "account.unfreeze",
+    "deposit.assist",
+    "account.cancel.assist"
+   ],
+   "menus": [
+    "用户与订单查询",
+    "退款处理",
+    "强制结束订单",
+    "账户处理"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 00:25:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0304",
+   "role": "客服",
+   "post": "平台公司客服",
+   "name": "陆＊＊",
+   "username": "kf.lu",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 客服中心",
+   "operatorScope": null,
+   "permissions": [
+    "user.view",
+    "order.view",
+    "refund.confirm",
+    "order.forceEnd",
+    "account.unfreeze",
+    "deposit.assist",
+    "account.cancel.assist"
+   ],
+   "menus": [
+    "用户与订单查询",
+    "退款处理",
+    "强制结束订单",
+    "账户处理"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-29 21:21:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0303",
+   "role": "客服主管",
+   "post": "平台公司客服",
+   "name": "谭＊＊",
+   "username": "kf.tan",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 客服中心",
+   "operatorScope": null,
+   "permissions": [
+    "user.view",
+    "order.view",
+    "refund.confirm",
+    "refund.confirm.overLimit",
+    "order.forceEnd",
+    "account.unfreeze",
+    "deposit.assist",
+    "account.cancel.assist",
+    "audit.view"
+   ],
+   "menus": [
+    "用户与订单查询",
+    "退款处理",
+    "强制结束订单",
+    "账户处理",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 04:13:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0401",
+   "role": "运维值班",
+   "post": "平台公司运维",
+   "name": "贺＊＊",
+   "username": "yw.he",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 运行保障部",
+   "operatorScope": null,
+   "permissions": [
+    "ops.monitor",
+    "degrade.control",
+    "degrade.closure.handle",
+    "access.pause",
+    "audit.view"
+   ],
+   "menus": [
+    "运行监控",
+    "降级与限额",
+    "恢复闭合",
+    "接入验收",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 03:24:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0402",
+   "role": "运维值班",
+   "post": "平台公司运维",
+   "name": "顾＊",
+   "username": "yw.gu",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 运行保障部",
+   "operatorScope": null,
+   "permissions": [
+    "ops.monitor",
+    "degrade.control",
+    "degrade.closure.handle",
+    "access.pause",
+    "audit.view"
+   ],
+   "menus": [
+    "运行监控",
+    "降级与限额",
+    "恢复闭合",
+    "接入验收",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 02:17:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0403",
+   "role": "运维接入负责人",
+   "post": "平台公司运维",
+   "name": "毛＊＊",
+   "username": "yw.mao",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 运行保障部",
+   "operatorScope": null,
+   "permissions": [
+    "ops.monitor",
+    "acceptance.confirm",
+    "access.pause",
+    "code.issue",
+    "audit.view"
+   ],
+   "menus": [
+    "运行监控",
+    "接入验收",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 04:08:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0404",
+   "role": "运维账号管理员",
+   "post": "平台公司运维",
+   "name": "郝＊",
+   "username": "yw.hao",
+   "password": "Shifan@2026",
+   "org": "示范市城市出行服务有限公司 运行保障部",
+   "operatorScope": null,
+   "permissions": [
+    "ops.monitor",
+    "account.manage",
+    "audit.view"
+   ],
+   "menus": [
+    "运行监控",
+    "登录与账号",
+    "操作留痕"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": null,
+   "lastLoginAt": "2026-11-30 14:03:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0501",
+   "role": "执法人员",
+   "post": "执法",
+   "name": "邵＊＊",
+   "username": "zf031207",
+   "password": "Shifan@2026",
+   "org": "示范市城市管理综合执法支队 一大队",
+   "operatorScope": null,
+   "permissions": [
+    "enforce.scan",
+    "enforce.capture",
+    "enforce.mine"
+   ],
+   "menus": [
+    "扫码核查",
+    "提交取证记录",
+    "我的取证记录"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 06:06:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0502",
+   "role": "执法人员",
+   "post": "执法",
+   "name": "万＊",
+   "username": "zf031215",
+   "password": "Shifan@2026",
+   "org": "示范市城市管理综合执法支队 一大队",
+   "operatorScope": null,
+   "permissions": [
+    "enforce.scan",
+    "enforce.capture",
+    "enforce.mine"
+   ],
+   "menus": [
+    "扫码核查",
+    "提交取证记录",
+    "我的取证记录"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-12-01 05:41:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0503",
+   "role": "执法人员",
+   "post": "执法",
+   "name": "严＊＊",
+   "username": "zf031322",
+   "password": "Shifan@2026",
+   "org": "示范市城市管理综合执法支队 二大队",
+   "operatorScope": null,
+   "permissions": [
+    "enforce.scan",
+    "enforce.capture",
+    "enforce.mine"
+   ],
+   "menus": [
+    "扫码核查",
+    "提交取证记录",
+    "我的取证记录"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 00:21:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0504",
+   "role": "执法人员",
+   "post": "执法",
+   "name": "覃＊",
+   "username": "zf031408",
+   "password": "Shifan@2026",
+   "org": "示范市城市管理综合执法支队 三大队",
+   "operatorScope": null,
+   "permissions": [
+    "enforce.scan",
+    "enforce.capture",
+    "enforce.mine"
+   ],
+   "menus": [
+    "扫码核查",
+    "提交取证记录",
+    "我的取证记录"
+   ],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": "2026-11-30 07:05:00",
+   "agentRole": null
+  },
+  {
+   "accountId": "AC0901",
+   "role": "智能体",
+   "post": "智能体",
+   "name": "运行智能体",
+   "username": null,
+   "password": null,
+   "org": "平台公司",
+   "operatorScope": null,
+   "permissions": [],
+   "menus": [],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": null,
+   "agentRole": "判断降级进入与暂停可租，通知值班人"
+  },
+  {
+   "accountId": "AC0902",
+   "role": "智能体",
+   "post": "智能体",
+   "name": "对账智能体",
+   "username": null,
+   "password": null,
+   "org": "平台公司",
+   "operatorScope": null,
+   "permissions": [],
+   "menus": [],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": null,
+   "agentRole": "月结、收单对账、降级单闭合、异议比对"
+  },
+  {
+   "accountId": "AC0903",
+   "role": "智能体",
+   "post": "智能体",
+   "name": "接入智能体",
+   "username": null,
+   "password": null,
+   "org": "平台公司",
+   "operatorScope": null,
+   "permissions": [],
+   "menus": [],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": null,
+   "agentRole": "解释联调失败、生成验收报告"
+  },
+  {
+   "accountId": "AC0904",
+   "role": "智能体",
+   "post": "智能体",
+   "name": "客服智能体",
+   "username": null,
+   "password": null,
+   "org": "平台公司",
+   "operatorScope": null,
+   "permissions": [],
+   "menus": [],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": null,
+   "agentRole": "解释费用、办理退押、提议退款"
+  },
+  {
+   "accountId": "AC0900",
+   "role": "系统",
+   "post": "系统",
+   "name": "系统定时任务",
+   "username": null,
+   "password": null,
+   "org": "平台公司",
+   "operatorScope": null,
+   "permissions": [],
+   "menus": [],
+   "status": "正常",
+   "createdAt": "2026-06-15 10:00:00",
+   "createdBy": "AC0404",
+   "lastLoginAt": null,
+   "agentRole": null
+  }
+ ],
+ "loginInfo": {
+  "password": "Shifan@2026",
+  "note": "所有可登录账号同一密码；智能体与系统账号不可登录"
+ }
+}

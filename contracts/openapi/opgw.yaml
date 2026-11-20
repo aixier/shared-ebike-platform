@@ -1,0 +1,598 @@
+openapi: 3.0.3
+info:
+  title: 共享电单车监管平台 · opgw 运营商通道
+  version: 1.0.0
+  description: |
+    平台与运营商之间唯一的生产通道。只转译协议，不懂订单状态与计费，不接触用户身份。
+    运营商入口 /open/v1/... 的报文与 ../operator-spec/operator-api.yaml 一致，以该规范为准。
+    运营商入口的验签失败等错误码见规范的"运营商侧错误码"，不在原型错误码表内。
+tags:
+  - name: 运营商入口
+  - name: 运维
+  - name: 内部
+paths:
+  /open/v1/ride-events:
+    post:
+      operationId: reportRideEvent
+      summary: 骑行事件上报（M-03）
+      description: |
+        运营商报告开锁结果或锁车。验签、去重后确认收到。
+        同一 eventId 重复到达只生效一次，仍返回成功并标 duplicate=true。
+        平台未确认收到时，运营商须在补报窗口内（72 小时）重试；补报照常接收。
+      tags: [运营商入口]
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-03, R-30, R-37, BR-38, NFR-10, NFR-11]
+      x-errors: [INVALID, NOT_FOUND, SCOPE_DENIED, SIGNATURE_INVALID, TIMESTAMP_EXPIRED, NONCE_REPLAYED, IP_NOT_ALLOWED, CREDENTIAL_DISABLED, RATE_LIMITED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RideEvent' }
+      responses:
+        '200':
+          description: 已收到
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RideEventAck' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '429':
+          description: 超出限流
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+  /open/v1/vehicle-lists:
+    post:
+      operationId: submitVehicleList
+      summary: 车辆清单提交（M-04）
+      description: 运营商系统提交车辆清单。本模块验签后转交 fleet 校验入库，整批校验，全对才入库；逐行错误原样返回。
+      tags: [运营商入口]
+      security:
+        - operatorSign: []
+      x-prototype: 无
+      x-requirements: [M-04, R-01, R-37, BR-38, NFR-10]
+      x-errors: [INVALID, VEHICLE_LIST_INVALID, SCOPE_DENIED, SIGNATURE_INVALID, TIMESTAMP_EXPIRED, NONCE_REPLAYED, IP_NOT_ALLOWED, CREDENTIAL_DISABLED, RATE_LIMITED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/AppId' }
+        - { $ref: '#/components/parameters/Timestamp' }
+        - { $ref: '#/components/parameters/Nonce' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VehicleListSubmission' }
+      responses:
+        '200':
+          description: 已入库
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VehicleListResult' }
+        '400':
+          description: 报文有误，或清单有错（VEHICLE_LIST_INVALID，errors 里逐行给出 row、field、message）
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '429':
+          description: 超出限流
+          content:
+            application/json:
+              schema: { $ref: './_common.yaml#/components/schemas/Error' }
+  /internal/opgw/unlock:
+    post:
+      operationId: internalRequestUnlock
+      summary: 请求运营商开锁（M-01）
+      description: ride 的命令。向运营商发开锁请求，运营商 1 秒内回"已受理"或"拒绝加原因"，3 秒超时记为不可达。同一订单重复请求不重复开锁。开锁结果由运营商经骑行事件报告。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [M-01, R-06, BR-38, NFR-10, NFR-11]
+      x-errors: [UNAUTHORIZED, INVALID, CREDENTIAL_DISABLED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UnlockCommand' }
+      responses:
+        '200':
+          description: 运营商的同步答复
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /internal/opgw/end-ride:
+    post:
+      operationId: internalRequestEndRide
+      summary: 请求运营商结束骑行（M-02）
+      description: ride 的命令。带原因；客服强制结束另带事由。锁车结果由运营商经骑行事件报告。
+      tags: [内部]
+      security:
+        - internalAuth: []
+      x-prototype: 无
+      x-requirements: [M-02, R-07, R-13, BR-03, BR-09, BR-38, NFR-10, NFR-11]
+      x-errors: [UNAUTHORIZED, INVALID, REASON_REQUIRED, CREDENTIAL_DISABLED, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKeyRequired' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EndRideCommand' }
+      responses:
+        '200':
+          description: 运营商的同步答复
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommandResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/opgw/credentials:
+    post:
+      operationId: createProdCredential
+      summary: 录入运营商接入凭证
+      description: |
+        管理端为一家运营商（或一家车联网服务商及其覆盖的多家运营商）登记接入：运营商接口基础地址 operatorBaseUrl、出口 IP 白名单 ipWhitelist，服务商另带覆盖的运营商 operatorIds。
+        本模块生成应用标识与密钥；密钥明文只在本次响应的 secret 里出现一次，之后任何接口只返回尾号（keyMasked）。
+        持有方（holderId）或其中任一运营商已被某份凭证覆盖（含已停用）时返回 409 CONFLICT。
+        通过本接口录入或修改过的地址、白名单以本接口为准，启动时不再被环境变量 OPGW_BASE_URLS、OPGW_IP_WHITELISTS 覆盖；未经本接口登记的仍按环境变量兜底。
+        带运营商范围的账号只能为本运营商录入。
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-37, NFR-10, R-47]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, INVALID, CONFLICT, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CredentialCreate' }
+      responses:
+        '200':
+          description: 已录入；secret 只此一次
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RotateResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+    get:
+      operationId: listProdCredentials
+      summary: 生产凭证列表
+      description: 每家运营商一份；车联网服务商代接时一份凭证覆盖其名下多家。不返回密钥明文。
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-37, NFR-10]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, SERVER_BUSY]
+      parameters:
+        - { $ref: './_common.yaml#/components/parameters/Page' }
+        - { $ref: './_common.yaml#/components/parameters/PageSize' }
+        - { name: operatorId, in: query, description: 运营商编号, schema: { type: string } }
+        - name: status
+          in: query
+          description: 凭证状态
+          schema: { $ref: '#/components/schemas/CredentialStatus' }
+      responses:
+        '200':
+          description: 分页凭证
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialPage' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+  /api/opgw/credentials/{credentialId}:
+    get:
+      operationId: getProdCredential
+      summary: 查看生产凭证
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-37, NFR-10]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, NOT_FOUND, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/CredentialId' }
+      responses:
+        '200':
+          description: 凭证
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+    patch:
+      operationId: updateProdCredential
+      summary: 修改接入凭证
+      description: |
+        修改运营商接口基础地址、出口 IP 白名单、持有方名称；车联网服务商还可调整覆盖的运营商 operatorIds。字段不带即不改，带了即整体替换。不改密钥与应用标识（换密钥用轮换）。
+        已停用的凭证不能修改。覆盖范围不能包含已被别家凭证覆盖的运营商。事由必填。
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [R-37, NFR-10, R-47]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, CONFLICT, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/CredentialId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CredentialUpdate' }
+      responses:
+        '200':
+          description: 已修改
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/opgw/credentials/{credentialId}/rotate:
+    post:
+      operationId: rotateProdCredential
+      summary: 轮换生产密钥
+      description: 生成新密钥，旧密钥立即失效。密钥明文只在本次返回出现一次。已停用的凭证不能轮换。
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [NFR-10, R-47]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, CREDENTIAL_DISABLED, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/CredentialId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonBody' }
+      responses:
+        '200':
+          description: 已轮换
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RotateResult' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+  /api/opgw/credentials/{credentialId}/disable:
+    post:
+      operationId: disableProdCredential
+      summary: 停用生产凭证
+      description: 停用后该凭证的请求一律拒绝，平台也不再向其名下运营商发开锁与结束骑行请求。运营商退出时由本模块按事件自动停用。
+      tags: [运维]
+      security:
+        - adminAuth: []
+      x-prototype: 无
+      x-requirements: [NFR-10, R-47]
+      x-permissions: [credential.manage]
+      x-errors: [ADMIN_NOT_LOGGED_IN, FORBIDDEN, SCOPE_DENIED, READONLY, NOT_FOUND, REASON_REQUIRED, INVALID, ALREADY_DONE, SERVER_BUSY]
+      parameters:
+        - { $ref: '#/components/parameters/CredentialId' }
+        - { $ref: './_common.yaml#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReasonBody' }
+      responses:
+        '200':
+          description: 已停用
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        '400': { $ref: './_common.yaml#/components/responses/BadRequest' }
+        '401': { $ref: './_common.yaml#/components/responses/Unauthorized' }
+        '403': { $ref: './_common.yaml#/components/responses/Forbidden' }
+        '404': { $ref: './_common.yaml#/components/responses/NotFound' }
+        '409': { $ref: './_common.yaml#/components/responses/Conflict' }
+components:
+  securitySchemes:
+    adminAuth: { $ref: './_common.yaml#/components/securitySchemes/adminAuth' }
+    internalAuth: { $ref: './_common.yaml#/components/securitySchemes/internalAuth' }
+    operatorSign: { $ref: './_common.yaml#/components/securitySchemes/operatorSign' }
+  parameters:
+    AppId:
+      name: X-App-Id
+      in: header
+      required: true
+      description: 生产凭证的应用标识
+      schema: { type: string }
+    Timestamp:
+      name: X-Timestamp
+      in: header
+      required: true
+      description: 请求时刻，Unix 秒；与平台时间相差超过 300 秒拒绝
+      schema: { type: string }
+    Nonce:
+      name: X-Nonce
+      in: header
+      required: true
+      description: 随机数，16～64 个字符；时间窗内重复拒绝
+      schema: { type: string, minLength: 16, maxLength: 64 }
+    IdempotencyKeyRequired:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 幂等键；重复到达只执行一次
+      schema: { type: string, maxLength: 64 }
+    CredentialId:
+      name: credentialId
+      in: path
+      required: true
+      description: 凭证编号（本模块发号）
+      schema: { type: string }
+  schemas:
+    RideEvent:
+      type: object
+      description: 骑行事件。不含任何用户身份
+      required: [eventId, type, orderId, plateNo, occurredAt]
+      properties:
+        eventId: { type: string, maxLength: 64, description: 运营商侧事件号，同一事件重试时不变，用于去重 }
+        type: { type: string, description: 事件类型, enum: [开锁结果, 锁车] }
+        orderId: { type: string, description: 平台订单号（开锁请求里给出的） }
+        plateNo: { type: string, description: 车号 }
+        occurredAt:
+          description: 开锁或锁车在车端发生的时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        unlock:
+          type: object
+          description: type=开锁结果 时必填
+          required: [result]
+          properties:
+            result: { type: string, description: 开锁结果, enum: [成功, 失败] }
+            failReason: { type: string, description: 失败原因；result=失败 时必填，原样转送 ride（含 车辆无响应）, enum: [电量不足, 车辆故障, 车辆被占用, 车辆无响应] }
+            location:
+              description: 开锁位置
+              allOf:
+                - { $ref: './_common.yaml#/components/schemas/Location' }
+        lock:
+          type: object
+          description: type=锁车 时必填。用户手动锁车也要报告
+          required: [location, inStation]
+          properties:
+            location:
+              description: 锁车位置
+              allOf:
+                - { $ref: './_common.yaml#/components/schemas/Location' }
+            inStation: { type: boolean, description: 车端在点判定 }
+            durationSec: { type: integer, minimum: 0, description: 运营商记录的骑行时长（秒） }
+            distanceKm: { type: number, minimum: 0, description: 运营商记录的里程（公里） }
+    RideEventAck:
+      type: object
+      required: [received, eventId, receivedAt, duplicate]
+      properties:
+        received: { type: boolean, description: 恒为 true；收到本答复即可停止重试 }
+        eventId: { type: string, description: 原样返回的事件号 }
+        receivedAt:
+          description: 平台收到时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        duplicate: { type: boolean, description: 是否重复到达（未再次生效） }
+    VehicleRow:
+      type: object
+      required: [brandId, plateNo, model, pileTag]
+      properties:
+        brandId: { type: string, description: 品牌编号 }
+        plateNo: { type: string, description: 车号 }
+        model: { type: string, description: 车型 }
+        pileTag: { type: string, description: 桩识别用车辆标识（格式随识别方式而定，同一识别方式内不重复）}
+        pileTagType: { type: string, enum: [RFID, 蓝牙, 视觉车牌, 其他], default: RFID, description: 桩识别方式，决定 pileTag 的格式 }
+    VehicleListSubmission:
+      type: object
+      required: [rows]
+      properties:
+        rows:
+          type: array
+          minItems: 1
+          maxItems: 5000
+          description: 新增或更新的车辆；车号已存在时更新车型与车辆标识
+          items: { $ref: '#/components/schemas/VehicleRow' }
+    VehicleListResult:
+      type: object
+      required: [accepted, vehicles]
+      properties:
+        accepted: { type: integer, description: 入库行数 }
+        vehicles:
+          type: array
+          description: 入库车辆与发放的政府码
+          items:
+            type: object
+            required: [plateNo, vehicleId, govCode, codeStatus]
+            properties:
+              plateNo: { type: string, description: 车号 }
+              vehicleId: { type: string, description: 车辆编号 }
+              govCode: { type: string, description: 政府码 }
+              codeStatus: { type: string, description: 码状态, enum: [已启用, 待启用, 已失效] }
+    CommandTarget:
+      type: object
+      description: 指令的目标。本模块不存车辆主数据，由 ride 给全
+      required: [orderId, operatorId, brandId, plateNo]
+      properties:
+        orderId: { type: string, description: 平台订单号 }
+        operatorId: { type: string, description: 运营商编号，用于选凭证与地址 }
+        brandId: { type: string, description: 品牌编号 }
+        vehicleId: { type: string, description: 车辆编号 }
+        plateNo: { type: string, description: 车号 }
+    UnlockCommand:
+      allOf:
+        - { $ref: '#/components/schemas/CommandTarget' }
+        - type: object
+          required: [degraded]
+          properties:
+            degraded: { type: boolean, description: 降级标记 }
+    EndRideCommand:
+      allOf:
+        - { $ref: '#/components/schemas/CommandTarget' }
+        - type: object
+          required: [cause]
+          properties:
+            cause:
+              type: string
+              description: 结束原因
+              enum: [用户点还车, 入桩未锁, 超时后才报开锁成功, 客服强制结束]
+            reason:
+              description: 事由；cause=客服强制结束 时必填
+              allOf:
+                - { $ref: './_common.yaml#/components/schemas/Reason' }
+    CommandResult:
+      type: object
+      required: [result, at]
+      properties:
+        result:
+          type: string
+          description: 运营商的同步答复；不可达指 3 秒超时或连接失败
+          enum: [已受理, 拒绝, 不可达]
+        rejectReason:
+          type: string
+          nullable: true
+          description: result=拒绝 时的原因
+          enum: [电量不足, 车辆故障, 车辆被占用, 订单不存在, 其他, null]
+        operatorMessage: { type: string, nullable: true, description: 运营商给的说明原文 }
+        at:
+          description: 收到答复或判定不可达的时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        costMs: { type: integer, description: 运营商答复耗时（毫秒） }
+    CredentialStatus:
+      type: string
+      description: 凭证状态
+      enum: [有效, 停用]
+    Credential:
+      type: object
+      required: [credentialId, appId, holderType, operatorIds, status]
+      properties:
+        credentialId: { type: string, description: 凭证编号 }
+        appId: { type: string, description: 应用标识，运营商请求头 X-App-Id 的值 }
+        holderType: { type: string, description: 持有方类型, enum: [运营商, 车联网服务商] }
+        holderName: { type: string, description: 持有方名称 }
+        operatorIds:
+          type: array
+          description: 这份凭证覆盖的运营商
+          items: { type: string }
+        operatorBaseUrl: { type: string, description: 运营商接口基础地址（开锁、结束骑行请求发往这里）；未登记为空串 }
+        baseUrl: { type: string, description: 同 operatorBaseUrl，保留的旧字段名，值相同，新代码读 operatorBaseUrl }
+        keyMasked: { type: string, description: 密钥掩码，只留末 4 位 }
+        ipWhitelist:
+          type: array
+          description: 出口 IP 白名单（IP 或 CIDR）；空表示不限来源
+          items: { type: string }
+        rateLimitPerMinute: { type: integer, description: 每分钟请求上限 }
+        status: { $ref: '#/components/schemas/CredentialStatus' }
+        issuedAt:
+          description: 发放时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        rotatedAt:
+          nullable: true
+          description: 最近一次轮换时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        rotatedBy:
+          nullable: true
+          description: 最近一次轮换的操作人
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Actor' }
+        disabledAt:
+          nullable: true
+          description: 停用时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+        disabledBy:
+          nullable: true
+          description: 停用的操作人；运营商退出自动停用时为系统
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Actor' }
+        disabledReason: { type: string, nullable: true, description: 停用事由 }
+        lastSeenAt:
+          nullable: true
+          description: 最近一次验签通过的请求时刻
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Time' }
+    CredentialPage:
+      allOf:
+        - { $ref: './_common.yaml#/components/schemas/PageMeta' }
+        - type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items: { $ref: '#/components/schemas/Credential' }
+    CredentialCreate:
+      type: object
+      required: [holderType, holderId, operatorBaseUrl]
+      properties:
+        holderType: { type: string, description: 持有方类型, enum: [运营商, 车联网服务商] }
+        holderId: { type: string, description: 持有方编号：运营商自行接入填运营商编号，服务商代接填服务商编号 }
+        holderName: { type: string, description: 持有方名称；不填用 holderId }
+        operatorIds:
+          type: array
+          description: 这份凭证覆盖的运营商。运营商自行接入时可省略（即 holderId 本身）；车联网服务商必填且不少于一家
+          items: { type: string }
+        operatorBaseUrl: { type: string, description: 运营商接口基础地址，http 或 https 绝对地址（生产须 HTTPS） }
+        ipWhitelist:
+          type: array
+          description: 出口 IP 白名单（IP 或 CIDR）；省略或空表示不限来源
+          items: { type: string }
+        reason:
+          description: 事由，选填；填了则不少于 4 个字，进入留痕
+          allOf:
+            - { $ref: './_common.yaml#/components/schemas/Reason' }
+    CredentialUpdate:
+      type: object
+      required: [reason]
+      properties:
+        holderName: { type: string }
+        operatorBaseUrl: { type: string, description: 运营商接口基础地址 }
+        ipWhitelist:
+          type: array
+          description: 整体替换
+          items: { type: string }
+        operatorIds:
+          type: array
+          description: 仅车联网服务商可改；整体替换，不得为空
+          items: { type: string }
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    ReasonBody:
+      type: object
+      required: [reason]
+      properties:
+        reason: { $ref: './_common.yaml#/components/schemas/Reason' }
+    RotateResult:
+      type: object
+      required: [secret, credential]
+      properties:
+        secret: { type: string, description: 新密钥明文，只出现这一次 }
+        credential: { $ref: '#/components/schemas/Credential' }

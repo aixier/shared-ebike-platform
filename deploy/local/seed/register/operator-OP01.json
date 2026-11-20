@@ -1,0 +1,30 @@
+{
+ "operatorId": "OP01",
+ "name": "青禾出行科技有限公司",
+ "shortName": "青禾出行",
+ "type": "运营商",
+ "creditCode": "91510100MA6X3K7Q2B",
+ "contacts": [
+  {
+   "name": "何＊＊",
+   "role": "业务负责人",
+   "phone": "139****2716"
+  },
+  {
+   "name": "邓＊",
+   "role": "技术负责人",
+   "phone": "186****0543"
+  },
+  {
+   "name": "罗＊＊",
+   "role": "财务",
+   "phone": "135****8810"
+  }
+ ],
+ "settlementAccount": {
+  "bank": "示范市农商银行高新支行",
+  "accountName": "青禾出行科技有限公司",
+  "account": "6230 **** **** 4417"
+ },
+ "reason": "本机联调登记运营商"
+}

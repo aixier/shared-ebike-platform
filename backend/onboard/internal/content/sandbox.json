@@ -1,0 +1,21 @@
+{
+  "note": "联调环境使用模拟车辆、模拟用户、模拟支付，不产生真实收费；订单只在联调环境内，不进生产订单与资金",
+  "simPayment": "模拟支付：正常时全部扣款返回成功；切换为\"余额不足\"后扣款返回失败，用于测试欠费路径",
+  "simVehicles": [
+    {"simVehicleId": "SBX-V001", "plateNo": "SBX10001", "pileTag": "E28011SBX000000000000001", "pileTagType": "RFID", "behavior": "正常"},
+    {"simVehicleId": "SBX-V002", "plateNo": "SBX10002", "pileTag": "E28011SBX000000000000002", "pileTagType": "RFID", "behavior": "正常"},
+    {"simVehicleId": "SBX-V003", "plateNo": "SBX10003", "pileTag": "E28011SBX000000000000003", "pileTagType": "RFID", "behavior": "正常"},
+    {"simVehicleId": "SBX-V004", "plateNo": "SBX10004", "pileTag": "E28011SBX000000000000004", "pileTagType": "RFID", "behavior": "开锁慢（35 秒回报）"},
+    {"simVehicleId": "SBX-V005", "plateNo": "SBX10005", "pileTag": "E28011SBX000000000000005", "pileTagType": "RFID", "behavior": "电量不足拒绝开锁"},
+    {"simVehicleId": "SBX-V006", "plateNo": "SBX10006", "pileTag": "E28011SBX000000000000006", "pileTagType": "RFID", "behavior": "断网（锁车报告首次投递平台不确认，须补报）"},
+    {"simVehicleId": "SBX-V007", "plateNo": "SBX10007", "pileTag": "E28011SBX000000000000007", "pileTagType": "RFID", "behavior": "锁车报告重复发送 3 次"},
+    {"simVehicleId": "SBX-V008", "plateNo": "SBX10008", "pileTag": "E28011SBX000000000000008", "pileTagType": "RFID", "behavior": "入桩不上锁"}
+  ],
+  "simUsers": [
+    {"simUserId": "SBX-U001", "kind": "免押老用户"},
+    {"simUserId": "SBX-U002", "kind": "押金老用户"},
+    {"simUserId": "SBX-U003", "kind": "新用户"},
+    {"simUserId": "SBX-U004", "kind": "有欠费用户"},
+    {"simUserId": "SBX-U005", "kind": "先骑后验新用户"}
+  ]
+}
