@@ -1,0 +1,10 @@
+<!doctype html>
+<meta charset="utf-8">
+<script type="module">
+// 浏览器自测的"另一端"：独立的接口实例，从本地存储读数据，监听跨端事件
+import { api } from '../api.js';
+await api.ready();
+const t = await api.system.time();
+api.on('order.created', e => parent.postMessage({ type: 'heard', orderId: e.orderId }, '*'));
+parent.postMessage({ type: 'listening', orders: (await api.admin.login('cw.lv', 'Shifan@2026'), (await api.admin.orders.list({ pageSize: 1 })).total), now: t.now }, '*');
+</script>

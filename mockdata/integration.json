@@ -1,0 +1,2390 @@
+{
+ "integrations": [
+  {
+   "integrationId": "IN-BR01",
+   "brandId": "BR01",
+   "operatorId": "OP01",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "status": "已接入",
+   "statusSince": "2026-07-20 16:30:00",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-07 15:00:00",
+     "by": "AC0403",
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-20 16:30:00",
+     "by": "AC0403",
+     "note": "验收通过，上线可租"
+    }
+   ],
+   "credentials": {
+    "sandboxAppId": "sbx_br01_363323",
+    "sandboxKeyMasked": "sk_****85c1",
+    "issuedAt": "2026-07-07 15:00:00",
+    "prodAppId": "app_br01_782458",
+    "status": "有效",
+    "disabledAt": null
+   },
+   "vehicleList": {
+    "submittedAt": "2026-07-08 14:20:11",
+    "vehicleCount": 480,
+    "codesIssued": 480,
+    "codeStatus": "已启用",
+    "submittedBy": "AC0111"
+   },
+   "runIds": [
+    "IN-BR01-R001",
+    "IN-BR01-R002",
+    "IN-BR01-R003"
+   ],
+   "acceptance": {
+    "reportId": "IN-BR01-AR01",
+    "realVehiclesRequired": 20,
+    "realVehiclesRidden": 20,
+    "realOrders": 60,
+    "matchedOrders": 60,
+    "lockReportsMatched": 60,
+    "timeLimitOk": true,
+    "conformanceRunId": "IN-BR01-R003",
+    "submittedAt": "2026-07-20 13:30:00",
+    "submittedBy": "AC0903",
+    "result": "通过",
+    "confirmedBy": "AC0403",
+    "confirmedAt": "2026-07-20 16:30:00",
+    "summary": "符合性测试 18 项全部通过；真车 20 辆实骑 60 单，订单与锁车报告全部匹配；开锁结果 P90 3.0 秒。"
+   },
+   "targetDays": 21,
+   "startedAt": "2026-07-07 15:00:00"
+  },
+  {
+   "integrationId": "IN-BR02",
+   "brandId": "BR02",
+   "operatorId": "OP01",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "status": "暂停可租",
+   "statusSince": "2026-11-30 08:00:00",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-07 15:30:00",
+     "by": "AC0403",
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-20 16:35:00",
+     "by": "AC0403",
+     "note": "验收通过，上线可租"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-10-22 09:05:00",
+     "by": "AC0901",
+     "note": "开锁成功率持续低于门槛"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-10-22 12:40:00",
+     "by": "AC0901",
+     "note": "指标恢复，自动回到已接入"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-11-30 08:00:00",
+     "by": "AC0901",
+     "note": "开锁成功率持续低于门槛"
+    }
+   ],
+   "credentials": {
+    "sandboxAppId": "sbx_br02_603313",
+    "sandboxKeyMasked": "sk_****01fd",
+    "issuedAt": "2026-07-07 15:30:00",
+    "prodAppId": "app_br02_488427",
+    "status": "有效",
+    "disabledAt": null
+   },
+   "vehicleList": {
+    "submittedAt": "2026-07-08 14:20:11",
+    "vehicleCount": 220,
+    "codesIssued": 220,
+    "codeStatus": "已启用",
+    "submittedBy": "AC0111"
+   },
+   "runIds": [
+    "IN-BR02-R001",
+    "IN-BR02-R002"
+   ],
+   "acceptance": {
+    "reportId": "IN-BR02-AR01",
+    "realVehiclesRequired": 20,
+    "realVehiclesRidden": 20,
+    "realOrders": 60,
+    "matchedOrders": 60,
+    "lockReportsMatched": 60,
+    "timeLimitOk": true,
+    "conformanceRunId": "IN-BR02-R002",
+    "submittedAt": "2026-07-20 13:35:00",
+    "submittedBy": "AC0903",
+    "result": "通过",
+    "confirmedBy": "AC0403",
+    "confirmedAt": "2026-07-20 16:35:00",
+    "summary": "符合性测试 18 项全部通过；真车 20 辆实骑 60 单，订单与锁车报告全部匹配；开锁结果 P90 2.4 秒。"
+   },
+   "targetDays": 21,
+   "startedAt": "2026-07-07 15:30:00"
+  },
+  {
+   "integrationId": "IN-BR03",
+   "brandId": "BR03",
+   "operatorId": "OP02",
+   "accessVia": "车联网服务商代接",
+   "providerId": "SP01",
+   "status": "已接入",
+   "statusSince": "2026-08-12 11:00:00",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-28 10:00:00",
+     "by": "AC0403",
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-08-12 11:00:00",
+     "by": "AC0403",
+     "note": "验收通过，上线可租"
+    }
+   ],
+   "credentials": {
+    "sandboxAppId": "sbx_br03_314182",
+    "sandboxKeyMasked": "sk_****d711",
+    "issuedAt": "2026-07-28 10:00:00",
+    "prodAppId": "app_br03_519565",
+    "status": "有效",
+    "disabledAt": null
+   },
+   "vehicleList": {
+    "submittedAt": "2026-07-28 10:05:42",
+    "vehicleCount": 360,
+    "codesIssued": 360,
+    "codeStatus": "已启用",
+    "submittedBy": "AC0112"
+   },
+   "runIds": [
+    "IN-BR03-R001",
+    "IN-BR03-R002",
+    "IN-BR03-R003"
+   ],
+   "acceptance": {
+    "reportId": "IN-BR03-AR01",
+    "realVehiclesRequired": 20,
+    "realVehiclesRidden": 20,
+    "realOrders": 62,
+    "matchedOrders": 62,
+    "lockReportsMatched": 62,
+    "timeLimitOk": true,
+    "conformanceRunId": "IN-BR03-R003",
+    "submittedAt": "2026-08-12 08:00:00",
+    "submittedBy": "AC0903",
+    "result": "通过",
+    "confirmedBy": "AC0403",
+    "confirmedAt": "2026-08-12 11:00:00",
+    "summary": "符合性测试 18 项全部通过；真车 20 辆实骑 62 单，订单与锁车报告全部匹配；开锁结果 P90 2.2 秒。"
+   },
+   "targetDays": 21,
+   "startedAt": "2026-07-28 10:00:00"
+  },
+  {
+   "integrationId": "IN-BR04",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "status": "已退出",
+   "statusSince": "2026-11-20 10:00:00",
+   "statusHistory": [
+    {
+     "status": "联调中",
+     "at": "2026-07-02 10:00:00",
+     "by": "AC0403",
+     "note": "发放联调环境凭证"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-07-15 10:30:00",
+     "by": "AC0403",
+     "note": "验收通过，上线可租"
+    },
+    {
+     "status": "暂停可租",
+     "at": "2026-11-08 14:10:00",
+     "by": "AC0901",
+     "note": "可用率持续低于门槛"
+    },
+    {
+     "status": "已接入",
+     "at": "2026-11-09 10:20:00",
+     "by": "AC0901",
+     "note": "指标恢复，自动回到已接入"
+    },
+    {
+     "status": "已退出",
+     "at": "2026-11-20 10:00:00",
+     "by": "AC0001",
+     "note": "按主管部门线下决定设置退出，车辆码同时失效"
+    }
+   ],
+   "credentials": {
+    "sandboxAppId": "sbx_br04_612639",
+    "sandboxKeyMasked": "sk_****269c",
+    "issuedAt": "2026-07-02 10:00:00",
+    "prodAppId": "app_br04_128824",
+    "status": "停用",
+    "disabledAt": "2026-11-20 10:00:00"
+   },
+   "vehicleList": {
+    "submittedAt": "2026-07-03 16:41:09",
+    "vehicleCount": 90,
+    "codesIssued": 90,
+    "codeStatus": "已失效",
+    "submittedBy": "AC0103"
+   },
+   "runIds": [
+    "IN-BR04-R001",
+    "IN-BR04-R002"
+   ],
+   "acceptance": {
+    "reportId": "IN-BR04-AR01",
+    "realVehiclesRequired": 20,
+    "realVehiclesRidden": 20,
+    "realOrders": 60,
+    "matchedOrders": 60,
+    "lockReportsMatched": 60,
+    "timeLimitOk": true,
+    "conformanceRunId": "IN-BR04-R002",
+    "submittedAt": "2026-07-15 07:30:00",
+    "submittedBy": "AC0903",
+    "result": "通过",
+    "confirmedBy": "AC0403",
+    "confirmedAt": "2026-07-15 10:30:00",
+    "summary": "符合性测试 18 项全部通过；真车 20 辆实骑 60 单，订单与锁车报告全部匹配；开锁结果 P90 2.9 秒。"
+   },
+   "targetDays": 21,
+   "startedAt": "2026-07-02 10:00:00"
+  },
+  {
+   "integrationId": "IN-BR05",
+   "brandId": "BR05",
+   "operatorId": "OP04",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "status": "联调中",
+   "statusSince": "2026-11-10 09:30:00",
+   "statusHistory": [
+    {
+     "status": "未接入",
+     "at": "2026-11-03 10:00:00",
+     "by": "AC0404",
+     "note": "登记政府自有车队"
+    },
+    {
+     "status": "联调中",
+     "at": "2026-11-10 09:30:00",
+     "by": "AC0403",
+     "note": "发放联调环境凭证"
+    }
+   ],
+   "credentials": {
+    "sandboxAppId": "sbx_br05_387758",
+    "sandboxKeyMasked": "sk_****7587",
+    "issuedAt": "2026-11-10 09:30:00",
+    "prodAppId": null,
+    "status": "有效",
+    "disabledAt": null
+   },
+   "vehicleList": {
+    "submittedAt": "2026-11-14 15:02:37",
+    "vehicleCount": 60,
+    "codesIssued": 60,
+    "codeStatus": "待启用（计划 2026-12-08 09:00 随上线启用）",
+    "submittedBy": "AC0114"
+   },
+   "runIds": [
+    "IN-BR05-R001",
+    "IN-BR05-R002",
+    "IN-BR05-R003"
+   ],
+   "acceptance": {
+    "reportId": null,
+    "realVehiclesRequired": 20,
+    "realVehiclesRidden": 0,
+    "realOrders": 0,
+    "matchedOrders": 0,
+    "lockReportsMatched": 0,
+    "timeLimitOk": false,
+    "conformanceRunId": "IN-BR05-R003",
+    "submittedAt": null,
+    "submittedBy": null,
+    "result": "未开始",
+    "confirmedBy": null,
+    "confirmedAt": null,
+    "summary": "符合性测试 18 项中 17 项通过，剩余\"开锁结果时限\"1 项未通过；通过后进入真车联调。"
+   },
+   "targetDays": 21,
+   "startedAt": "2026-11-03 10:00:00"
+  },
+  {
+   "integrationId": "IN-BR06",
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "status": "未接入",
+   "statusSince": "2026-10-30 14:00:00",
+   "statusHistory": [
+    {
+     "status": "未接入",
+     "at": "2026-10-30 14:00:00",
+     "by": "AC0404",
+     "note": "主管部门登记，尚未开始联调"
+    }
+   ],
+   "credentials": null,
+   "vehicleList": null,
+   "runIds": [],
+   "acceptance": null,
+   "targetDays": 21,
+   "startedAt": null
+  }
+ ],
+ "conformanceRuns": [
+  {
+   "runId": "IN-BR01-R001",
+   "integrationId": "IN-BR01",
+   "brandId": "BR01",
+   "at": "2026-07-09 15:00:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 1473
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "失败",
+     "durationMs": 2739,
+     "failReason": "同一订单号第二次开锁请求触发了第二次开锁指令",
+     "suggestion": "以平台订单号做幂等键，收到重复请求时直接返回首次结果；见规范第 3.1 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 4082
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 1418
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2975
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 1599
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 1193
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 1351
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "失败",
+     "durationMs": 3109,
+     "failReason": "开锁结果在请求后 41 秒才到达，规范要求 30 秒内",
+     "suggestion": "规范允许先回\"已受理\"，车辆确认后再报结果；见接入规范第 3.2 节参考报文。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2185
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 3880,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 1074
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 2897
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 2340
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 2906
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 1327
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 2009
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 2629
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR01-R002",
+   "integrationId": "IN-BR01",
+   "brandId": "BR01",
+   "at": "2026-07-13 10:20:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 17,
+    "failed": 1
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 1257
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 1794
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 2521
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 409
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 969
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 3423
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 1416
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 2323
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 718
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 3843
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 4102,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3616
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 2872
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 3589
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 2166
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 1966
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 2087
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 438
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR01-R003",
+   "integrationId": "IN-BR01",
+   "brandId": "BR01",
+   "at": "2026-07-16 16:40:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 952
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 443
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 3745
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 741
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 4062
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 634
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 3445
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 3652
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 1895
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 1069
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 2485
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 4158
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 3350
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 3816
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 3997
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 353
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 534
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 1824
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR02-R001",
+   "integrationId": "IN-BR02",
+   "brandId": "BR02",
+   "at": "2026-07-09 15:30:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 1408
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "失败",
+     "durationMs": 472,
+     "failReason": "同一订单号第二次开锁请求触发了第二次开锁指令",
+     "suggestion": "以平台订单号做幂等键，收到重复请求时直接返回首次结果；见规范第 3.1 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 953
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 3355
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2729
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 1346
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 4052
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 3249
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "失败",
+     "durationMs": 3846,
+     "failReason": "开锁结果在请求后 41 秒才到达，规范要求 30 秒内",
+     "suggestion": "规范允许先回\"已受理\"，车辆确认后再报结果；见接入规范第 3.2 节参考报文。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2289
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 3298,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 2514
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 3305
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 3679
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 1810
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 3208
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 446
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 3037
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR02-R002",
+   "integrationId": "IN-BR02",
+   "brandId": "BR02",
+   "at": "2026-07-14 11:00:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 2745
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 1445
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 1475
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 273
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 1583
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 2163
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 327
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 411
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 4131
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2674
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 1570
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 1319
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 2239
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 537
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 467
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 2545
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 4154
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 639
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR03-R001",
+   "integrationId": "IN-BR03",
+   "brandId": "BR03",
+   "at": "2026-07-30 10:00:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 750
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 2006
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 353
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 4129
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2133
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 1564
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 2369
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 185
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 4194
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2631
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 3958,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3217
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 3074
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 514
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "失败",
+     "durationMs": 4145,
+     "failReason": "清单中 3 辆车的车辆标识重复（E28011…A3F2）",
+     "suggestion": "车辆标识须与车身电子标签一致且全局唯一，请核对后重新提交。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 2945
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 336
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "失败",
+     "durationMs": 269,
+     "failReason": "重放 5 分钟前的请求未被拒绝",
+     "suggestion": "请在验签时校验请求时间戳与随机串，超过 5 分钟或重复随机串的请求一律拒绝；见规范第 5 节。",
+     "suggestedBy": "AC0903"
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR03-R002",
+   "integrationId": "IN-BR03",
+   "brandId": "BR03",
+   "at": "2026-08-04 14:30:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 17,
+    "failed": 1
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 371
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 3909
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 4020
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 1065
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 692
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 3013
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 2857
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 3418
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 192
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 3985
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 1314
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3701
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 2248
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 2039
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 1873
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 1396
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 843
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "失败",
+     "durationMs": 2234,
+     "failReason": "重放 5 分钟前的请求未被拒绝",
+     "suggestion": "请在验签时校验请求时间戳与随机串，超过 5 分钟或重复随机串的请求一律拒绝；见规范第 5 节。",
+     "suggestedBy": "AC0903"
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR03-R003",
+   "integrationId": "IN-BR03",
+   "brandId": "BR03",
+   "at": "2026-08-07 09:45:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 426
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 2004
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 1584
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 1942
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 3616
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 874
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 1491
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 2757
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 2875
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 3269
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 4188
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 859
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 784
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 2459
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 1100
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 1893
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 719
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 3935
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR04-R001",
+   "integrationId": "IN-BR04",
+   "brandId": "BR04",
+   "at": "2026-07-04 10:00:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 16,
+    "failed": 2
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 1376
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "失败",
+     "durationMs": 2284,
+     "failReason": "同一订单号第二次开锁请求触发了第二次开锁指令",
+     "suggestion": "以平台订单号做幂等键，收到重复请求时直接返回首次结果；见规范第 3.1 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 1647
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 3373
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2349
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "失败",
+     "durationMs": 2291,
+     "failReason": "入桩未锁的结束请求返回成功但车辆未上锁",
+     "suggestion": "收到结束请求后须确认车辆锁定再回报锁车事件。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 1326
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 433
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 3733
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2624
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 609
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3334
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 1804
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 1213
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 3973
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 829
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 1222
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 2541
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR04-R002",
+   "integrationId": "IN-BR04",
+   "brandId": "BR04",
+   "at": "2026-07-10 15:10:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 2763
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 3611
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 3860
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 2784
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2381
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 354
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 443
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 1214
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "通过",
+     "durationMs": 1855
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 1847
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 2881
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3147
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 1286
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 4106
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 2619
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 2493
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 1577
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 3536
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR05-R001",
+   "integrationId": "IN-BR05",
+   "brandId": "BR05",
+   "at": "2026-11-12 10:30:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 12,
+    "failed": 6
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 4037
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "失败",
+     "durationMs": 1057,
+     "failReason": "同一订单号第二次开锁请求触发了第二次开锁指令",
+     "suggestion": "以平台订单号做幂等键，收到重复请求时直接返回首次结果；见规范第 3.1 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 1244
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 2936
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 3843
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "失败",
+     "durationMs": 2280,
+     "failReason": "入桩未锁的结束请求返回成功但车辆未上锁",
+     "suggestion": "收到结束请求后须确认车辆锁定再回报锁车事件。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 2911
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 185
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "失败",
+     "durationMs": 3587,
+     "failReason": "开锁结果在请求后 41 秒才到达，规范要求 30 秒内",
+     "suggestion": "规范允许先回\"已受理\"，车辆确认后再报结果；见接入规范第 3.2 节参考报文。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2776
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 2670,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3936
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 3857
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 3334
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "失败",
+     "durationMs": 399,
+     "failReason": "清单中 3 辆车的车辆标识重复（E28011…A3F2）",
+     "suggestion": "车辆标识须与车身电子标签一致且全局唯一，请核对后重新提交。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 2229
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 1574
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "失败",
+     "durationMs": 668,
+     "failReason": "重放 5 分钟前的请求未被拒绝",
+     "suggestion": "请在验签时校验请求时间戳与随机串，超过 5 分钟或重复随机串的请求一律拒绝；见规范第 5 节。",
+     "suggestedBy": "AC0903"
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR05-R002",
+   "integrationId": "IN-BR05",
+   "brandId": "BR05",
+   "at": "2026-11-20 15:40:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 3844
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 604
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 2956
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 1750
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 2957
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 972
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 2829
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 654
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "失败",
+     "durationMs": 728,
+     "failReason": "开锁结果在请求后 41 秒才到达，规范要求 30 秒内",
+     "suggestion": "规范允许先回\"已受理\"，车辆确认后再报结果；见接入规范第 3.2 节参考报文。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 2466
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "失败",
+     "durationMs": 1187,
+     "failReason": "模拟断网 10 分钟后未补报锁车事件",
+     "suggestion": "本地保留未确认事件，网络恢复后在 72 小时窗口内按事件时间顺序补报；见规范第 3.4 节。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 1100
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 2504
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 419
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 4002
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 1691
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 3743
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "失败",
+     "durationMs": 1003,
+     "failReason": "重放 5 分钟前的请求未被拒绝",
+     "suggestion": "请在验签时校验请求时间戳与随机串，超过 5 分钟或重复随机串的请求一律拒绝；见规范第 5 节。",
+     "suggestedBy": "AC0903"
+    }
+   ]
+  },
+  {
+   "runId": "IN-BR05-R003",
+   "integrationId": "IN-BR05",
+   "brandId": "BR05",
+   "at": "2026-11-28 16:12:00",
+   "env": "联调环境",
+   "summary": {
+    "total": 18,
+    "passed": 17,
+    "failed": 1
+   },
+   "cases": [
+    {
+     "caseId": "M01-01",
+     "group": "M-01 开锁",
+     "name": "正常开锁请求在时限内回报结果",
+     "result": "通过",
+     "durationMs": 1243
+    },
+    {
+     "caseId": "M01-02",
+     "group": "M-01 开锁",
+     "name": "同一订单重复开锁请求不重复开锁",
+     "result": "通过",
+     "durationMs": 3629
+    },
+    {
+     "caseId": "M01-03",
+     "group": "M-01 开锁",
+     "name": "带降级标记的开锁请求按普通开锁执行",
+     "result": "通过",
+     "durationMs": 1347
+    },
+    {
+     "caseId": "M01-04",
+     "group": "M-01 开锁",
+     "name": "延迟到达的开锁请求不重复执行",
+     "result": "通过",
+     "durationMs": 1193
+    },
+    {
+     "caseId": "M02-01",
+     "group": "M-02 结束骑行",
+     "name": "用户点还车后锁车并回报",
+     "result": "通过",
+     "durationMs": 1360
+    },
+    {
+     "caseId": "M02-02",
+     "group": "M-02 结束骑行",
+     "name": "入桩未锁时平台请求结束并锁车",
+     "result": "通过",
+     "durationMs": 798
+    },
+    {
+     "caseId": "M02-03",
+     "group": "M-02 结束骑行",
+     "name": "超时后才报告开锁成功时平台请求结束",
+     "result": "通过",
+     "durationMs": 3904
+    },
+    {
+     "caseId": "M02-04",
+     "group": "M-02 结束骑行",
+     "name": "客服强制结束带事由",
+     "result": "通过",
+     "durationMs": 1698
+    },
+    {
+     "caseId": "M03-01",
+     "group": "M-03 骑行事件",
+     "name": "开锁结果在时限内上报（含\"已受理\"后补报结果）",
+     "result": "失败",
+     "durationMs": 4175,
+     "failReason": "开锁结果在请求后 41 秒才到达，规范要求 30 秒内",
+     "suggestion": "规范允许先回\"已受理\"，车辆确认后再报结果；见接入规范第 3.2 节参考报文。",
+     "suggestedBy": "AC0903"
+    },
+    {
+     "caseId": "M03-02",
+     "group": "M-03 骑行事件",
+     "name": "锁车事件字段完整（时间、位置、车端在点、时长、里程）",
+     "result": "通过",
+     "durationMs": 3359
+    },
+    {
+     "caseId": "M03-03",
+     "group": "M-03 骑行事件",
+     "name": "平台未确认时在补报窗口内补报",
+     "result": "通过",
+     "durationMs": 423
+    },
+    {
+     "caseId": "M03-04",
+     "group": "M-03 骑行事件",
+     "name": "重复上报的事件平台只记一次",
+     "result": "通过",
+     "durationMs": 3543
+    },
+    {
+     "caseId": "M03-05",
+     "group": "M-03 骑行事件",
+     "name": "乱序到达的事件按事件时间处理",
+     "result": "通过",
+     "durationMs": 3225
+    },
+    {
+     "caseId": "M04-01",
+     "group": "M-04 车辆清单",
+     "name": "清单字段完整（品牌、车号、车型、车辆标识）",
+     "result": "通过",
+     "durationMs": 422
+    },
+    {
+     "caseId": "M04-02",
+     "group": "M-04 车辆清单",
+     "name": "桩识别用车辆标识全局唯一",
+     "result": "通过",
+     "durationMs": 3061
+    },
+    {
+     "caseId": "M04-03",
+     "group": "M-04 车辆清单",
+     "name": "车辆增减时增量更新",
+     "result": "通过",
+     "durationMs": 3162
+    },
+    {
+     "caseId": "SEC-01",
+     "group": "接入安全",
+     "name": "未登记来源的请求被拒绝",
+     "result": "通过",
+     "durationMs": 3152
+    },
+    {
+     "caseId": "SEC-02",
+     "group": "接入安全",
+     "name": "被篡改或重放的请求被拒绝",
+     "result": "通过",
+     "durationMs": 1938
+    }
+   ]
+  }
+ ],
+ "sandbox": {
+  "note": "联调环境使用模拟车辆、模拟用户、模拟支付，不产生真实收费",
+  "baseUrl": "https://sandbox.ride-sfs.example/open/v1",
+  "simVehicles": [
+   {
+    "simVehicleId": "SBX-V001",
+    "plateNo": "SBX10001",
+    "pileTag": "E28011SBX000000000000001",
+    "behavior": "正常"
+   },
+   {
+    "simVehicleId": "SBX-V002",
+    "plateNo": "SBX10002",
+    "pileTag": "E28011SBX000000000000002",
+    "behavior": "正常"
+   },
+   {
+    "simVehicleId": "SBX-V003",
+    "plateNo": "SBX10003",
+    "pileTag": "E28011SBX000000000000003",
+    "behavior": "正常"
+   },
+   {
+    "simVehicleId": "SBX-V004",
+    "plateNo": "SBX10004",
+    "pileTag": "E28011SBX000000000000004",
+    "behavior": "开锁慢（35 秒回报）"
+   },
+   {
+    "simVehicleId": "SBX-V005",
+    "plateNo": "SBX10005",
+    "pileTag": "E28011SBX000000000000005",
+    "behavior": "电量不足拒绝开锁"
+   },
+   {
+    "simVehicleId": "SBX-V006",
+    "plateNo": "SBX10006",
+    "pileTag": "E28011SBX000000000000006",
+    "behavior": "断网 10 分钟后恢复"
+   },
+   {
+    "simVehicleId": "SBX-V007",
+    "plateNo": "SBX10007",
+    "pileTag": "E28011SBX000000000000007",
+    "behavior": "锁车报告重复发送 3 次"
+   },
+   {
+    "simVehicleId": "SBX-V008",
+    "plateNo": "SBX10008",
+    "pileTag": "E28011SBX000000000000008",
+    "behavior": "入桩不上锁"
+   }
+  ],
+  "simUsers": [
+   {
+    "simUserId": "SBX-U001",
+    "kind": "免押老用户"
+   },
+   {
+    "simUserId": "SBX-U002",
+    "kind": "押金老用户"
+   },
+   {
+    "simUserId": "SBX-U003",
+    "kind": "新用户"
+   },
+   {
+    "simUserId": "SBX-U004",
+    "kind": "有欠费用户"
+   },
+   {
+    "simUserId": "SBX-U005",
+    "kind": "先骑后验新用户"
+   }
+  ],
+  "simPayment": "模拟支付：全部扣款返回成功，可在联调页切换为\"余额不足\"以测试欠费路径"
+ },
+ "spec": {
+  "name": "示范市共享电单车接入规范",
+  "version": "1.2",
+  "publishedAt": "2026-10-20 10:00:00",
+  "sections": [
+   {
+    "no": "1",
+    "title": "接入方式与凭证",
+    "summary": "运营商自行接入或由车联网服务商代接，经公网；每家一套凭证，可随时停用。"
+   },
+   {
+    "no": "2",
+    "title": "车辆清单（M-04）",
+    "summary": "字段：品牌、车号、车型、桩识别用车辆标识；系统提交或页面上传；增减车辆时增量更新。",
+    "example": "{\"brand\":\"BR03\",\"plateNo\":\"CL384920\",\"model\":\"驰路 C5 电单车\",\"pileTag\":\"E28011A93F07C21B5D4E6A1C\"}"
+   },
+   {
+    "no": "3.1",
+    "title": "开锁（M-01）",
+    "summary": "平台带订单号与降级标记请求开锁；同一订单号重复请求不得重复开锁。",
+    "example": "{\"orderId\":\"OD2026113012345\",\"plateNo\":\"QH318204\",\"degraded\":false}"
+   },
+   {
+    "no": "3.2",
+    "title": "开锁结果（M-03）",
+    "summary": "30 秒内回报开锁成功或失败及原因；车辆确认较慢时可先回\"已受理\"，确认后再报结果。",
+    "example": "{\"orderId\":\"OD2026113012345\",\"event\":\"unlock\",\"result\":\"success\",\"at\":\"2026-11-30 08:12:03\"}"
+   },
+   {
+    "no": "3.3",
+    "title": "结束骑行（M-02）与锁车（M-03）",
+    "summary": "用户点还车、入桩未锁、超时后才报告开锁成功、客服强制结束时平台请求结束；锁车事件含时间、位置、车端在点判定、时长、里程。",
+    "example": "{\"orderId\":\"OD2026113012345\",\"event\":\"lock\",\"at\":\"2026-11-30 08:30:41\",\"lng\":104.0712,\"lat\":30.6013,\"inStation\":true,\"durationSec\":1118,\"distanceM\":3420}"
+   },
+   {
+    "no": "3.4",
+    "title": "补报",
+    "summary": "平台未确认的事件本地保留，在 72 小时补报窗口内按事件时间补报。"
+   },
+   {
+    "no": "4",
+    "title": "异常与重复",
+    "summary": "重复或延迟到达的请求不得重复执行；每种异常的含义与处理方式。"
+   },
+   {
+    "no": "5",
+    "title": "安全",
+    "summary": "只接受已登记来源；请求签名、时间戳与随机串防篡改防重放；单家凭证泄露不影响他家。"
+   },
+   {
+    "no": "6",
+    "title": "验收",
+    "summary": "符合性测试全部通过、时限达标、真车 20 辆联调订单与锁车报告全部匹配，接入负责人确认后上线。"
+   }
+  ]
+ }
+}

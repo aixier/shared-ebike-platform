@@ -1,0 +1,877 @@
+{
+ "evidence": [
+  {
+   "evidenceId": "EV20260923001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-09-23 14:14:14",
+   "location": [
+    104.061617,
+    30.6066
+   ],
+   "address": "示范市西城区望江路300号附近",
+   "accuracyM": 6,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM610769，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-4.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "67110a7df4406e1ec81032119be7e31979cb372ac9d6dbcf3c4d6389eb6801c5",
+   "submittedAt": "2026-09-23 14:14:59",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20260924001",
+   "officerId": "AC0504",
+   "badgeNo": "031408",
+   "capturedAt": "2026-09-24 11:13:09",
+   "location": [
+    104.068722,
+    30.588839
+   ],
+   "address": "示范市高新区和平路181号附近",
+   "accuracyM": 7,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM467999，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-4.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "21936722480c2ecfa1ca7aa49b696a311c88d68408815f6657859ede646fdac9",
+   "submittedAt": "2026-09-24 11:14:34",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20260929001",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-09-29 17:02:58",
+   "location": [
+    104.039123,
+    30.619285
+   ],
+   "address": "示范市西城区长青街237号附近",
+   "accuracyM": 10,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM347954，无政府二维码",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": "停放在非机动车道",
+   "sha256": "41a59236490f6a8359c175d22c4a842a7c9efd6a519aa8a783d212e194f3afa4",
+   "submittedAt": "2026-09-29 17:03:53",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20260930001",
+   "officerId": "AC0504",
+   "badgeNo": "031408",
+   "capturedAt": "2026-09-30 09:12:36",
+   "location": [
+    104.041255,
+    30.581611
+   ],
+   "address": "示范市滨河区锦绣路128号附近",
+   "accuracyM": 4,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM651604，无政府二维码",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-3.svg"
+   ],
+   "note": "停放在公交站台旁",
+   "sha256": "563769bebc8dc06351054e69abe77cd670171d8e80ec37159ce47bae48fa4588",
+   "submittedAt": "2026-09-30 09:13:55",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261007001",
+   "officerId": "AC0504",
+   "badgeNo": "031408",
+   "capturedAt": "2026-10-07 09:29:46",
+   "location": [
+    104.079891,
+    30.61747
+   ],
+   "address": "示范市东城区建设大道182号附近",
+   "accuracyM": 17,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM858659，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在人行道盲道上",
+   "sha256": "8c1c4fb57817116ac0ce6c2421ee4dcbc60a783277578e455a75ada1ed894d1a",
+   "submittedAt": "2026-10-07 09:30:40",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261010001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-10-10 18:00:17",
+   "location": [
+    104.048651,
+    30.61585
+   ],
+   "address": "示范市西城区青年路8号附近",
+   "accuracyM": 17,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": null,
+   "operatorId": null,
+   "codeStatus": null,
+   "vehicleDescription": "车把二维码被涂抹无法识别，车身无编号",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-4.svg"
+   ],
+   "note": "停放在非机动车道",
+   "sha256": "a76e444444e0207a15a3df4f0baa88615c9140178cc2879cecdb0970d2bbbe13",
+   "submittedAt": "2026-10-10 18:00:40",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261011001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-10-11 18:08:06",
+   "location": [
+    104.039876,
+    30.618608
+   ],
+   "address": "示范市西城区人民南路239号附近",
+   "accuracyM": 16,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM912428，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-2.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在非机动车道",
+   "sha256": "3268a8a257d6499ea64a730e1a149af082c39c001afa259bbf65886d7f67f8c2",
+   "submittedAt": "2026-10-11 18:09:33",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261013001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-10-13 09:47:55",
+   "location": [
+    104.087482,
+    30.591026
+   ],
+   "address": "示范市高新区丰泽路380号附近",
+   "accuracyM": 18,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM452555，无政府二维码",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "01fbf816b34cd5e0a7d6c4a451ad8bca9cbe8b35cca62474b072db9b927f05be",
+   "submittedAt": "2026-10-13 09:48:27",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261013002",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-10-13 12:40:46",
+   "location": [
+    104.094611,
+    30.609441
+   ],
+   "address": "示范市东城区迎宾大道49号附近",
+   "accuracyM": 18,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM539231，无政府二维码",
+   "photos": [
+    "photos/evidence-4.svg",
+    "photos/evidence-1.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "ab8798b04f4967b996ade7c05308f2404eadf3b9e9d7b56ef840520a062c7588",
+   "submittedAt": "2026-10-13 12:42:01",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261016001",
+   "officerId": "AC0504",
+   "badgeNo": "031408",
+   "capturedAt": "2026-10-16 16:03:45",
+   "location": [
+    104.08744,
+    30.599947
+   ],
+   "address": "示范市东城区迎宾大道163号附近",
+   "accuracyM": 7,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM965449，无政府二维码",
+   "photos": [
+    "photos/evidence-1.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "cba4bb9437afe7ffdc1bfc61355dbb428d7920598c5fe645f44de25056b3b848",
+   "submittedAt": "2026-10-16 16:04:12",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261018001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-10-18 16:57:59",
+   "location": [
+    104.054886,
+    30.585939
+   ],
+   "address": "示范市滨河区和平路152号附近",
+   "accuracyM": 10,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": null,
+   "operatorId": null,
+   "codeStatus": null,
+   "vehicleDescription": "车身无品牌标识，二维码被撕除",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "757b127d3d4d13b8fc36a5713616200c696fee008ef746633b81a339d8c57e05",
+   "submittedAt": "2026-10-18 16:58:33",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261025001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-10-25 14:45:36",
+   "location": [
+    104.043888,
+    30.583307
+   ],
+   "address": "示范市滨河区金沙路251号附近",
+   "accuracyM": 5,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM579253，无政府二维码",
+   "photos": [
+    "photos/evidence-3.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "00d5b02ade4d3b3511fe2c52d05686b758582464db9be90fdf3a5c03c388f768",
+   "submittedAt": "2026-10-25 14:46:32",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261026001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-10-26 09:29:46",
+   "location": [
+    104.035135,
+    30.57241
+   ],
+   "address": "示范市滨河区迎宾大道279号附近",
+   "accuracyM": 5,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": null,
+   "operatorId": null,
+   "codeStatus": null,
+   "vehicleDescription": "车身贴有非政府码的二维码（指向品牌原 App）",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-4.svg"
+   ],
+   "note": "停放在公交站台旁",
+   "sha256": "7ba05d5094aad2c1a30449d1de4d026c1bbb832ab0027223440c0bb997fa48b2",
+   "submittedAt": "2026-10-26 09:30:18",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261031002",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-10-31 10:08:07",
+   "location": [
+    104.090917,
+    30.579644
+   ],
+   "address": "示范市高新区青年路262号附近",
+   "accuracyM": 18,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM687625，无政府二维码",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": null,
+   "sha256": "e9b244b4a4c10a5700a71048af2eb5a1324840f15b5146050cb5e0e99087be00",
+   "submittedAt": "2026-10-31 10:09:20",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261031001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-10-31 12:02:19",
+   "location": [
+    104.035923,
+    30.599284
+   ],
+   "address": "示范市西城区人民南路177号附近",
+   "accuracyM": 9,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM925097，无政府二维码",
+   "photos": [
+    "photos/evidence-4.svg",
+    "photos/evidence-4.svg",
+    "photos/evidence-3.svg"
+   ],
+   "note": "停放在公交站台旁",
+   "sha256": "3903a8f19780a243da6141306ba7feff91a9e04d0203da772e39fbd9caa3448c",
+   "submittedAt": "2026-10-31 12:02:47",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261109001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-11-09 13:45:03",
+   "location": [
+    104.087274,
+    30.591221
+   ],
+   "address": "示范市高新区科创大道345号附近",
+   "accuracyM": 7,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": null,
+   "operatorId": null,
+   "codeStatus": null,
+   "vehicleDescription": "车身无品牌标识，二维码被撕除",
+   "photos": [
+    "photos/evidence-4.svg"
+   ],
+   "note": "停放在人行道盲道上",
+   "sha256": "c1188cb7dcfaf0ddc390df467e025f3bd152070ed9350c985336005384228496",
+   "submittedAt": "2026-11-09 13:46:12",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261112002",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-11-12 14:42:08",
+   "location": [
+    104.063245,
+    30.585186
+   ],
+   "address": "示范市滨河区新华大街273号附近",
+   "accuracyM": 6,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM803161，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在公交站台旁",
+   "sha256": "7f03e766476e7d0f18ca5d92beb45c412d16fddb6d241b44071d18820d601cb5",
+   "submittedAt": "2026-11-12 14:42:59",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261112001",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-11-12 18:22:17",
+   "location": [
+    104.094592,
+    30.579225
+   ],
+   "address": "示范市高新区人民南路38号附近",
+   "accuracyM": 18,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM407185，无政府二维码",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": "停放在公交站台旁",
+   "sha256": "55880fd110175c9a14d793f7a6fad34a7ffdab4e0d48c3e0c69b8d6c42f4bcb6",
+   "submittedAt": "2026-11-12 18:22:58",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261122001",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-11-22 16:26:53",
+   "location": [
+    104.077166,
+    30.607791
+   ],
+   "address": "示范市东城区文昌街163号附近",
+   "accuracyM": 13,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001145",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF40330400 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-2.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": null,
+   "sha256": "9895e3564fbb63187c97b6f87d1c561ac2f2d5e8d194a8e124e442018dff8ecc",
+   "submittedAt": "2026-11-22 16:28:13",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261122002",
+   "officerId": "AC0504",
+   "badgeNo": "031408",
+   "capturedAt": "2026-11-22 17:16:03",
+   "location": [
+    104.0682,
+    30.587257
+   ],
+   "address": "示范市高新区科创大道278号附近",
+   "accuracyM": 5,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001128",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF95638547 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-4.svg"
+   ],
+   "note": null,
+   "sha256": "e8c08dbe05297f3f3409264316ec443012977a146910fab40b9af7ae6c8c0dff",
+   "submittedAt": "2026-11-22 17:17:07",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261123001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-11-23 12:21:15",
+   "location": [
+    104.064219,
+    30.581868
+   ],
+   "address": "示范市滨河区天府东街219号附近",
+   "accuracyM": 16,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": null,
+   "operatorId": null,
+   "codeStatus": null,
+   "vehicleDescription": "车身贴有非政府码的二维码（指向品牌原 App）",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-3.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在小区出入口",
+   "sha256": "fef48f9f2a81f7623c8cbf08a5d63b955bc5932974a69887ea8c1735c404879d",
+   "submittedAt": "2026-11-23 12:22:23",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261125003",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-11-25 15:38:57",
+   "location": [
+    104.078481,
+    30.61832
+   ],
+   "address": "示范市东城区云锦路351号附近",
+   "accuracyM": 10,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001090",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF74006735 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": null,
+   "sha256": "d6d582e7bc86963f28fa7bba0a247681a9e944f6d9bbbefe0e0e971ce0f1a19c",
+   "submittedAt": "2026-11-25 15:40:03",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261125002",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-11-25 17:11:42",
+   "location": [
+    104.047925,
+    30.616877
+   ],
+   "address": "示范市西城区丰泽路85号附近",
+   "accuracyM": 9,
+   "scanResult": "无政府码",
+   "vehicleId": null,
+   "brandId": "BR06",
+   "operatorId": "OP05",
+   "codeStatus": null,
+   "vehicleDescription": "车身\"途迈\"字样，车尾编号 TM939072，无政府二维码",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": "停放在人行道盲道上",
+   "sha256": "7e4f7cde554a6a8581d136bfdf315287208d392b5faf211236df1a72fd26e2aa",
+   "submittedAt": "2026-11-25 17:12:45",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261125001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-11-25 18:05:21",
+   "location": [
+    104.067393,
+    30.590419
+   ],
+   "address": "示范市滨河区文昌街67号附近",
+   "accuracyM": 16,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001114",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF76914357 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-3.svg"
+   ],
+   "note": null,
+   "sha256": "ea8189b612a281e01c5af7ae75017d0a965cf772fc0bb1b8f493f0e09f96dff8",
+   "submittedAt": "2026-11-25 18:05:45",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261126002",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-11-26 12:31:26",
+   "location": [
+    104.086768,
+    30.590373
+   ],
+   "address": "示范市高新区科创大道5号附近",
+   "accuracyM": 15,
+   "scanResult": "码未启用",
+   "vehicleId": "VH001181",
+   "brandId": "BR05",
+   "operatorId": "OP04",
+   "codeStatus": "待启用",
+   "vehicleDescription": "市民骑行车辆，政府码 SF13729519 尚未启用（联调中，计划 2026-12-08 启用）",
+   "photos": [
+    "photos/evidence-3.svg",
+    "photos/evidence-3.svg"
+   ],
+   "note": null,
+   "sha256": "ea3b13db1b31aa0fc05e50ac7a6f3369fabb5dff8037bc3e9d59bdb8a858b397",
+   "submittedAt": "2026-11-26 12:32:25",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261126001",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-11-26 12:37:44",
+   "location": [
+    104.037598,
+    30.620542
+   ],
+   "address": "示范市西城区学府路237号附近",
+   "accuracyM": 11,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001113",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF20598368 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-2.svg"
+   ],
+   "note": null,
+   "sha256": "ced4e879c3591c4092d221e00a028b37c19a16c8f8212cbdddffb2a5b0411647",
+   "submittedAt": "2026-11-26 12:39:07",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261127001",
+   "officerId": "AC0502",
+   "badgeNo": "031215",
+   "capturedAt": "2026-11-27 12:28:20",
+   "location": [
+    104.096788,
+    30.579167
+   ],
+   "address": "示范市高新区丰泽路311号附近",
+   "accuracyM": 8,
+   "scanResult": "码未启用",
+   "vehicleId": "VH001201",
+   "brandId": "BR05",
+   "operatorId": "OP04",
+   "codeStatus": "待启用",
+   "vehicleDescription": "市民骑行车辆，政府码 SF91643976 尚未启用（联调中，计划 2026-12-08 启用）",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-3.svg"
+   ],
+   "note": null,
+   "sha256": "5f6b27b680c73f565c6b995810190942de60992f2edd2b09a1af29d2bd96c079",
+   "submittedAt": "2026-11-27 12:28:55",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261128001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-11-28 13:00:11",
+   "location": [
+    104.032938,
+    30.614802
+   ],
+   "address": "示范市西城区科创大道101号附近",
+   "accuracyM": 9,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001072",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF75427812 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-1.svg",
+    "photos/evidence-2.svg"
+   ],
+   "note": null,
+   "sha256": "18ba4ab66e917045f15e4115b8b1de48a9c358db1c81445db5dc284b95787921",
+   "submittedAt": "2026-11-28 13:00:36",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261129001",
+   "officerId": "AC0501",
+   "badgeNo": "031207",
+   "capturedAt": "2026-11-29 09:34:24",
+   "location": [
+    104.061588,
+    30.595544
+   ],
+   "address": "示范市滨河区长青街185号附近",
+   "accuracyM": 10,
+   "scanResult": "码未启用",
+   "vehicleId": "VH001198",
+   "brandId": "BR05",
+   "operatorId": "OP04",
+   "codeStatus": "待启用",
+   "vehicleDescription": "市民骑行车辆，政府码 SF51578604 尚未启用（联调中，计划 2026-12-08 启用）",
+   "photos": [
+    "photos/evidence-3.svg"
+   ],
+   "note": null,
+   "sha256": "3cb799cdc5f3afc302f800538ee2e275e49e3b15fbdfccaf15d9dc72a3cdae1b",
+   "submittedAt": "2026-11-29 09:35:48",
+   "locked": true
+  },
+  {
+   "evidenceId": "EV20261130001",
+   "officerId": "AC0503",
+   "badgeNo": "031322",
+   "capturedAt": "2026-11-30 14:00:21",
+   "location": [
+    104.045112,
+    30.58374
+   ],
+   "address": "示范市滨河区长青街133号附近",
+   "accuracyM": 13,
+   "scanResult": "码已失效",
+   "vehicleId": "VH001065",
+   "brandId": "BR04",
+   "operatorId": "OP03",
+   "codeStatus": "已失效",
+   "vehicleDescription": "简途车辆，政府码 SF66517713 已于 2026-11-20 失效（运营商已退出）",
+   "photos": [
+    "photos/evidence-2.svg",
+    "photos/evidence-1.svg"
+   ],
+   "note": null,
+   "sha256": "296bd5b5cec66bdcf2e4184ddddef53d7a4e8c0d2ae30961a0bd115ea01f828b",
+   "submittedAt": "2026-11-30 14:00:53",
+   "locked": true
+  }
+ ],
+ "exports": [
+  {
+   "exportId": "EV-EXP-20261012-01",
+   "at": "2026-10-12 10:05:00",
+   "by": "AC0001",
+   "filter": {
+    "scanResult": "无政府码",
+    "from": "2026-09-01",
+    "to": "2026-10-11"
+   },
+   "evidenceIds": [
+    "EV20260923001",
+    "EV20260924001",
+    "EV20260929001",
+    "EV20260930001",
+    "EV20261007001",
+    "EV20261010001",
+    "EV20261011001"
+   ],
+   "count": 7,
+   "fileName": "执法证据_202610121005.zip"
+  },
+  {
+   "exportId": "EV-EXP-20261110-02",
+   "at": "2026-11-10 15:30:00",
+   "by": "AC0002",
+   "filter": {
+    "brandId": "BR06",
+    "from": "2026-10-01",
+    "to": "2026-11-09"
+   },
+   "evidenceIds": [
+    "EV20261007001",
+    "EV20261011001",
+    "EV20261013001",
+    "EV20261013002",
+    "EV20261016001",
+    "EV20261025001",
+    "EV20261031002",
+    "EV20261031001"
+   ],
+   "count": 8,
+   "fileName": "执法证据_202611101530.zip"
+  },
+  {
+   "exportId": "EV-EXP-20261126-03",
+   "at": "2026-11-26 09:40:00",
+   "by": "AC0001",
+   "filter": {
+    "operatorId": "OP03",
+    "from": "2026-11-20",
+    "to": "2026-11-25"
+   },
+   "evidenceIds": [
+    "EV20261122001",
+    "EV20261122002",
+    "EV20261125003",
+    "EV20261125001"
+   ],
+   "count": 4,
+   "fileName": "执法证据_202611260940.zip"
+  },
+  {
+   "exportId": "EV-EXP-20261130-04",
+   "at": "2026-11-30 16:20:00",
+   "by": "AC0002",
+   "filter": {
+    "from": "2026-11-01",
+    "to": "2026-11-30"
+   },
+   "evidenceIds": [
+    "EV20261109001",
+    "EV20261112002",
+    "EV20261112001",
+    "EV20261122001",
+    "EV20261122002",
+    "EV20261123001",
+    "EV20261125003",
+    "EV20261125002",
+    "EV20261125001",
+    "EV20261126002",
+    "EV20261126001",
+    "EV20261127001",
+    "EV20261128001",
+    "EV20261129001",
+    "EV20261130001"
+   ],
+   "count": 15,
+   "fileName": "执法证据_202611301620.zip"
+  }
+ ]
+}

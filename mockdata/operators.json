@@ -1,0 +1,244 @@
+{
+ "operators": [
+  {
+   "operatorId": "OP01",
+   "name": "青禾出行科技有限公司",
+   "shortName": "青禾出行",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510100MA6X3K7Q2B",
+   "joinedAt": "2026-06-18 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "何＊＊",
+     "role": "业务负责人",
+     "phone": "139****2716"
+    },
+    {
+     "name": "邓＊",
+     "role": "技术负责人",
+     "phone": "186****0543"
+    },
+    {
+     "name": "罗＊＊",
+     "role": "财务",
+     "phone": "135****8810"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市农商银行高新支行",
+    "accountName": "青禾出行科技有限公司",
+    "account": "6230 **** **** 4417"
+   },
+   "brandIds": [
+    "BR01",
+    "BR02"
+   ]
+  },
+  {
+   "operatorId": "OP02",
+   "name": "驰路智行科技有限公司",
+   "shortName": "驰路智行",
+   "type": "运营商",
+   "accessVia": "车联网服务商代接",
+   "providerId": "SP01",
+   "creditCode": "91510107MA62QH8L5N",
+   "joinedAt": "2026-07-02 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "沈＊＊",
+     "role": "业务负责人",
+     "phone": "138****6629"
+    },
+    {
+     "name": "汪＊",
+     "role": "财务",
+     "phone": "159****3307"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市商业银行滨河支行",
+    "accountName": "驰路智行科技有限公司",
+    "account": "6214 **** **** 0928"
+   },
+   "brandIds": [
+    "BR03"
+   ]
+  },
+  {
+   "operatorId": "OP03",
+   "name": "简途共享出行有限公司",
+   "shortName": "简途共享",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510104MA6C9TW03R",
+   "joinedAt": "2026-06-25 10:00:00",
+   "status": "已退出",
+   "contacts": [
+    {
+     "name": "韦＊＊",
+     "role": "业务负责人",
+     "phone": "187****5502"
+    },
+    {
+     "name": "孔＊",
+     "role": "技术负责人",
+     "phone": "133****7190"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市农商银行东城支行",
+    "accountName": "简途共享出行有限公司",
+    "account": "6230 **** **** 7761"
+   },
+   "brandIds": [
+    "BR04"
+   ]
+  },
+  {
+   "operatorId": "OP04",
+   "name": "示范市公共交通集团有限公司",
+   "shortName": "公交集团车队",
+   "type": "政府自有车队",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "12510100MB0F28734K",
+   "joinedAt": "2026-11-03 10:00:00",
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "龚＊＊",
+     "role": "车队负责人",
+     "phone": "180****4471"
+    },
+    {
+     "name": "黎＊",
+     "role": "技术负责人",
+     "phone": "177****2068"
+    }
+   ],
+   "settlementAccount": {
+    "bank": "示范市商业银行营业部",
+    "accountName": "示范市公共交通集团有限公司",
+    "account": "6214 **** **** 3105"
+   },
+   "brandIds": [
+    "BR05"
+   ]
+  },
+  {
+   "operatorId": "OP05",
+   "name": "途迈出行科技有限公司",
+   "shortName": "途迈出行",
+   "type": "运营商",
+   "accessVia": "自行接入",
+   "providerId": null,
+   "creditCode": "91510112MA7E5UJ64W",
+   "joinedAt": null,
+   "status": "在营",
+   "contacts": [
+    {
+     "name": "侯＊＊",
+     "role": "业务联系人",
+     "phone": "199****0835"
+    }
+   ],
+   "settlementAccount": null,
+   "brandIds": [
+    "BR06"
+   ]
+  }
+ ],
+ "brands": [
+  {
+   "brandId": "BR01",
+   "name": "青禾",
+   "operatorId": "OP01",
+   "vehicleType": "电单车",
+   "color": "#2E7D5B",
+   "accessStatus": "已接入",
+   "statusSince": "2026-07-20 16:30:00",
+   "vehicleCount": 480,
+   "currentServiceFeeRatio": 0.62,
+   "displayName": "【青禾】电单车"
+  },
+  {
+   "brandId": "BR02",
+   "name": "木棉",
+   "operatorId": "OP01",
+   "vehicleType": "电单车",
+   "color": "#B83B5E",
+   "accessStatus": "暂停可租",
+   "statusSince": "2026-11-30 08:00:00",
+   "vehicleCount": 220,
+   "currentServiceFeeRatio": 0.6,
+   "displayName": "【木棉】电单车"
+  },
+  {
+   "brandId": "BR03",
+   "name": "驰路",
+   "operatorId": "OP02",
+   "vehicleType": "电单车",
+   "color": "#2563EB",
+   "accessStatus": "已接入",
+   "statusSince": "2026-08-12 11:00:00",
+   "vehicleCount": 360,
+   "currentServiceFeeRatio": 0.61,
+   "displayName": "【驰路】电单车"
+  },
+  {
+   "brandId": "BR04",
+   "name": "简途",
+   "operatorId": "OP03",
+   "vehicleType": "电单车",
+   "color": "#7C3AED",
+   "accessStatus": "已退出",
+   "statusSince": "2026-11-20 10:00:00",
+   "vehicleCount": 90,
+   "currentServiceFeeRatio": 0.55,
+   "displayName": "【简途】电单车"
+  },
+  {
+   "brandId": "BR05",
+   "name": "市民骑行",
+   "operatorId": "OP04",
+   "vehicleType": "电单车",
+   "color": "#0F766E",
+   "accessStatus": "联调中",
+   "statusSince": "2026-11-10 09:30:00",
+   "vehicleCount": 60,
+   "currentServiceFeeRatio": 0.6,
+   "displayName": "【市民骑行】电单车"
+  },
+  {
+   "brandId": "BR06",
+   "name": "途迈",
+   "operatorId": "OP05",
+   "vehicleType": "电单车",
+   "color": "#6B7280",
+   "accessStatus": "未接入",
+   "statusSince": "2026-10-30 14:00:00",
+   "vehicleCount": 0,
+   "currentServiceFeeRatio": null,
+   "displayName": "【途迈】电单车"
+  }
+ ],
+ "providers": [
+  {
+   "providerId": "SP01",
+   "name": "联泰车联网科技有限公司",
+   "operatorIds": [
+    "OP02"
+   ],
+   "contact": {
+    "name": "闫＊＊",
+    "role": "接入工程师",
+    "phone": "182****9156"
+   }
+  }
+ ]
+}

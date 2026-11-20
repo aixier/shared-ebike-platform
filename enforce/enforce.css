@@ -1,0 +1,86 @@
+/* 执法人员手机页：只放本页面特有样式，令牌与组件来自 shared/ */
+.f-nav[hidden]{display:none}
+.m-field input:focus-visible,.m-field textarea:focus-visible{box-shadow:none}
+.m-tabbar a{min-height:52px;padding-top:4px}
+.m-tabbar a span{font-size:18px;line-height:1}
+.m-tabbar a.is-on{color:var(--orange-700);font-weight:600}
+
+.f-brand{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 0 8px;text-align:center}
+.f-brand .logo{width:64px;height:64px;border-radius:20px;background:var(--orange-500);color:var(--on-orange);display:grid;place-items:center;font-size:30px;box-shadow:var(--sh-2)}
+.f-brand h1{font-size:22px}
+.f-brand p{font-size:13px;color:var(--ink-3)}
+
+.f-device{display:flex;align-items:center;gap:12px}
+.f-device[hidden],.m-fields[hidden],.m-btn[hidden]{display:none}
+.f-device .av{flex:none;width:48px;height:48px;border-radius:50%;background:var(--orange-100);color:var(--orange-700);display:grid;place-items:center;font-size:18px;font-weight:700}
+.f-device b{display:block;font-size:16px}
+.f-device span{display:block;font-size:12px;color:var(--ink-3)}
+.f-me{display:flex;align-items:center;gap:12px}
+.f-me .av{flex:none;width:48px;height:48px;border-radius:50%;background:var(--orange-100);color:var(--orange-700);display:grid;place-items:center;font-size:20px;font-weight:700}
+.f-me .info{flex:1;min-width:0}
+.f-me b{display:block;font-size:16px}
+.f-me span{display:block;font-size:12px;color:var(--ink-3)}
+.f-me .m-btn{width:auto;height:44px;padding:0 12px;font-size:14px;flex:none}
+
+.f-code{display:flex;gap:8px;align-items:stretch}
+.f-code .m-field{flex:1;min-width:0}
+.f-code .m-field input{font-size:20px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.f-code .m-field input::placeholder{font-size:15px;font-weight:400;letter-spacing:0;text-transform:none}
+.f-scan{flex:none;width:64px;border:0;border-radius:var(--r-md);background:var(--orange-50);box-shadow:inset 0 0 0 1.5px var(--orange-200);color:var(--orange-700);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;min-height:64px;transition:background-color var(--d-fast) var(--ease),transform var(--d-fast) var(--ease)}
+.f-scan:hover{background:var(--orange-100)}
+.f-scan:active{transform:scale(.98)}
+.f-scan span{font-size:22px;line-height:1}
+.f-recent .m-cell{min-height:56px}
+.f-video{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--r-md);background:#000}
+
+.f-banner{border-radius:var(--r-lg);padding:18px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--sh-1);animation:fIn var(--d-slow) var(--ease) both}
+.f-banner .k{font-size:13px;font-weight:600}
+.f-banner .v{font-size:28px;font-weight:700;line-height:1.2}
+.f-banner p{font-size:14px}
+.f-banner.is-ok{background:var(--ok-bg);color:var(--ok-ink)}
+.f-banner.is-warn{background:var(--warn-bg);color:var(--warn-ink)}
+.f-banner.is-err{background:var(--err-bg);color:var(--err-ink)}
+@keyframes fIn{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.f-sec{font-size:15px;font-weight:600;margin-bottom:4px}
+.f-kv{display:flex;justify-content:space-between;gap:16px;font-size:14px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.f-kv:last-child{border:0}
+.f-kv span:first-child{color:var(--ink-2);flex:none}
+.f-kv span:last-child{text-align:right;min-width:0;word-break:break-all}
+.f-hash{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);word-break:break-all;line-height:1.5}
+
+.f-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.f-photo{position:relative;aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;background:var(--disabled-bg);animation:fIn var(--d-base) var(--ease) both}
+.f-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.f-photo button.x{position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;background:none;color:#fff;font-size:16px;display:grid;place-items:center}
+.f-photo button.x span{width:24px;height:24px;border-radius:50%;background:rgba(42,29,20,.7);display:grid;place-items:center}
+.f-photo button.view{position:absolute;inset:0;border:0;background:none;padding:0}
+.f-add{aspect-ratio:1;border-radius:var(--r-md);border:1.5px dashed var(--orange-200);background:var(--orange-50);color:var(--orange-700);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600;transition:background-color var(--d-fast) var(--ease),transform var(--d-fast) var(--ease)}
+.f-add:hover{background:var(--orange-100)}
+.f-add:active{transform:scale(.98)}
+.f-add span{font-size:26px;line-height:1}
+.f-add[aria-disabled="true"]{background:var(--disabled-bg);color:var(--disabled-ink);border-color:var(--line)}
+.f-loc{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.f-loc .t{flex:1;min-width:0;font-size:14px}
+.f-loc .t small{display:block;font-size:12px;color:var(--ink-3)}
+.f-loc .m-btn{width:auto;height:44px;padding:0 14px;font-size:14px;flex:none}
+
+.f-done{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:12px 0 4px}
+.f-done .ok{width:68px;height:68px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:34px;animation:fPop var(--d-slow) var(--ease) both}
+@keyframes fPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:none}}
+.f-done h2{font-size:20px}
+.f-done p{font-size:14px;color:var(--ink-2)}
+
+.f-rec{display:flex;gap:12px;align-items:center}
+.f-rec .th{flex:none;width:56px;height:56px;border-radius:var(--r-md);background:var(--disabled-bg);overflow:hidden}
+.f-rec .th img{width:100%;height:100%;object-fit:cover;display:block}
+.f-rec .main{flex:1;min-width:0}
+.f-rec .main b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-rec .main span{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-gallery{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px}
+.f-gallery button{flex:none;width:44%;aspect-ratio:1;border:0;padding:0;border-radius:var(--r-md);overflow:hidden;background:var(--disabled-bg);scroll-snap-align:start}
+.f-gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.f-big{width:100%;border-radius:var(--r-md);display:block;background:var(--disabled-bg)}
+.f-more{padding:8px 0;text-align:center}
+.f-more .m-btn{width:auto;margin:0 auto;padding:0 24px;height:44px;font-size:14px}
+.f-end{text-align:center;font-size:12px;color:var(--ink-3);padding:8px 0}
+@media (prefers-reduced-motion:reduce){.f-banner,.f-photo,.f-done .ok{animation:none}}
