@@ -14,6 +14,8 @@
 
 ---
 
+**▶ [Live demo in your browser](https://aixier.github.io/shared-ebike-platform/)** — rider app, admin console and enforcement page, running on fictional mock data with no backend. 在线体验：无需后端，数据为虚构。
+
 **Contents:** [Why](#why-this-project) · [Architecture](#architecture) · [Services](#the-15-services) · [Quick start](#quick-start--one-container-demo) · [FAQ](#faq) · [License](#license) · [中文](#中文简介)
 
 ## Why this project
@@ -25,6 +27,28 @@ This repository is a complete reference implementation, built so that **many tea
 - **Decoupling over reuse.** Every service is its own Go module, process and database. There is *no* shared library, no `go.work`, no `replace`. The only thing services share is the contract (OpenAPI + event schemas).
 - **The ride hot path survives outages.** Scan → unlock → return only needs `ride` ↔ `opgw` ↔ the operator system. It does not depend on the event bus, the database of other services, or the other 13 services; each service keeps its own projections for degraded ordering.
 - **Compatible pile (dock) access.** Parking piles and controllers from any vendor connect through one standard message format (embedded MQTT first, HTTP second, vendor adapters as a fallback), so a city can mix vendors.
+
+## Screenshots
+
+**Rider app** (mobile) — scan, ride, bill, orders
+
+| Scan & unlock | Riding | Trip bill | My orders |
+|---|---|---|---|
+| ![Shared e-bike rider app: scan a QR code to unlock, price and battery shown](docs/screenshots/app-scan.png) | ![Rider app while riding: timer, monthly-pass discount, nearest station, return button](docs/screenshots/app-riding.png) | ![Rider app trip bill after returning the e-bike](docs/screenshots/app-bill.png) | ![Rider app order list with unpaid, finished and unlock-failed tabs](docs/screenshots/app-orders.png) |
+
+**Admin console** (desktop) — five roles: regulator, operator, finance, customer service, operations
+
+| Pricing & rules | Operator integration status |
+|---|---|
+| ![Admin console: pricing and rule versions for shared e-bikes](docs/screenshots/admin-pricing.png) | ![Admin console: brand integration status and unlock success rate](docs/screenshots/admin-access.png) |
+| **Operator orders** | **Monitoring & degradation** |
+| ![Admin console: operator order details with filters](docs/screenshots/admin-orders.png) | ![Admin console: operations monitoring with unlock success rate curves](docs/screenshots/admin-ops.png) |
+
+**Monthly settlement** and **enforcement (mobile)**
+
+| Settlement | Enforcement home | Code check |
+|---|---|---|
+| ![Admin console: monthly settlement statements with operators](docs/screenshots/admin-settlement.png) | ![Enforcement mobile page: check a vehicle government code](docs/screenshots/enforce-home.png) | ![Enforcement result: valid government code and integration status](docs/screenshots/enforce-scan.png) |
 
 ## Architecture
 
